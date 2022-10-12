@@ -22,8 +22,9 @@ import (
 	"github.com/pressly/goose/v3"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"go.infratographer.com/x/zapx"
 	"go.uber.org/zap"
+
+	"go.infratographer.com/x/zapx"
 )
 
 var logger *zap.SugaredLogger
@@ -74,10 +75,13 @@ func migrate(command string, args []string) {
 	}
 }
 
+// SetBaseFS accepts an embedded golang filesystem and sets that as the location
+// for goose migration files.
 func SetBaseFS(fsys fs.FS) {
 	goose.SetBaseFS(fsys)
 }
 
+// SetLogger accepts a zap logger and sets it as the logger for goose output
 func SetLogger(l *zap.SugaredLogger) {
 	logger = l.Named("goose")
 	goose.SetLogger(zapx.NewGooseLogger(logger))

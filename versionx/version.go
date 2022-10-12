@@ -31,6 +31,7 @@ var (
 	builtBy = "dev"
 )
 
+// Details stores all the information collected about a version.
 type Details struct {
 	AppName string     `json:"app"`
 	Version string     `json:"version"`
@@ -44,6 +45,8 @@ func (d *Details) String() string {
 	return fmt.Sprintf("%s: %s (%s@%s by %s)", d.AppName, d.Version, d.Commit, d.BuiltAt.String(), d.Builder)
 }
 
+// BuildDetails will return a Details struct containing all the values that were
+// set at build time to provide you the current version information.
 func BuildDetails() *Details {
 	d := &Details{
 		AppName: appName,
@@ -75,6 +78,9 @@ func RegisterCobraCommand(cmd *cobra.Command, printFunc func()) {
 	cmd.AddCommand(versionCmd)
 }
 
+// PrintVersion will print out the details of the current build. If a logger is
+// provided they will be printed with the logger, otherwise they will just be
+// printed as output.
 func PrintVersion(lgr *zap.SugaredLogger) {
 	if lgr == nil {
 		fmt.Println(BuildDetails().String())
