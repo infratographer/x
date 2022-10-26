@@ -21,13 +21,15 @@ import (
 	_ "github.com/lib/pq"                                   // Register the Postgres driver.
 	"github.com/pressly/goose/v3"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"go.infratographer.com/x/zapx"
 )
 
-var logger *zap.SugaredLogger
+var (
+	dbURI  string
+	logger *zap.SugaredLogger
+)
 
 // RegisterCobraCommand will add a migrate command to the cobra command provided
 // that provides a wrapper for running goose commands.
@@ -59,7 +61,7 @@ fix                  Apply sequential ordering to migrations
 }
 
 func migrate(command string, args []string) {
-	db, err := goose.OpenDBWithDriver("postgres", viper.GetString("db.uri"))
+	db, err := goose.OpenDBWithDriver("postgres", dbURI)
 	if err != nil {
 		logger.Fatalw("failed to open DB", "error", err)
 	}
@@ -85,4 +87,9 @@ func SetBaseFS(fsys fs.FS) {
 func SetLogger(l *zap.SugaredLogger) {
 	logger = l.Named("goose")
 	goose.SetLogger(zapx.NewGooseLogger(logger))
+}
+
+// SetDBURI accepts a URI  and saves it for use by goose during migrations
+func SetDBURI(uri string) {
+	dbURI = uri
 }
