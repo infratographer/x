@@ -12,17 +12,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package viperx
-
-import (
-	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
-)
-
-// MustBindFlag provides a wrapper around the viper bindings that panics if an error occurs
-func MustBindFlag(v *viper.Viper, name string, flag *pflag.Flag) {
-	err := v.BindPFlag(name, flag)
-	if err != nil {
-		panic(err)
-	}
-}
+// Package otelx provides configuration helpers for configuring otel tracing
+package otelx // import "go.infratographer.com/x/otelx"

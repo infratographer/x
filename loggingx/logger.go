@@ -12,17 +12,34 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package viperx
+package loggingx
 
 import (
-	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
+	"go.uber.org/zap"
+
+	"go.infratographer.com/x/versionx"
 )
 
-// MustBindFlag provides a wrapper around the viper bindings that panics if an error occurs
-func MustBindFlag(v *viper.Viper, name string, flag *pflag.Flag) {
-	err := v.BindPFlag(name, flag)
+// InitLogger returns a logger based on the config
+func InitLogger(appName string, cfg Config) *zap.SugaredLogger {
+	lgrCfg := zap.NewProductionConfig()
+	if cfg.Pretty {
+		lgrCfg = zap.NewDevelopmentConfig()
+	}
+
+	if cfg.Debug {
+		lgrCfg.Level = zap.NewAtomicLevelAt(zap.DebugLevel)
+	} else {
+		lgrCfg.Level = zap.NewAtomicLevelAt(zap.InfoLevel)
+	}
+
+	l, err := lgrCfg.Build()
 	if err != nil {
 		panic(err)
 	}
+
+	return l.Sugar().With(
+		"app", appName,
+		"version", versionx.BuildDetails().Version,
+	)
 }

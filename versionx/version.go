@@ -24,7 +24,7 @@ import (
 
 // These variables are substituted with real values at build time
 var (
-	appName = "infratographer/unknown"
+	appName = "versionx/unknown"
 	version = "unknown"
 	commit  = ""
 	date    = ""

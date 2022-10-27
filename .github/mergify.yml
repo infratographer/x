@@ -1,0 +1,14 @@
+---
+pull_request_rules:
+  - name: Automatic merge on approval
+    conditions:
+      - "#approved-reviews-by>=1"
+      - "#changes-requested-reviews-by=0"
+      - "check-success=DCO"
+      - "check-success=CodeQL"
+      - "check-success=golang"
+      - "check-success=golangci-lint"
+      - "check-success=Analyze (go)"
+    actions:
+      merge:
+        method: merge
