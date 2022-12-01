@@ -29,9 +29,9 @@ type Config struct {
 
 // MustViperFlags returns the cobra flags and viper config to prevent code duplication
 // and help provide consistent flags across the applications
-func MustViperFlags(flags *pflag.FlagSet) {
+func MustViperFlags(v *viper.Viper, flags *pflag.FlagSet) {
 	flags.Bool("debug", false, "enable debug logging")
-	viperx.MustBindFlag(viper.GetViper(), "logging.debug", flags.Lookup("debug"))
+	viperx.MustBindFlag(v, "logging.debug", flags.Lookup("debug"))
 	flags.Bool("pretty", false, "enable pretty (human readable) logging output")
-	viperx.MustBindFlag(viper.GetViper(), "logging.pretty", flags.Lookup("pretty"))
+	viperx.MustBindFlag(v, "logging.pretty", flags.Lookup("pretty"))
 }
