@@ -36,8 +36,12 @@ import (
 	"go.infratographer.com/x/versionx"
 )
 
-type logFunc func(c *gin.Context) []zapcore.Field
-type checkFunc func(ctx context.Context) error
+// LogFunc is a function that can be used to add additional fields to the log
+// output.
+type LogFunc func(c *gin.Context) []zapcore.Field
+
+// CheckFunc is a function that can be used to check the status of a service.
+type CheckFunc func(ctx context.Context) error
 
 var (
 	emptyLogFn = func(c *gin.Context) []zapcore.Field { return []zapcore.Field{} }
@@ -55,7 +59,7 @@ type Server struct {
 	handlers        []handler
 	logger          *zap.Logger
 	version         *versionx.Details
-	readinessChecks map[string]checkFunc
+	readinessChecks map[string]CheckFunc
 }
 
 // NewServer will return an opinionated gin server for processing API requests.
@@ -64,13 +68,13 @@ func NewServer(lgr *zap.Logger, cfg Config, version *versionx.Details) Server {
 		listen:          cfg.Listen,
 		logger:          lgr.Named("ginx"),
 		version:         version,
-		readinessChecks: map[string]checkFunc{},
+		readinessChecks: map[string]CheckFunc{},
 	}
 }
 
 // DefaultEngine returns a base gin engine for processing requests.
 // This setups logging, requestid, and otel middleware.
-func DefaultEngine(lgr *zap.Logger, f logFunc) *gin.Engine {
+func DefaultEngine(lgr *zap.Logger, f LogFunc) *gin.Engine {
 	tp := otel.GetTracerProvider()
 
 	hostname, err := os.Hostname()
@@ -120,7 +124,7 @@ func (s Server) AddHandler(h handler) Server {
 // These functions should accept a context and only return an error. When adding
 // a readiness check a name is also provided, this name will be used when returning
 // the state of all the checks
-func (s Server) AddReadinessCheck(name string, f checkFunc) Server {
+func (s Server) AddReadinessCheck(name string, f CheckFunc) Server {
 	s.readinessChecks[name] = f
 
 	return s
