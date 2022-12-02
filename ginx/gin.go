@@ -33,6 +33,7 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
+	"go.infratographer.com/x/utilx"
 	"go.infratographer.com/x/versionx"
 )
 
@@ -76,12 +77,7 @@ func NewServer(lgr *zap.Logger, cfg Config, version *versionx.Details) Server {
 // This setups logging, requestid, and otel middleware.
 func DefaultEngine(lgr *zap.Logger, f LogFunc) *gin.Engine {
 	tp := otel.GetTracerProvider()
-
-	hostname, err := os.Hostname()
-	if err != nil {
-		hostname = "unknown"
-	}
-
+	hostname := utilx.GetHostname()
 	engine := gin.New()
 
 	logF := func(c *gin.Context) []zapcore.Field {
