@@ -23,7 +23,7 @@ import (
 
 // Config is used to configure a new ginx server
 type Config struct {
-	Listen string
+	Listen string `mapstructure:"listen"`
 }
 
 // MustViperFlags returns the cobra flags and wires them up with viper to prevent code duplication

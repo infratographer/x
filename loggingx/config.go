@@ -23,8 +23,8 @@ import (
 
 // Config handles reading in all the config values available for setting up a logger
 type Config struct {
-	Debug  bool
-	Pretty bool
+	Debug  bool `mapstructure:"debug"`
+	Pretty bool `mapstructure:"pretty"`
 }
 
 // MustViperFlags returns the cobra flags and viper config to prevent code duplication
