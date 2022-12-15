@@ -30,16 +30,16 @@ const (
 
 // Config is used to configure a new cockroachdb connection
 type Config struct {
-	Name        string
-	Host        string
-	User        string
-	Password    string
-	Params      string
-	URI         string
+	Name        string `mapstructure:"name"`
+	Host        string `mapstructure:"host"`
+	User        string `mapstructure:"user"`
+	Password    string `mapstructure:"password"`
+	Params      string `mapstructure:"params"`
+	URI         string `mapstructure:"uri"`
 	Connections struct {
-		MaxOpen     int
-		MaxIdle     int
-		MaxLifetime time.Duration
+		MaxOpen     int           `mapstructure:"max_open"`
+		MaxIdle     int           `mapstructure:"max_idle"`
+		MaxLifetime time.Duration `mapstructure:"max_lifetime"`
 	}
 }
 

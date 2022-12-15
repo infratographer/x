@@ -27,10 +27,10 @@ import (
 // from viper. If you are not using viper it is still able to be configured
 // manually and passed in.
 type Config struct {
-	Enabled     bool
-	Provider    TraceExporter
-	Environment string
-	Random      string
+	Enabled     bool          `mapstructure:"enabled"`
+	Provider    TraceExporter `mapstructure:"provider"`
+	Environment string        `mapstructure:"environment"`
+	Random      string        `mapstructure:"random"`
 	Stdout      struct {
 		PrettyPrint       bool `mapstructure:"pretty_print"`
 		DisableTimestamps bool `mapstructure:"disable_timestamps"`
@@ -38,17 +38,17 @@ type Config struct {
 	Jaeger struct {
 		AgentHost string `mapstructure:"agent_host"`
 		AgentPort string `mapstructure:"agent_port"`
-		Endpoint  string
-		User      string
-		Password  string
+		Endpoint  string `mapstructure:"endpoint"`
+		User      string `mapstructure:"user"`
+		Password  string `mapstructure:"password"`
 	}
 	OTLP struct {
-		Endpoint    string
-		Insecure    bool
-		Certificate string
-		Headers     []string
-		Compression string
-		Timeout     time.Duration
+		Endpoint    string        `mapstructure:"endpoint"`
+		Insecure    bool          `mapstructure:"insecure"`
+		Certificate string        `mapstructure:"certificate"`
+		Headers     []string      `mapstructure:"headers"`
+		Compression string        `mapstructure:"compression"`
+		Timeout     time.Duration `mapstructure:"timeout"`
 	}
 }
 
