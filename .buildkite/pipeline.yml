@@ -16,14 +16,3 @@ steps:
       - docker#v5.3.0:
           image: "golang:1.19"
           command: ["go", "test", "-cover" ,"-race", "./..."]
-
-  - label: ":golang: build"
-    key: "gobuild"
-    artifact_paths: "bin/${APP_NAME}"
-    plugins:
-      - docker#v5.3.0:
-          image: "golang:1.19"
-          environment:
-            - CGO_ENABLED=0
-            - GOOS=linux
-          command: ["go", "build", "-mod=mod", "-a", "-o", "bin/$APP_NAME"]
