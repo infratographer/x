@@ -79,3 +79,22 @@ func MustViperFlags(v *viper.Viper, flags *pflag.FlagSet) {
 	v.SetDefault("crdb.connections.max_idle", defaultMaxIdleConns)
 	v.SetDefault("crdb.connections.max_lifetime", defaultMaxConnLifetime)
 }
+
+// ConfigFromArgs returns a crdbx.Config from the provided viper-provided
+// flags.
+func ConfigFromArgs(v *viper.Viper, dbName string) Config {
+	cfg := Config{
+		Name:     dbName,
+		Host:     v.GetString("crdb.host"),
+		User:     v.GetString("crdb.user"),
+		Password: v.GetString("crdb.password"),
+		Params:   v.GetString("crdb.params"),
+		URI:      v.GetString("crdb.uri"),
+	}
+
+	cfg.Connections.MaxOpen = v.GetInt("crdb.connections.max_open")
+	cfg.Connections.MaxIdle = v.GetInt("crdb.connections.max_idle")
+	cfg.Connections.MaxLifetime = v.GetDuration("crdb.connections.max_lifetime")
+
+	return cfg
+}
