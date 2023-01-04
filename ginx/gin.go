@@ -56,7 +56,7 @@ type Server struct {
 	listen          string
 	DB              *sqlx.DB
 	Debug           bool
-	handlers        []handler
+	handlers        []Router
 	logger          *zap.Logger
 	version         *versionx.Details
 	readinessChecks map[string]CheckFunc
@@ -108,14 +108,10 @@ func DefaultEngine(lgr *zap.Logger, f LogFunc) *gin.Engine {
 	return engine
 }
 
-type handler interface {
-	Routes(*gin.RouterGroup)
-}
-
 // AddHandler provides the ability to add additional HTTP handlers that process
 // requests. The handler that is provided should have a Routes(*gin.RouterGroup)
 // function, which allows the routes to be added to the server.
-func (s Server) AddHandler(h handler) Server {
+func (s Server) AddHandler(h Router) Server {
 	s.handlers = append(s.handlers, h)
 	return s
 }
