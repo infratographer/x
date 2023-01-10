@@ -15,14 +15,17 @@
 package crdbx
 
 import (
+	"fmt"
 	"net/url"
 	"time"
 
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"go.infratographer.com/x/viperx"
 )
 
 const (
+	defaultHost            string        = "localhost:26257"
 	defaultMaxOpenConns    int           = 25
 	defaultMaxIdleConns    int           = 25
 	defaultMaxConnLifetime time.Duration = 5 * 60 * time.Second
@@ -62,6 +65,34 @@ func (c Config) GetURI() string {
 	return u.String()
 }
 
+// MustRegisterArgs registers the arguments for the database connection.
+// Use in conjunction with MustViperFlags to ensure default values are set.
+func MustRegisterArgs(v *viper.Viper, flags *pflag.FlagSet) {
+	flags.String("crdb.host", "", fmt.Sprintf("Database host. (default %s)", defaultHost))
+	viperx.MustBindFlag(v, "crdb.host", flags.Lookup("crdb.host"))
+
+	flags.String("crdb.params", "", "Database connection parameters.")
+	viperx.MustBindFlag(v, "crdb.params", flags.Lookup("crdb.params"))
+
+	flags.String("crdb.user", "", "Database user.")
+	viperx.MustBindFlag(v, "crdb.user", flags.Lookup("crdb.user"))
+
+	flags.String("crdb.password", "", "Database password.")
+	viperx.MustBindFlag(v, "crdb.password", flags.Lookup("crdb.password"))
+
+	flags.String("crdb.uri", "", "Database connection URI.")
+	viperx.MustBindFlag(v, "crdb.uri", flags.Lookup("crdb.uri"))
+
+	flags.Int("crdb.connections.max_open", 0, fmt.Sprintf("Database max open connections. (default %d)", defaultMaxOpenConns))
+	viperx.MustBindFlag(v, "crdb.connections.max_open", flags.Lookup("crdb.connections.max_open"))
+
+	flags.Int("crdb.connections.max_idle", 0, fmt.Sprintf("Database max idle connections. (default %d)", defaultMaxIdleConns))
+	viperx.MustBindFlag(v, "crdb.connections.max_idle", flags.Lookup("crdb.connections.max_idle"))
+
+	flags.Duration("crdb.connections.max_lifetime", 0, fmt.Sprintf("Database max connection lifetime. (default %s)", defaultMaxConnLifetime))
+	viperx.MustBindFlag(v, "crdb.connections.max_lifetime", flags.Lookup("crdb.connections.max_lifetime"))
+}
+
 // MustViperFlags returns the cobra flags and viper config to prevent code duplication
 // and help provide consistent flags across the applications
 func MustViperFlags(v *viper.Viper, flags *pflag.FlagSet) {
@@ -74,7 +105,7 @@ func MustViperFlags(v *viper.Viper, flags *pflag.FlagSet) {
 	v.MustBindEnv("crdb.connections.max_idle")
 	v.MustBindEnv("crdb.connections.max_lifetime")
 
-	v.SetDefault("crdb.host", "localhost:26257")
+	v.SetDefault("crdb.host", defaultHost)
 	v.SetDefault("crdb.connections.max_open", defaultMaxOpenConns)
 	v.SetDefault("crdb.connections.max_idle", defaultMaxIdleConns)
 	v.SetDefault("crdb.connections.max_lifetime", defaultMaxConnLifetime)
