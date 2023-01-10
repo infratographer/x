@@ -15,14 +15,17 @@
 package crdbx
 
 import (
+	"fmt"
 	"net/url"
 	"time"
 
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"go.infratographer.com/x/viperx"
 )
 
 const (
+	defaultHost            string        = "localhost:26257"
 	defaultMaxOpenConns    int           = 25
 	defaultMaxIdleConns    int           = 25
 	defaultMaxConnLifetime time.Duration = 5 * 60 * time.Second
@@ -65,18 +68,40 @@ func (c Config) GetURI() string {
 // MustViperFlags returns the cobra flags and viper config to prevent code duplication
 // and help provide consistent flags across the applications
 func MustViperFlags(v *viper.Viper, flags *pflag.FlagSet) {
+	flags.String("crdb.host", "", fmt.Sprintf("Database host. (default %q)", defaultHost))
+	viperx.MustBindFlag(v, "crdb.host", flags.Lookup("crdb.host"))
 	v.MustBindEnv("crdb.host")
-	v.MustBindEnv("crdb.params")
-	v.MustBindEnv("crdb.user")
-	v.MustBindEnv("crdb.password")
-	v.MustBindEnv("crdb.uri")
-	v.MustBindEnv("crdb.connections.max_open")
-	v.MustBindEnv("crdb.connections.max_idle")
-	v.MustBindEnv("crdb.connections.max_lifetime")
 
-	v.SetDefault("crdb.host", "localhost:26257")
+	flags.String("crdb.params", "", "Database connection parameters.")
+	viperx.MustBindFlag(v, "crdb.params", flags.Lookup("crdb.params"))
+	v.MustBindEnv("crdb.params")
+
+	flags.String("crdb.user", "", "Database user.")
+	viperx.MustBindFlag(v, "crdb.user", flags.Lookup("crdb.user"))
+	v.MustBindEnv("crdb.user")
+	v.SetDefault("crdb.host", defaultHost)
+
+	flags.String("crdb.password", "", "Database password.")
+	viperx.MustBindFlag(v, "crdb.password", flags.Lookup("crdb.password"))
+	v.MustBindEnv("crdb.password")
+
+	flags.String("crdb.uri", "", "Database connection URI.")
+	viperx.MustBindFlag(v, "crdb.uri", flags.Lookup("crdb.uri"))
+	v.MustBindEnv("crdb.uri")
+
+	flags.Int("crdb.connections.max_open", 0, fmt.Sprintf("Database max open connections. (default %d)", defaultMaxOpenConns))
+	viperx.MustBindFlag(v, "crdb.connections.max_open", flags.Lookup("crdb.connections.max_open"))
+	v.MustBindEnv("crdb.connections.max_open")
 	v.SetDefault("crdb.connections.max_open", defaultMaxOpenConns)
+
+	flags.Int("crdb.connections.max_idle", 0, fmt.Sprintf("Database max idle connections. (default %d)", defaultMaxIdleConns))
+	viperx.MustBindFlag(v, "crdb.connections.max_idle", flags.Lookup("crdb.connections.max_idle"))
+	v.MustBindEnv("crdb.connections.max_idle")
 	v.SetDefault("crdb.connections.max_idle", defaultMaxIdleConns)
+
+	flags.Duration("crdb.connections.max_lifetime", 0, fmt.Sprintf("Database max connection lifetime. (default %s)", defaultMaxConnLifetime))
+	viperx.MustBindFlag(v, "crdb.connections.max_lifetime", flags.Lookup("crdb.connections.max_lifetime"))
+	v.MustBindEnv("crdb.connections.max_lifetime")
 	v.SetDefault("crdb.connections.max_lifetime", defaultMaxConnLifetime)
 }
 
