@@ -2,23 +2,28 @@ package urnx
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 )
 
 // Build create a new URN with the specified fields
-func Build(namespace string, resourceType string, resourceID uuid.UUID) *URN {
+func Build(namespace string, resourceType string, resourceID uuid.UUID) (*URN, error) {
+	ns, err := validateNamespace(namespace)
+	if err != nil || !ns {
+		return nil, ErrInvalidURNNamespace
+	}
+
 	u := &URN{
-		Prefix:       prefix,
-		Namespace:    namespace,
-		ResourceType: resourceType,
+		Namespace:    strings.ToLower(namespace),
+		ResourceType: strings.ToLower(resourceType),
 		ResourceID:   resourceID,
 	}
 
-	return u
+	return u, nil
 }
 
 // String returns the string representation of the URN
 func (u *URN) String() string {
-	return fmt.Sprintf("%s:%s:%s:%s", u.Prefix, u.Namespace, u.ResourceType, u.ResourceID)
+	return fmt.Sprintf("%s:%s:%s:%s", prefix, u.Namespace, u.ResourceType, u.ResourceID)
 }
