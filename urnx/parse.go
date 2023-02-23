@@ -6,14 +6,15 @@ import (
 	"github.com/google/uuid"
 )
 
+// Parse parses a string into a URN object
 func Parse(urn string) (*URN, error) {
 	conv := strings.Split(urn, ":")
 
-	if conv[0] != PREFIX {
+	if conv[0] != prefix {
 		return nil, ErrInvalidURNPrefix
 	}
 
-	if len(conv) != URNLENGTH {
+	if len(conv) != urnLength {
 		return nil, ErrInvalidURN
 	}
 
@@ -26,4 +27,3 @@ func Parse(urn string) (*URN, error) {
 
 	return u, nil
 }
-
