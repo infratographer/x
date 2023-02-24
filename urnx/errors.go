@@ -14,7 +14,7 @@ var ErrInvalidURNNamespace = errors.New("invalid urn namespace: expected string 
 
 // ErrInvalidURNResourceType is returned when the URN resource type is invalid and does not match
 // the regex [A-za-z0-9-]{1,}
-var ErrInvalidURNResourceType = errors.New("invalid urn resource type: expected string consisting of [A-za-z0-9-]{1,}")
+var ErrInvalidURNResourceType = errors.New("invalid urn resource type: expected string consisting of [A-za-z0-9-]{1,255}")
 
 // ErrInvalidURNResourceID is returned when the URN resource ID is invalid and not a valid UUID
 var ErrInvalidURNResourceID = errors.New("invalid urn resource id: expected valid uuid")
