@@ -13,4 +13,6 @@
 // limitations under the License.
 
 // Package urnx is a package for creating and parsing Infratographer based URNs
+// in the format of urn:<namespace>:<resource type>:<resource id> which are used
+// to identify resources in the Infratographer ecosystem.
 package urnx
