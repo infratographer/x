@@ -4,21 +4,16 @@ import (
 	"regexp"
 )
 
-func validateNamespace(namespace string) (bool, error) {
-	rx, err := regexp.MatchString("^[A-Za-z0-9-]{1,30}$", namespace)
-	if err != nil {
-		return false, err
-	}
+func validateNamespace(namespace string) bool {
+	r := regexp.MustCompile("^[A-Za-z0-9-]{1,30}$")
+	rx := r.MatchString(namespace)
 
-	return rx, nil
+	return rx
 }
 
-func validateResourceType(name string) (bool, error) {
-	rx, err := regexp.MatchString("^[A-Za-z0-9-]{1,}$", name)
+func validateResourceType(name string) bool {
+	r := regexp.MustCompile("^[A-Za-z0-9-]{1,255}$")
+	rx := r.MatchString(name)
 
-	if err != nil {
-		return false, err
-	}
-
-	return rx, nil
+	return rx
 }

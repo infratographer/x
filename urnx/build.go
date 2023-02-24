@@ -9,13 +9,13 @@ import (
 
 // Build create a new URN with the specified fields
 func Build(namespace string, resourceType string, resourceID uuid.UUID) (*URN, error) {
-	ns, err := validateNamespace(namespace)
-	if err != nil || !ns {
+	ns := validateNamespace(namespace)
+	if !ns {
 		return nil, ErrInvalidURNNamespace
 	}
 
-	rt, err := validateResourceType(resourceType)
-	if err != nil || !rt {
+	rt := validateResourceType(resourceType)
+	if !rt {
 		return nil, ErrInvalidURNResourceType
 	}
 

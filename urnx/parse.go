@@ -10,22 +10,22 @@ import (
 func Parse(urn string) (*URN, error) {
 	conv := strings.Split(urn, ":")
 
+	if len(conv) != urnLength {
+		return nil, ErrInvalidURN
+	}
+
 	if conv[0] != prefix {
 		return nil, ErrInvalidURNPrefix
 	}
 
-	ns, err := validateNamespace(conv[1])
-	if err != nil || !ns {
+	ns := validateNamespace(conv[1])
+	if !ns {
 		return nil, ErrInvalidURNNamespace
 	}
 
-	rt, err := validateResourceType(conv[2])
-	if err != nil || !rt {
+	rt := validateResourceType(conv[2])
+	if !rt {
 		return nil, ErrInvalidURNResourceType
-	}
-
-	if len(conv) != urnLength {
-		return nil, ErrInvalidURN
 	}
 
 	id, err := uuid.Parse(conv[3])
