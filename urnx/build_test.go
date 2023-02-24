@@ -18,6 +18,8 @@ type bcase struct {
 }
 
 func TestBuild(t *testing.T) {
+	t.Parallel()
+
 	bc := []bcase{
 		{
 			name:           "valid-build",
@@ -66,6 +68,8 @@ func TestBuild(t *testing.T) {
 }
 
 func TestString(t *testing.T) {
+	t.Parallel()
+
 	urn := &URN{Namespace: "namespace", ResourceType: "resource-type", ResourceID: uuid.New()}
 	assert.Equal(t, fmt.Sprintf("%s:%s:%s:%s", prefix, urn.Namespace, urn.ResourceType, urn.ResourceID), urn.String())
 }

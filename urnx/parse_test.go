@@ -15,6 +15,8 @@ type pcase struct {
 }
 
 func TestParse(t *testing.T) {
+	t.Parallel()
+
 	pc := []pcase{
 		{
 			name:           "valid-parse",

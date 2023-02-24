@@ -17,6 +17,8 @@ type vcase struct {
 }
 
 func TestValidateNamespace(t *testing.T) {
+	t.Parallel()
+
 	rand.Seed(time.Now().UnixNano())
 
 	tc := []vcase{
@@ -51,6 +53,8 @@ func TestValidateNamespace(t *testing.T) {
 }
 
 func TestValidateResourceType(t *testing.T) {
+	t.Parallel()
+
 	tc := []vcase{
 		{
 			name:        "valid-resource-type",
