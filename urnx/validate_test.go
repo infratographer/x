@@ -39,7 +39,7 @@ func TestValidateNamespace(t *testing.T) {
 
 	for _, c := range tc {
 		t.Run(c.name, func(t *testing.T) {
-			check := validateNamespace(c.name)
+			check := validateNamespace(c.fieldName)
 
 			if c.expectError {
 				assert.False(t, check)
