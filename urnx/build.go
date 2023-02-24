@@ -14,6 +14,11 @@ func Build(namespace string, resourceType string, resourceID uuid.UUID) (*URN, e
 		return nil, ErrInvalidURNNamespace
 	}
 
+	rt, err := validateResourceType(resourceType)
+	if err != nil || !rt {
+		return nil, ErrInvalidURNResourceType
+	}
+
 	u := &URN{
 		Namespace:    strings.ToLower(namespace),
 		ResourceType: strings.ToLower(resourceType),

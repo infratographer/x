@@ -19,14 +19,24 @@ func Parse(urn string) (*URN, error) {
 		return nil, ErrInvalidURNNamespace
 	}
 
+	rt, err := validateResourceType(conv[2])
+	if err != nil || !rt {
+		return nil, ErrInvalidURNResourceType
+	}
+
 	if len(conv) != urnLength {
 		return nil, ErrInvalidURN
+	}
+
+	id, err := uuid.Parse(conv[3])
+	if err != nil {
+		return nil, ErrInvalidURNResourceID
 	}
 
 	u := &URN{
 		Namespace:    conv[1],
 		ResourceType: conv[2],
-		ResourceID:   uuid.MustParse(conv[3]),
+		ResourceID:   id,
 	}
 
 	return u, nil
