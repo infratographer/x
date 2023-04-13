@@ -3,14 +3,17 @@ module go.infratographer.com/x
 go 1.19
 
 require (
+	github.com/MicahParks/keyfunc v1.9.0
 	github.com/XSAM/otelsql v0.17.1
 	github.com/brpaz/echozap v1.1.3
 	github.com/cockroachdb/cockroach-go/v2 v2.2.19
 	github.com/gin-contrib/requestid v0.0.6
 	github.com/gin-contrib/zap v0.1.0
 	github.com/gin-gonic/gin v1.8.1
+	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/labstack/echo-contrib v0.14.1
+	github.com/labstack/echo-jwt/v4 v4.1.0
 	github.com/labstack/echo/v4 v4.10.2
 	github.com/lib/pq v1.10.7
 	github.com/pressly/goose/v3 v3.7.0
@@ -28,6 +31,8 @@ require (
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.11.2
 	go.opentelemetry.io/otel/sdk v1.11.2
 	go.uber.org/zap v1.24.0
+	golang.org/x/oauth2 v0.4.0
+	gopkg.in/square/go-jose.v2 v2.6.0
 )
 
 require (
@@ -39,6 +44,7 @@ require (
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	golang.org/x/time v0.3.0 // indirect
+	google.golang.org/appengine v1.6.7 // indirect
 )
 
 require (
