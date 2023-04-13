@@ -19,11 +19,11 @@ const (
 )
 
 func TestNoAuth(t *testing.T) {
-	_, jwksURI, close := TestOAuthClient("urn:test:user", "", "")
+	_, issuer, close := TestOAuthClient("urn:test:user", "")
 	defer close()
 
-	auth, err := NewAuth(AuthConfig{
-		JWKSURI: jwksURI,
+	auth, err := NewAuth(context.Background(), AuthConfig{
+		Issuer: issuer,
 	})
 
 	require.NoError(t, err, "no error expected for NewAuth")
@@ -65,16 +65,12 @@ func TestAudienceValidation(t *testing.T) {
 	testCases := []struct {
 		name             string
 		clientAudience   string
-		clientIssuer     string
 		serverAudience   string
-		serverIssuer     string
 		expectActor      bool
 		expectStatusCode int
 	}{
 		{
 			"no audience or issuer",
-			"",
-			"",
 			"",
 			"",
 			true,
@@ -84,107 +80,27 @@ func TestAudienceValidation(t *testing.T) {
 			"skip audience",
 			"skipaud",
 			"",
-			"",
-			"",
 			true,
 			http.StatusOK,
 		},
 		{
 			"missing audience",
 			"",
-			"",
 			"missaud",
-			"",
 			false,
 			http.StatusUnauthorized,
 		},
 		{
 			"audience mismatch",
 			"testaud",
-			"",
 			"audmismatch",
-			"",
 			false,
 			http.StatusUnauthorized,
 		},
 		{
 			"audience match",
 			"testaud",
-			"",
 			"testaud",
-			"",
-			true,
-			http.StatusOK,
-		},
-		{
-			"skip issuer",
-			"",
-			"skipiss",
-			"",
-			"",
-			true,
-			http.StatusOK,
-		},
-		{
-			"missing issuer",
-			"",
-			"",
-			"",
-			"mississ",
-			false,
-			http.StatusUnauthorized,
-		},
-		{
-			"issuer mismatch",
-			"",
-			"testiss",
-			"",
-			"issmismatch",
-			false,
-			http.StatusUnauthorized,
-		},
-		{
-			"issuer match",
-			"",
-			"testiss",
-			"",
-			"testiss",
-			true,
-			http.StatusOK,
-		},
-		{
-			"all mismatch",
-			"testaud",
-			"testiss",
-			"audmismatch",
-			"issmismatch",
-			false,
-			http.StatusUnauthorized,
-		},
-		{
-			"all, audience mismatch",
-			"testaud",
-			"testiss",
-			"audmismatch",
-			"testiss",
-			false,
-			http.StatusUnauthorized,
-		},
-		{
-			"all, issuer mismatch",
-			"testaud",
-			"testiss",
-			"testaud",
-			"issmismatch",
-			false,
-			http.StatusUnauthorized,
-		},
-		{
-			"all match",
-			"testaud",
-			"testiss",
-			"testaud",
-			"testiss",
 			true,
 			http.StatusOK,
 		},
@@ -200,14 +116,13 @@ func TestAudienceValidation(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			oauthClient, jwksURI, close := TestOAuthClient("urn:test:user", tc.clientAudience, tc.clientIssuer)
+			oauthClient, issuer, close := TestOAuthClient("urn:test:user", tc.clientAudience)
 			defer close()
 
-			auth, err := NewAuth(AuthConfig{
+			auth, err := NewAuth(context.Background(), AuthConfig{
 				Logger:   logger,
 				Audience: tc.serverAudience,
-				Issuer:   tc.serverIssuer,
-				JWKSURI:  jwksURI,
+				Issuer:   issuer,
 			})
 
 			require.NoError(t, err, "no error expected for NewAuth")

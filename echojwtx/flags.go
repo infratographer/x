@@ -10,6 +10,11 @@ import (
 	"go.infratographer.com/x/viperx"
 )
 
+const (
+	// DefaultOIDCJWKSRemoteTimeout defines the default timeout for fetching the OIDC JWKS file.
+	DefaultOIDCJWKSRemoteTimeout = 5 * time.Second
+)
+
 // MustViperFlags adds jwks-uri to the provided flagset and binds to viper jwks.uri.
 func MustViperFlags(v *viper.Viper, flags *pflag.FlagSet) {
 	flags.Bool("oidc", true, "use oidc auth")
@@ -24,22 +29,21 @@ func MustViperFlags(v *viper.Viper, flags *pflag.FlagSet) {
 	flags.String("oidc-jwks-uri", "", "URI for JWKS listing for JWTs")
 	viperx.MustBindFlag(v, "oidc.jwks.uri", flags.Lookup("oidc-jwks-uri"))
 
-	flags.Duration("oidc-jwks-remote-timeout", 1*time.Minute, "timeout for remote JWKS fetching")
+	flags.Duration("oidc-jwks-remote-timeout", DefaultOIDCJWKSRemoteTimeout, "timeout for remote JWKS fetching")
 	viperx.MustBindFlag(v, "oidc.jwks.remote-timeout", flags.Lookup("oidc-jwks-remote-timeout"))
 }
 
 // AuthConfigFromViper builds a new AuthConfig from viper.
-func AuthConfigFromViper(v *viper.Viper) *AuthConfig {
+func AuthConfigFromViper(v *viper.Viper) (*AuthConfig, error) {
 	if !v.GetBool("oidc.enabled") {
-		return nil
+		return nil, nil
 	}
 
 	return &AuthConfig{
-		Audience: viper.GetString("oidc.audience"),
-		Issuer:   viper.GetString("oidc.issuer"),
-		JWKSURI:  viper.GetString("oidc.jwks.uri"),
+		Audience: v.GetString("oidc.audience"),
+		Issuer:   v.GetString("oidc.issuer"),
 		KeyFuncOptions: keyfunc.Options{
-			RefreshTimeout: viper.GetDuration("oidc.jwks.remote-timeout"),
+			RefreshTimeout: v.GetDuration("oidc.jwks.remote-timeout"),
 		},
-	}
+	}, nil
 }

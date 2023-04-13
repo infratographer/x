@@ -70,15 +70,9 @@ func testHelperJoseJWKSProvider(keyIDs ...string) jose.JSONWebKeySet {
 	}
 }
 
-// testHelperJWKSProvider returns a url for a webserver that will return JSONWebKeySets
-func testHelperJWKSProvider(keyIDs ...string) (string, func()) {
+// testHelperOIDCProvider returns an issuer and a close function.
+func testHelperOIDCProvider(keyIDs ...string) (string, func()) {
 	e := echo.New()
-
-	keySet := testHelperJoseJWKSProvider(keyIDs...)
-
-	e.GET("/.well-known/jwks.json", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, keySet)
-	})
 
 	listener, err := net.Listen("tcp", ":0")
 	if err != nil {
@@ -89,19 +83,31 @@ func testHelperJWKSProvider(keyIDs ...string) (string, func()) {
 		Handler: e,
 	}
 
+	issuer := fmt.Sprintf("http://localhost:%d", listener.Addr().(*net.TCPAddr).Port)
+
+	keySet := testHelperJoseJWKSProvider(keyIDs...)
+
+	e.GET("/.well-known/openid-configuration", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, echo.Map{
+			"jwks_uri": fmt.Sprintf(issuer + "/.well-known/jwks.json"),
+		})
+	})
+
+	e.GET("/.well-known/jwks.json", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, keySet)
+	})
+
 	go func() {
 		if err := s.Serve(listener); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			panic(err)
 		}
 	}()
 
-	jwksURI := fmt.Sprintf("http://localhost:%d/.well-known/jwks.json", listener.Addr().(*net.TCPAddr).Port)
-
 	close := func() {
 		s.Close() //nolint:errcheck // error check not needed
 	}
 
-	return jwksURI, close
+	return issuer, close
 }
 
 // testHelperGetToken will return a signed token
@@ -119,9 +125,9 @@ func testHelperGetToken(signer jose.Signer, cl jwt.Claims, key string, value int
 }
 
 // TestOAuthClient creates a new http client handling OAuth automatically.
-// Returned is the new HTTP Client, JWKS URI and a close function.
-func TestOAuthClient(subject string, audience string, issuer string) (*http.Client, string, func()) {
-	jwksuri, close := testHelperJWKSProvider(TestPrivRSAKey1ID, TestPrivRSAKey2ID)
+// Returned is the new HTTP Client, OIDC URI and a close function.
+func TestOAuthClient(subject string, audience string) (*http.Client, string, func()) {
+	issuer, close := testHelperOIDCProvider(TestPrivRSAKey1ID, TestPrivRSAKey2ID)
 
 	ctx := context.Background()
 
@@ -143,5 +149,5 @@ func TestOAuthClient(subject string, audience string, issuer string) (*http.Clie
 
 	return oauth2.NewClient(ctx, oauth2.StaticTokenSource(&oauth2.Token{
 		AccessToken: rawToken,
-	})), jwksuri, close
+	})), issuer, close
 }
