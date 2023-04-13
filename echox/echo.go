@@ -16,7 +16,7 @@ package echox
 
 import (
 	"context"
-	"errors"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -43,10 +43,6 @@ type CheckFunc func(ctx context.Context) error
 
 var (
 	emptyLogFn = func(c echo.Context) []zapcore.Field { return []zapcore.Field{} }
-
-	// DefaultServerShutdownTimeout sets the default for how long we give the sever
-	// to shutdown before forcefully stopping the server.
-	DefaultServerShutdownTimeout = 5 * time.Second
 )
 
 // Server implements the HTTP Server
@@ -56,15 +52,22 @@ type Server struct {
 	logger          *zap.Logger
 	version         *versionx.Details
 	readinessChecks map[string]CheckFunc
+	shutdownTimeout time.Duration
 }
 
 // NewServer will return an opinionated echo server for processing API requests.
-func NewServer(logger *zap.Logger, cfg Config, version *versionx.Details) Server {
-	return Server{
+func NewServer(logger *zap.Logger, cfg Config, version *versionx.Details) *Server {
+	shutdownTimeout := cfg.ShutdownGracePeriod
+	if shutdownTimeout == 0 {
+		shutdownTimeout = DefaultServerShutdownTimeout
+	}
+
+	return &Server{
 		listen:          cfg.Listen,
 		logger:          logger.Named("echox"),
 		version:         version,
 		readinessChecks: map[string]CheckFunc{},
+		shutdownTimeout: shutdownTimeout,
 	}
 }
 
@@ -105,7 +108,7 @@ type handler interface {
 // AddHandler provides the ability to add additional HTTP handlers that process
 // requests. The handler that is provided should have a Routes(*echo.Group)
 // function, which allows the routes to be added to the server.
-func (s Server) AddHandler(h handler) Server {
+func (s *Server) AddHandler(h handler) *Server {
 	s.handlers = append(s.handlers, h)
 	return s
 }
@@ -114,7 +117,7 @@ func (s Server) AddHandler(h handler) Server {
 // These functions should accept a context and only return an error. When adding
 // a readiness check a name is also provided, this name will be used when returning
 // the state of all the checks
-func (s Server) AddReadinessCheck(name string, f CheckFunc) Server {
+func (s *Server) AddReadinessCheck(name string, f CheckFunc) *Server {
 	s.readinessChecks[name] = f
 
 	return s
@@ -144,40 +147,71 @@ func (s *Server) engine() *echo.Echo {
 	return r
 }
 
-// Run will start the server listening on the specified address and listens for
-// os signals to shutdown the server
-func (s Server) Run(ctx context.Context) {
-	s.logger.Info("starting server",
-		zap.String("address", s.listen),
-	)
+// Serve serves an http server on the provided listener.
+// Serve blocks until SIGINT or SIGTERM are signalled,
+// or if the http serve fails.
+// A graceful shutdown will be attempted
+func (s *Server) Serve(listener net.Listener) error {
+	logger := s.logger.With(zap.String("address", listener.Addr().String()))
+
+	logger.Info("starting server")
 
 	srv := &http.Server{
-		Addr:    s.listen,
 		Handler: s.engine(),
 	}
 
+	var (
+		exit = make(chan error, 1)
+		quit = make(chan os.Signal, 2) //nolint:gomnd
+	)
+
+	// Serve in a go routine.
+	// If serve returns an error, capture the error to return later.
 	go func() {
-		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			s.logger.Fatal("server error", zap.Error(err))
+		if err := srv.Serve(listener); err != nil {
+			exit <- err
+
+			return
 		}
+
+		exit <- nil
 	}()
 
-	// Wait for interrupt signal to gracefully shutdown the server with
-	// a timeout of 5 seconds.
-	quit := make(chan os.Signal, 2) //nolint:gomnd
-	// kill (no param) default send syscall.SIGTERM
-	// kill -2 is syscall.SIGINT
-	// kill -9 is syscall.SIGKILL but can't be caught, so don't need to add it
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-	s.logger.Info("shutting down server...")
+	// close server to kill active connections.
+	defer srv.Close() //nolint:errcheck // server is being closed, we'll ignore this.
 
-	// The context is used to inform the server it has 5 seconds to finish
-	// the request it is currently handling
-	ctx, cancel := context.WithTimeout(ctx, DefaultServerShutdownTimeout)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	var err error
+
+	select {
+	case err = <-exit:
+		return err
+	case <-quit:
+		logger.Warn("server shutting down")
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), s.shutdownTimeout)
 	defer cancel()
 
-	if err := srv.Shutdown(ctx); err != nil {
-		s.logger.Fatal("server forced to shutdown", zap.Error(err))
+	if err = srv.Shutdown(ctx); err != nil {
+		logger.Error("server shutdown timed out", zap.Error(err))
+
+		return err
 	}
+
+	return nil
+}
+
+// Run listens and serves the echo server on the specified address.
+// See Serve for more details.
+func (s *Server) Run() error {
+	listener, err := net.Listen("tcp", s.listen)
+	if err != nil {
+		return err
+	}
+
+	defer listener.Close() //nolint:errcheck // No need to check error.
+
+	return s.Serve(listener)
 }

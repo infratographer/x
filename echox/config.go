@@ -15,19 +15,31 @@
 package echox
 
 import (
+	"time"
+
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
 	"go.infratographer.com/x/viperx"
 )
 
+var (
+	// DefaultServerShutdownTimeout sets the default for how long we give the sever
+	// to shutdown before forcefully stopping the server.
+	DefaultServerShutdownTimeout = 5 * time.Second
+)
+
 // Config is used to configure a new ginx server
 type Config struct {
-	Listen string
+	Listen              string
+	ShutdownGracePeriod time.Duration
 }
 
 // MustViperFlags returns the cobra flags and wires them up with viper to prevent code duplication
 func MustViperFlags(v *viper.Viper, flags *pflag.FlagSet, defaultListen string) {
 	flags.String("listen", defaultListen, "address to listen on")
 	viperx.MustBindFlag(v, "server.listen", flags.Lookup("listen"))
+
+	flags.Duration("shutdown-grace-period", DefaultServerShutdownTimeout, "server shutdown grace period")
+	viperx.MustBindFlag(v, "server.shutdown-grace-period", flags.Lookup("shutdown-grace-period"))
 }
