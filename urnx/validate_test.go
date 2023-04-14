@@ -7,7 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"math/rand"
-	"time"
 )
 
 type vcase struct {
@@ -18,8 +17,6 @@ type vcase struct {
 
 func TestValidateNamespace(t *testing.T) {
 	t.Parallel()
-
-	rand.Seed(time.Now().UnixNano())
 
 	tc := []vcase{
 		{
