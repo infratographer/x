@@ -1,6 +1,6 @@
 module go.infratographer.com/x
 
-go 1.19
+go 1.20
 
 require (
 	github.com/MicahParks/keyfunc v1.9.0
