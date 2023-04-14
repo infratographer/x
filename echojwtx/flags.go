@@ -26,9 +26,6 @@ func MustViperFlags(v *viper.Viper, flags *pflag.FlagSet) {
 	flags.String("oidc-issuer", "", "expected issuer of OIDC JWT")
 	viperx.MustBindFlag(v, "oidc.issuer", flags.Lookup("oidc-issuer"))
 
-	flags.String("oidc-jwks-uri", "", "URI for JWKS listing for JWTs")
-	viperx.MustBindFlag(v, "oidc.jwks.uri", flags.Lookup("oidc-jwks-uri"))
-
 	flags.Duration("oidc-jwks-remote-timeout", DefaultOIDCJWKSRemoteTimeout, "timeout for remote JWKS fetching")
 	viperx.MustBindFlag(v, "oidc.jwks.remote-timeout", flags.Lookup("oidc-jwks-remote-timeout"))
 }
