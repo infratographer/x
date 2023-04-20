@@ -16,6 +16,7 @@ package echox
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"net/http"
 	"os"
@@ -123,7 +124,8 @@ func (s *Server) AddReadinessCheck(name string, f CheckFunc) *Server {
 	return s
 }
 
-func (s *Server) engine() *echo.Echo {
+// Handler returns a new http.Handler for serving requests.
+func (s *Server) Handler() http.Handler {
 	// Setup default echo router
 	r := DefaultEngine(s.logger, emptyLogFn)
 
@@ -148,16 +150,22 @@ func (s *Server) engine() *echo.Echo {
 }
 
 // Serve serves an http server on the provided listener.
+// See ServeWithContext for more details.
+func (s *Server) Serve(listener net.Listener) error {
+	return s.ServeWithContext(context.Background(), listener)
+}
+
+// ServeWithContext serves an http server on the provided listener.
 // Serve blocks until SIGINT or SIGTERM are signalled,
 // or if the http serve fails.
 // A graceful shutdown will be attempted
-func (s *Server) Serve(listener net.Listener) error {
+func (s *Server) ServeWithContext(ctx context.Context, listener net.Listener) error {
 	logger := s.logger.With(zap.String("address", listener.Addr().String()))
 
 	logger.Info("starting server")
 
 	srv := &http.Server{
-		Handler: s.engine(),
+		Handler: s.Handler(),
 	}
 
 	var (
@@ -187,11 +195,17 @@ func (s *Server) Serve(listener net.Listener) error {
 	select {
 	case err = <-exit:
 		return err
-	case <-quit:
-		logger.Warn("server shutting down")
+	case sig := <-quit:
+		logger.Warn(fmt.Sprintf("%s received, server shutting down", sig.String()))
+	case <-ctx.Done():
+		logger.Warn("context done, server shutting down")
+
+		// Since the context has already been canceled, the server would immediately shutdown.
+		// We'll reset the context to allow for the proper grace period to be given.
+		ctx = context.Background()
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), s.shutdownTimeout)
+	ctx, cancel := context.WithTimeout(ctx, s.shutdownTimeout)
 	defer cancel()
 
 	if err = srv.Shutdown(ctx); err != nil {
@@ -203,9 +217,14 @@ func (s *Server) Serve(listener net.Listener) error {
 	return nil
 }
 
-// Run listens and serves the echo server on the specified address.
-// See Serve for more details.
+// Run listens and serves the echo server on the configured address.
 func (s *Server) Run() error {
+	return s.RunWithContext(context.Background())
+}
+
+// RunWithContext listens and serves the echo server on the configured address.
+// See ServeWithContext for more details.
+func (s *Server) RunWithContext(ctx context.Context) error {
 	listener, err := net.Listen("tcp", s.listen)
 	if err != nil {
 		return err
@@ -213,5 +232,5 @@ func (s *Server) Run() error {
 
 	defer listener.Close() //nolint:errcheck // No need to check error.
 
-	return s.Serve(listener)
+	return s.ServeWithContext(ctx, listener)
 }

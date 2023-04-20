@@ -108,6 +108,7 @@ func TestServe(t *testing.T) {
 		name            string
 		reqSleep        time.Duration
 		gracefulTimeout time.Duration
+		ctxCancelDelay  time.Duration
 		expectReqErr    string
 		expectSrvErr    string
 	}{
@@ -115,19 +116,38 @@ func TestServe(t *testing.T) {
 			"requests complete",
 			0,
 			10 * time.Millisecond,
+			0,
 			"",
 			"",
 		},
 		{
-			"request finishes",
+			"signal, request finishes",
 			5 * time.Millisecond,
 			10 * time.Millisecond,
+			0,
 			"",
 			"",
 		},
 		{
-			"request fails",
+			"signal, request fails",
 			2 * time.Second,
+			10 * time.Millisecond,
+			0,
+			"EOF",
+			"deadline exceeded",
+		},
+		{
+			"context, request finishes",
+			10 * time.Millisecond,
+			20 * time.Millisecond,
+			1 * time.Millisecond,
+			"",
+			"",
+		},
+		{
+			"context, request fails",
+			2 * time.Second,
+			10 * time.Millisecond,
 			10 * time.Millisecond,
 			"EOF",
 			"deadline exceeded",
@@ -182,7 +202,16 @@ func TestServe(t *testing.T) {
 				srvErr  error
 				reqResp *http.Response
 				reqErr  error
+
+				ctx    = context.Background()
+				cancel func()
 			)
+
+			if tc.ctxCancelDelay != 0 {
+				ctx, cancel = context.WithCancel(ctx)
+
+				defer cancel()
+			}
 
 			// Wait group for server and client
 			wg.Add(2)
@@ -191,7 +220,7 @@ func TestServe(t *testing.T) {
 			go func() {
 				defer wg.Done()
 
-				srvErr = srv.Serve(listener)
+				srvErr = srv.ServeWithContext(ctx, listener)
 			}()
 
 			waitForServer(t, url)
@@ -244,15 +273,21 @@ func TestServe(t *testing.T) {
 				t.FailNow()
 			}
 
-			// Ask for SIGTERM (ensures we don't exit when we trigger killing ourself)
-			c := make(chan os.Signal, 1)
-			signal.Notify(c, syscall.SIGTERM)
-			defer signal.Stop(c)
+			// if ctxCancelDelay is defined, we're using the context to kill the service
+			if cancel == nil {
+				// Ask for SIGTERM (ensures we don't exit when we trigger killing ourself)
+				c := make(chan os.Signal, 1)
+				signal.Notify(c, syscall.SIGTERM)
+				defer signal.Stop(c)
 
-			// Send SIGTERM to trigger shutdown process
-			err = syscall.Kill(syscall.Getpid(), syscall.SIGTERM)
+				// Send SIGTERM to trigger shutdown process
+				err = syscall.Kill(syscall.Getpid(), syscall.SIGTERM)
 
-			require.NoError(t, err, "syscall.Kill should not return an error")
+				require.NoError(t, err, "syscall.Kill should not return an error")
+			} else {
+				time.Sleep(tc.ctxCancelDelay)
+				cancel()
+			}
 
 			// Wait for server and request to complete
 			wg.Wait()
