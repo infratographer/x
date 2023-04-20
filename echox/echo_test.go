@@ -7,6 +7,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"os/signal"
 	"sync"
@@ -101,6 +102,93 @@ func waitForServer(t *testing.T, testURL string) {
 	)
 
 	require.NoError(t, err, "error waiting for server to be ready")
+}
+
+func TestHandler(t *testing.T) {
+	testCases := []struct {
+		name         string
+		path         string
+		expectStatus int
+	}{
+		{
+			"without /",
+			"test",
+			http.StatusOK,
+		},
+		{
+			"with /",
+			"/test",
+			http.StatusOK,
+		},
+		{
+			"not found",
+			"other",
+			http.StatusNotFound,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			srv := &Server{
+				logger: zap.NewNop(),
+			}
+
+			srv.AddHandler(testHandler{
+				routes: []testRoute{
+					{
+						Method: http.MethodGet,
+						Path:   "baseline",
+						Handler: func(c echo.Context) error {
+							return c.String(http.StatusOK, "ok")
+						},
+					},
+				},
+			})
+
+			srv.AddHandler(testHandler{
+				routes: []testRoute{
+					{
+						Method: http.MethodGet,
+						Path:   tc.path,
+						Handler: func(c echo.Context) error {
+							return c.String(http.StatusOK, "ok")
+						},
+					},
+				},
+			})
+
+			engine := srv.Handler().(*echo.Echo)
+
+			var routes []string
+
+			for _, route := range engine.Routes() {
+				routes = append(routes, route.Path)
+			}
+
+			assert.Contains(t, routes, "baseline", "expected baseline to exist in route list")
+			assert.Contains(t, routes, tc.path, "expected %s to exist in route list", tc.path)
+
+			w := httptest.NewRecorder()
+
+			req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, "http://localhost/test", nil)
+
+			require.NoError(t, err, "no error expected creating test request")
+
+			engine.ServeHTTP(w, req)
+
+			assert.Equal(t, tc.expectStatus, w.Code, "unexpected response code for %s", tc.path)
+
+			w = httptest.NewRecorder()
+
+			req, err = http.NewRequestWithContext(context.Background(), http.MethodGet, "http://localhost/baseline", nil)
+
+			require.NoError(t, err, "no error expected creating baseline request")
+
+			engine.ServeHTTP(w, req)
+
+			assert.Equal(t, http.StatusOK, w.Code, "unexpected response code for baseline")
+		})
+	}
 }
 
 func TestServe(t *testing.T) {

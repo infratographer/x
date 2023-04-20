@@ -143,7 +143,7 @@ func (s *Server) Handler() http.Handler {
 	r.GET("/readyz", s.readinessCheckHandler)
 
 	for _, handler := range s.handlers {
-		handler.Routes(r.Group("/"))
+		handler.Routes(r.Group(""))
 	}
 
 	return r
