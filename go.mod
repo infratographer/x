@@ -24,11 +24,11 @@ require (
 	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.40.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho v0.40.0
 	go.opentelemetry.io/otel v1.14.0
-	go.opentelemetry.io/otel/exporters/jaeger v1.11.2
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.11.2
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.11.2
-	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.11.2
-	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.11.2
+	go.opentelemetry.io/otel/exporters/jaeger v1.14.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace v1.14.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.14.0
+	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp v1.14.0
+	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.14.0
 	go.opentelemetry.io/otel/sdk v1.14.0
 	go.uber.org/goleak v1.2.1
 	go.uber.org/zap v1.24.0
@@ -98,7 +98,7 @@ require (
 	github.com/stretchr/testify v1.8.2
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/ugorji/go/codec v1.2.9 // indirect
-	go.opentelemetry.io/otel/exporters/otlp/internal/retry v1.11.2 // indirect
+	go.opentelemetry.io/otel/exporters/otlp/internal/retry v1.14.0 // indirect
 	go.opentelemetry.io/otel/metric v0.37.0 // indirect
 	go.opentelemetry.io/otel/trace v1.14.0 // indirect
 	go.opentelemetry.io/proto/otlp v0.19.0 // indirect
