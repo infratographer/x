@@ -50,8 +50,6 @@ type AuthConfig struct {
 type Auth struct {
 	logger *zap.Logger
 
-	jwtConfig echojwt.Config
-
 	middleware echo.MiddlewareFunc
 
 	issuer   string
@@ -68,20 +66,21 @@ func (a *Auth) setup(ctx context.Context, config AuthConfig) error {
 	a.issuer = config.Issuer
 	a.audience = config.Audience
 
-	jwksURI, err := jwksURI(ctx, a.issuer)
-	if err != nil {
-		return err
-	}
-
-	jwks, err := keyfunc.Get(jwksURI, config.KeyFuncOptions)
-	if err != nil {
-		return err
-	}
-
-	a.jwtConfig = config.JWTConfig
-
 	jwtConfig := &config.JWTConfig
-	jwtConfig.KeyFunc = jwks.Keyfunc
+
+	if jwtConfig.KeyFunc == nil {
+		jwksURI, err := jwksURI(ctx, a.issuer)
+		if err != nil {
+			return err
+		}
+
+		jwks, err := keyfunc.Get(jwksURI, config.KeyFuncOptions)
+		if err != nil {
+			return err
+		}
+
+		jwtConfig.KeyFunc = jwks.Keyfunc
+	}
 
 	mdw, err := jwtConfig.ToMiddleware()
 	if err != nil {
