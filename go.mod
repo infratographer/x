@@ -6,7 +6,7 @@ require (
 	github.com/MicahParks/keyfunc v1.9.0
 	github.com/XSAM/otelsql v0.17.1
 	github.com/brpaz/echozap v1.1.3
-	github.com/cockroachdb/cockroach-go/v2 v2.2.19
+	github.com/cockroachdb/cockroach-go/v2 v2.3.3
 	github.com/gin-contrib/requestid v0.0.6
 	github.com/gin-contrib/zap v0.1.0
 	github.com/gin-gonic/gin v1.9.0
