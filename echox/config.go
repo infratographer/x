@@ -31,6 +31,7 @@ var (
 
 // Config is used to configure a new ginx server
 type Config struct {
+	Debug               bool
 	Listen              string
 	ShutdownGracePeriod time.Duration
 	TrustedProxies      []string
@@ -38,6 +39,9 @@ type Config struct {
 
 // MustViperFlags returns the cobra flags and wires them up with viper to prevent code duplication
 func MustViperFlags(v *viper.Viper, flags *pflag.FlagSet, defaultListen string) {
+	flags.Bool("debug", false, "enable server debug")
+	viperx.MustBindFlag(v, "server.debug", flags.Lookup("debug"))
+
 	flags.String("listen", defaultListen, "address to listen on")
 	viperx.MustBindFlag(v, "server.listen", flags.Lookup("listen"))
 
@@ -51,6 +55,7 @@ func MustViperFlags(v *viper.Viper, flags *pflag.FlagSet, defaultListen string) 
 // ConfigFromViper builds a new Config from viper.
 func ConfigFromViper(v *viper.Viper) Config {
 	return Config{
+		Debug:               v.GetBool("server.debug"),
 		Listen:              v.GetString("server.listen"),
 		ShutdownGracePeriod: v.GetDuration("server.shutdown-grace-period"),
 		TrustedProxies:      v.GetStringSlice("server.trusted-proxies"),

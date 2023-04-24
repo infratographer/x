@@ -54,6 +54,7 @@ type CheckFunc func(ctx context.Context) error
 
 // Server implements the HTTP Server
 type Server struct {
+	debug           bool
 	listen          string
 	handlers        []handler
 	logger          *zap.Logger
@@ -76,6 +77,7 @@ func NewServer(logger *zap.Logger, cfg Config, version *versionx.Details) (*Serv
 	}
 
 	return &Server{
+		debug:           cfg.Debug,
 		listen:          cfg.Listen,
 		logger:          logger.Named("echox"),
 		version:         version,
@@ -171,6 +173,8 @@ func (s *Server) AddReadinessCheck(name string, f CheckFunc) *Server {
 func (s *Server) Handler() http.Handler {
 	// Setup default echo router
 	r := DefaultEngine(s.logger)
+
+	r.Debug = s.debug
 
 	if s.trustedProxies != nil {
 		ranges := make([]echo.TrustOption, len(s.trustedProxies))
