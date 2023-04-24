@@ -43,3 +43,11 @@ func MustViperFlags(v *viper.Viper, flags *pflag.FlagSet, defaultListen string) 
 	flags.Duration("shutdown-grace-period", DefaultServerShutdownTimeout, "server shutdown grace period")
 	viperx.MustBindFlag(v, "server.shutdown-grace-period", flags.Lookup("shutdown-grace-period"))
 }
+
+// ConfigFromViper builds a new Config from viper.
+func ConfigFromViper(v *viper.Viper) Config {
+	return Config{
+		Listen:              v.GetString("server.listen"),
+		ShutdownGracePeriod: v.GetDuration("server.shutdown-grace-period"),
+	}
+}
