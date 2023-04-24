@@ -33,6 +33,7 @@ var (
 type Config struct {
 	Listen              string
 	ShutdownGracePeriod time.Duration
+	TrustedProxies      []string
 }
 
 // MustViperFlags returns the cobra flags and wires them up with viper to prevent code duplication
@@ -42,6 +43,9 @@ func MustViperFlags(v *viper.Viper, flags *pflag.FlagSet, defaultListen string) 
 
 	flags.Duration("shutdown-grace-period", DefaultServerShutdownTimeout, "server shutdown grace period")
 	viperx.MustBindFlag(v, "server.shutdown-grace-period", flags.Lookup("shutdown-grace-period"))
+
+	flags.StringSlice("trusted-proxies", nil, "server trusted proxies")
+	viperx.MustBindFlag(v, "server.trusted-proxies", flags.Lookup("trusted-proxies"))
 }
 
 // ConfigFromViper builds a new Config from viper.
@@ -49,5 +53,6 @@ func ConfigFromViper(v *viper.Viper) Config {
 	return Config{
 		Listen:              v.GetString("server.listen"),
 		ShutdownGracePeriod: v.GetDuration("server.shutdown-grace-period"),
+		TrustedProxies:      v.GetStringSlice("server.trusted-proxies"),
 	}
 }

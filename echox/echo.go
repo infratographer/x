@@ -16,11 +16,13 @@ package echox
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -33,6 +35,19 @@ import (
 	"go.uber.org/zap/zapcore"
 
 	"go.infratographer.com/x/versionx"
+)
+
+const (
+	ipv4SingleHostCIDR = 32
+	ipv4BitLength      = 8 * net.IPv4len
+
+	ipv6SingleHostCIDR = 128
+	ipv6BitLength      = 8 * net.IPv6len
+)
+
+var (
+	// ErrInvalidTrustedProxyIP is returned when an invalid ip is provided as a trusted proxy.
+	ErrInvalidTrustedProxyIP = errors.New("invalid trusted proxy ip")
 )
 
 // LogFunc is a function that can be used to add additional fields to the log
@@ -54,13 +69,19 @@ type Server struct {
 	version         *versionx.Details
 	readinessChecks map[string]CheckFunc
 	shutdownTimeout time.Duration
+	trustedProxies  []*net.IPNet
 }
 
 // NewServer will return an opinionated echo server for processing API requests.
-func NewServer(logger *zap.Logger, cfg Config, version *versionx.Details) *Server {
+func NewServer(logger *zap.Logger, cfg Config, version *versionx.Details) (*Server, error) {
 	shutdownTimeout := cfg.ShutdownGracePeriod
 	if shutdownTimeout == 0 {
 		shutdownTimeout = DefaultServerShutdownTimeout
+	}
+
+	trustedProxies, err := parseIPNets(cfg.TrustedProxies)
+	if err != nil {
+		return nil, err
 	}
 
 	return &Server{
@@ -69,7 +90,47 @@ func NewServer(logger *zap.Logger, cfg Config, version *versionx.Details) *Serve
 		version:         version,
 		readinessChecks: map[string]CheckFunc{},
 		shutdownTimeout: shutdownTimeout,
+		trustedProxies:  trustedProxies,
+	}, nil
+}
+
+func parseIPNets(sNets []string) ([]*net.IPNet, error) {
+	var nets []*net.IPNet
+
+	for _, entry := range sNets {
+		var (
+			ipnet *net.IPNet
+			err   error
+		)
+
+		if strings.Contains(entry, "/") {
+			_, ipnet, err = net.ParseCIDR(entry)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			ip := net.ParseIP(entry)
+			if ip == nil {
+				return nil, ErrInvalidTrustedProxyIP
+			}
+
+			if ipv4 := ip.To4(); ipv4 != nil {
+				ipnet = &net.IPNet{
+					IP:   ipv4,
+					Mask: net.CIDRMask(ipv4SingleHostCIDR, ipv4BitLength),
+				}
+			} else {
+				ipnet = &net.IPNet{
+					IP:   ip,
+					Mask: net.CIDRMask(ipv6SingleHostCIDR, ipv6BitLength),
+				}
+			}
+		}
+
+		nets = append(nets, ipnet)
 	}
+
+	return nets, nil
 }
 
 // DefaultEngine returns a base echo instance for processing requests.
@@ -119,6 +180,17 @@ func (s *Server) AddReadinessCheck(name string, f CheckFunc) *Server {
 func (s *Server) Handler() http.Handler {
 	// Setup default echo router
 	r := DefaultEngine(s.logger, emptyLogFn)
+
+	if s.trustedProxies != nil {
+		ranges := make([]echo.TrustOption, len(s.trustedProxies))
+		for i, trust := range s.trustedProxies {
+			ranges[i] = echo.TrustIPRange(trust)
+		}
+
+		r.IPExtractor = echo.ExtractIPFromXFFHeader(ranges...)
+	} else {
+		r.IPExtractor = echo.ExtractIPDirect()
+	}
 
 	p := prometheus.NewPrometheus("echo", nil)
 

@@ -10,6 +10,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"os/signal"
+	"strings"
 	"sync"
 	"syscall"
 	"testing"
@@ -58,7 +59,9 @@ func testServer(t *testing.T, config Config, preRun func(srv *Server)) (*Server,
 
 	require.NoError(t, err, "no error expected listening")
 
-	srv := NewServer(zap.NewNop(), config, versionx.BuildDetails())
+	srv, err := NewServer(zap.NewNop(), config, versionx.BuildDetails())
+
+	require.NoError(t, err, "no error expected for new server")
 
 	if preRun != nil {
 		preRun(srv)
@@ -102,6 +105,115 @@ func waitForServer(t *testing.T, testURL string) {
 	)
 
 	require.NoError(t, err, "error waiting for server to be ready")
+}
+
+func TestNewServer(t *testing.T) {
+	parseNet := func(s string) *net.IPNet {
+		_, ipnet, _ := net.ParseCIDR(s)
+
+		return ipnet
+	}
+
+	testCases := []struct {
+		name         string
+		config       Config
+		expectServer *Server
+		expectError  string
+	}{
+		{
+			"empty config",
+			Config{},
+			&Server{
+				logger:          zap.NewNop().Named("echox"),
+				readinessChecks: map[string]CheckFunc{},
+				shutdownTimeout: DefaultServerShutdownTimeout,
+			},
+			"",
+		},
+		{
+			"with valid trusted proxies",
+			Config{
+				TrustedProxies: []string{
+					"1.2.3.4",
+					"2.3.4.5/32",
+					"3.4.5.6/24",
+					"2001:db8:abcd:0012::0",
+					"2001:db8:abcd:0012::1/128",
+					"2001:db8:abcd:0013::0/112",
+				},
+			},
+			&Server{
+				logger:          zap.NewNop().Named("echox"),
+				readinessChecks: map[string]CheckFunc{},
+				shutdownTimeout: DefaultServerShutdownTimeout,
+				trustedProxies: []*net.IPNet{
+					parseNet("1.2.3.4/32"),
+					parseNet("2.3.4.5/32"),
+					parseNet("3.4.5.6/24"),
+					parseNet("2001:db8:abcd:0012::0/128"),
+					parseNet("2001:db8:abcd:0012::1/128"),
+					parseNet("2001:db8:abcd:0013::0/112"),
+				},
+			},
+			"",
+		},
+		{
+			"with invalid ipv4 trusted proxies",
+			Config{
+				TrustedProxies: []string{
+					"1.2.bad.4",
+				},
+			},
+			nil,
+			ErrInvalidTrustedProxyIP.Error(),
+		},
+		{
+			"with invalid ipv4 net trusted proxies",
+			Config{
+				TrustedProxies: []string{
+					"1.2.3.4/bad",
+				},
+			},
+			nil,
+			"invalid CIDR address: 1.2.3.4/bad",
+		},
+		{
+			"with invalid ipv6 trusted proxies",
+			Config{
+				TrustedProxies: []string{
+					"2001:db8:-:0012::0",
+				},
+			},
+			nil,
+			ErrInvalidTrustedProxyIP.Error(),
+		},
+		{
+			"with invalid ipv6 net trusted proxies",
+			Config{
+				TrustedProxies: []string{
+					"2001:db8:abcd:0012::0/bad",
+				},
+			},
+			nil,
+			"invalid CIDR address: 2001:db8:abcd:0012::0/bad",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			srv, err := NewServer(zap.NewNop(), tc.config, nil)
+
+			if tc.expectError != "" {
+				assert.EqualError(t, err, tc.expectError, "unexpected error returned")
+
+				return
+			}
+
+			require.NoError(t, err, "unexpected error returned from NewServer")
+
+			assert.Equal(t, tc.expectServer, srv, "server result doesn't match expectation")
+		})
+	}
 }
 
 func TestHandler(t *testing.T) {
@@ -191,6 +303,150 @@ func TestHandler(t *testing.T) {
 	}
 }
 
+func TestHandlerTrustedProxies(t *testing.T) {
+	testCases := []struct {
+		name           string
+		clientIP       string
+		proxyIP        string
+		trustedProxies []string
+		expectIP       string
+	}{
+		{
+			"none ipv4",
+			"1.2.3.10",
+			"1.2.3.20",
+			nil,
+			"1.2.3.20",
+		},
+		{
+			"none ipv6",
+			"2001:db8:abcd:12::a7",
+			"2001:db8:abcd:12::b3",
+			nil,
+			"2001:db8:abcd:12::b3",
+		},
+		{
+			"no header ipv4",
+			"1.2.3.10",
+			"",
+			[]string{
+				"1.2.3.20/32",
+			},
+			"1.2.3.10",
+		},
+		{
+			"no header ipv6",
+			"2001:db8:abcd:12::a7",
+			"2001:db8:abcd:12::b3",
+			[]string{
+				"2001:db8:abcd:12::b3",
+			},
+			"2001:db8:abcd:12::a7",
+		},
+		{
+			"trusted ipv4/32",
+			"1.2.3.10",
+			"1.2.3.20",
+			[]string{
+				"1.2.3.20/32",
+			},
+			"1.2.3.10",
+		},
+		{
+			"trusted ipv6/128",
+			"2001:db8:abcd:12::a7",
+			"2001:db8:abcd:12::b3",
+			[]string{
+				"2001:db8:abcd:12::b3",
+			},
+			"2001:db8:abcd:12::a7",
+		},
+		{
+			"trusted ipv4 subnet",
+			"1.2.3.10",
+			"1.2.3.20",
+			[]string{
+				"1.2.3.16/28",
+			},
+			"1.2.3.10",
+		},
+		{
+			"trusted ipv6 subnet",
+			"2001:db8:abcd:12::a7",
+			"2001:db8:abcd:12::b3",
+			[]string{
+				"2001:db8:abcd:12::b0/125",
+			},
+			"2001:db8:abcd:12::a7",
+		},
+		{
+			"untrusted ipv4 subnet",
+			"1.2.3.10",
+			"1.2.3.40",
+			[]string{
+				"1.2.3.16/28",
+			},
+			"1.2.3.40",
+		},
+		{
+			"untrusted ipv6 subnet",
+			"2001:db8:abcd:12::a7",
+			"2001:db8:abcd:12::c3",
+			[]string{
+				"2001:db8:abcd:12::b0/125",
+			},
+			"2001:db8:abcd:12::c3",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			srv := &Server{
+				logger: zap.NewNop(),
+				trustedProxies: func() []*net.IPNet {
+					nets, _ := parseIPNets(tc.trustedProxies)
+					return nets
+				}(),
+			}
+
+			engine := srv.Handler().(*echo.Echo)
+
+			engine.GET("/ip", func(c echo.Context) error {
+				return c.String(http.StatusOK, c.RealIP())
+			})
+
+			w := httptest.NewRecorder()
+			req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, "/ip", nil)
+
+			require.NoError(t, err, "no error expected creating new request")
+
+			if tc.proxyIP != "" {
+				ip := tc.proxyIP
+
+				if strings.Contains(tc.name, "ipv6") {
+					ip = "[" + ip + "]"
+				}
+
+				req.RemoteAddr = ip + ":2345"
+			} else {
+				ip := tc.clientIP
+
+				if strings.Contains(tc.name, "ipv6") {
+					ip = "[" + ip + "]"
+				}
+
+				req.RemoteAddr = ip + ":1234"
+			}
+
+			req.Header.Add("X-Forwarded-For", tc.clientIP)
+
+			engine.ServeHTTP(w, req)
+
+			assert.Equal(t, tc.expectIP, w.Body.String(), "unexpected real ip")
+		})
+	}
+}
+
 func TestServe(t *testing.T) {
 	testCases := []struct {
 		name            string
@@ -211,7 +467,7 @@ func TestServe(t *testing.T) {
 		{
 			"signal, request finishes",
 			5 * time.Millisecond,
-			10 * time.Millisecond,
+			20 * time.Millisecond,
 			0,
 			"",
 			"",
@@ -252,13 +508,15 @@ func TestServe(t *testing.T) {
 				time.Sleep(tc.reqSleep)
 			}()
 
-			srv := NewServer(
+			srv, err := NewServer(
 				zap.NewNop(),
 				Config{
 					ShutdownGracePeriod: tc.gracefulTimeout,
 				},
 				nil,
 			)
+
+			require.NoError(t, err, "unexpected error creating new server")
 
 			handler := testHandler{
 				routes: []testRoute{
