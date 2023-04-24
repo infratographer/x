@@ -32,7 +32,6 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 
 	"go.infratographer.com/x/versionx"
 )
@@ -50,16 +49,8 @@ var (
 	ErrInvalidTrustedProxyIP = errors.New("invalid trusted proxy ip")
 )
 
-// LogFunc is a function that can be used to add additional fields to the log
-// output.
-type LogFunc func(c echo.Context) []zapcore.Field
-
 // CheckFunc is a function that can be used to check the status of a service.
 type CheckFunc func(ctx context.Context) error
-
-var (
-	emptyLogFn = func(c echo.Context) []zapcore.Field { return []zapcore.Field{} }
-)
 
 // Server implements the HTTP Server
 type Server struct {
@@ -135,7 +126,7 @@ func parseIPNets(sNets []string) ([]*net.IPNet, error) {
 
 // DefaultEngine returns a base echo instance for processing requests.
 // This setups logging, requestid, and otel middleware.
-func DefaultEngine(logger *zap.Logger, f LogFunc) *echo.Echo {
+func DefaultEngine(logger *zap.Logger) *echo.Echo {
 	hostname, err := os.Hostname()
 	if err != nil {
 		hostname = "unknown"
@@ -179,7 +170,7 @@ func (s *Server) AddReadinessCheck(name string, f CheckFunc) *Server {
 // Handler returns a new http.Handler for serving requests.
 func (s *Server) Handler() http.Handler {
 	// Setup default echo router
-	r := DefaultEngine(s.logger, emptyLogFn)
+	r := DefaultEngine(s.logger)
 
 	if s.trustedProxies != nil {
 		ranges := make([]echo.TrustOption, len(s.trustedProxies))
