@@ -82,19 +82,10 @@ func DefaultEngine(logger *zap.Logger, f LogFunc) *echo.Echo {
 
 	engine := echo.New()
 
-	defaultSkipper := func(c echo.Context) bool {
-		switch c.Request().URL.Path {
-		case "/version", "/livez", "/readyz", "/metrics":
-			return true
-		default:
-			return false
-		}
-	}
-
 	engine.Use(middleware.RequestID())
 	engine.Use(echozap.ZapLogger(logger))
 	engine.Use(middleware.Recover())
-	engine.Use(otelecho.Middleware(hostname, otelecho.WithSkipper(defaultSkipper)))
+	engine.Use(otelecho.Middleware(hostname, otelecho.WithSkipper(SkipDefaultEndpoints)))
 
 	engine.HideBanner = true
 	engine.HidePort = true
@@ -233,4 +224,14 @@ func (s *Server) RunWithContext(ctx context.Context) error {
 	defer listener.Close() //nolint:errcheck // No need to check error.
 
 	return s.ServeWithContext(ctx, listener)
+}
+
+// SkipDefaultEndpoints returns true when the provided context request is for /version /livez /readyz or /metrics
+func SkipDefaultEndpoints(c echo.Context) bool {
+	switch c.Request().URL.Path {
+	case "/version", "/livez", "/readyz", "/metrics":
+		return true
+	default:
+		return false
+	}
 }
