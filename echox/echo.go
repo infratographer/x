@@ -26,13 +26,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/brpaz/echozap"
 	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 	"go.uber.org/zap"
 
+	"go.infratographer.com/x/echox/echozap"
 	"go.infratographer.com/x/versionx"
 )
 
@@ -126,27 +126,6 @@ func parseIPNets(sNets []string) ([]*net.IPNet, error) {
 	return nets, nil
 }
 
-// DefaultEngine returns a base echo instance for processing requests.
-// This setups logging, requestid, and otel middleware.
-func DefaultEngine(logger *zap.Logger) *echo.Echo {
-	hostname, err := os.Hostname()
-	if err != nil {
-		hostname = "unknown"
-	}
-
-	engine := echo.New()
-
-	engine.Use(middleware.RequestID())
-	engine.Use(echozap.ZapLogger(logger))
-	engine.Use(middleware.Recover())
-	engine.Use(otelecho.Middleware(hostname, otelecho.WithSkipper(SkipDefaultEndpoints)))
-
-	engine.HideBanner = true
-	engine.HidePort = true
-
-	return engine
-}
-
 type handler interface {
 	Routes(*echo.Group)
 }
@@ -171,10 +150,22 @@ func (s *Server) AddReadinessCheck(name string, f CheckFunc) *Server {
 
 // Handler returns a new http.Handler for serving requests.
 func (s *Server) Handler() http.Handler {
-	// Setup default echo router
-	r := DefaultEngine(s.logger)
+	hostname, err := os.Hostname()
+	if err != nil {
+		hostname = "unknown"
+	}
 
-	r.Debug = s.debug
+	engine := echo.New()
+
+	engine.Use(middleware.RequestID())
+	engine.Use(echozap.Middleware(s.logger))
+	engine.Use(middleware.Recover())
+	engine.Use(otelecho.Middleware(hostname, otelecho.WithSkipper(SkipDefaultEndpoints)))
+
+	engine.HideBanner = true
+	engine.HidePort = true
+
+	engine.Debug = s.debug
 
 	if s.trustedProxies != nil {
 		ranges := make([]echo.TrustOption, len(s.trustedProxies))
@@ -182,29 +173,29 @@ func (s *Server) Handler() http.Handler {
 			ranges[i] = echo.TrustIPRange(trust)
 		}
 
-		r.IPExtractor = echo.ExtractIPFromXFFHeader(ranges...)
+		engine.IPExtractor = echo.ExtractIPFromXFFHeader(ranges...)
 	} else {
-		r.IPExtractor = echo.ExtractIPDirect()
+		engine.IPExtractor = echo.ExtractIPDirect()
 	}
 
 	p := prometheus.NewPrometheus("echo", nil)
 
-	p.Use(r)
+	p.Use(engine)
 
 	if s.version != nil {
 		// Version endpoint returns build information
-		r.GET("/version", s.versionHandler)
+		engine.GET("/version", s.versionHandler)
 	}
 
 	// Health endpoints
-	r.GET("/livez", s.livenessCheckHandler)
-	r.GET("/readyz", s.readinessCheckHandler)
+	engine.GET("/livez", s.livenessCheckHandler)
+	engine.GET("/readyz", s.readinessCheckHandler)
 
 	for _, handler := range s.handlers {
-		handler.Routes(r.Group(""))
+		handler.Routes(engine.Group(""))
 	}
 
-	return r
+	return engine
 }
 
 // Serve serves an http server on the provided listener.

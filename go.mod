@@ -5,7 +5,6 @@ go 1.20
 require (
 	github.com/MicahParks/keyfunc v1.9.0
 	github.com/XSAM/otelsql v0.21.0
-	github.com/brpaz/echozap v1.1.3
 	github.com/cockroachdb/cockroach-go/v2 v2.3.3
 	github.com/gin-contrib/requestid v0.0.6
 	github.com/gin-contrib/zap v0.1.0
@@ -15,6 +14,7 @@ require (
 	github.com/labstack/echo-contrib v0.14.1
 	github.com/labstack/echo-jwt/v4 v4.1.0
 	github.com/labstack/echo/v4 v4.10.2
+	github.com/labstack/gommon v0.4.0
 	github.com/lib/pq v1.10.8
 	github.com/pressly/goose/v3 v3.10.0
 	github.com/spf13/cobra v1.7.0
@@ -42,7 +42,6 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
-	github.com/labstack/gommon v0.4.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
