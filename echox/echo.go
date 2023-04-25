@@ -26,13 +26,13 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/brpaz/echozap"
 	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 	"go.uber.org/zap"
 
+	"go.infratographer.com/x/echox/echozap"
 	"go.infratographer.com/x/versionx"
 )
 
@@ -158,7 +158,7 @@ func (s *Server) Handler() http.Handler {
 	engine := echo.New()
 
 	engine.Use(middleware.RequestID())
-	engine.Use(echozap.ZapLogger(s.logger))
+	engine.Use(echozap.Middleware(s.logger))
 	engine.Use(middleware.Recover())
 	engine.Use(otelecho.Middleware(hostname, otelecho.WithSkipper(SkipDefaultEndpoints)))
 
