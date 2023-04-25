@@ -22,6 +22,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/goleak"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zaptest/observer"
 
 	"go.infratographer.com/x/versionx"
 )
@@ -241,8 +242,10 @@ func TestHandler(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			obsZapCore, obsLogs := observer.New(zap.InfoLevel)
+
 			srv := &Server{
-				logger: zap.NewNop(),
+				logger: zap.New(obsZapCore),
 			}
 
 			srv.AddHandler(testHandler{
@@ -290,6 +293,12 @@ func TestHandler(t *testing.T) {
 
 			assert.Equal(t, tc.expectStatus, w.Code, "unexpected response code for %s", tc.path)
 
+			if assert.Len(t, obsLogs.All(), 1, "expected a single request log to be logged") {
+				logs := obsLogs.TakeAll()
+
+				assert.Equal(t, "/test", logs[len(logs)-1].ContextMap()["path"], "expected path to be /test")
+			}
+
 			w = httptest.NewRecorder()
 
 			req, err = http.NewRequestWithContext(context.Background(), http.MethodGet, "http://localhost/baseline", nil)
@@ -299,6 +308,12 @@ func TestHandler(t *testing.T) {
 			engine.ServeHTTP(w, req)
 
 			assert.Equal(t, http.StatusOK, w.Code, "unexpected response code for baseline")
+
+			if assert.Len(t, obsLogs.All(), 1, "expected a single request log to be logged") {
+				logs := obsLogs.TakeAll()
+
+				assert.Equal(t, "/baseline", logs[len(logs)-1].ContextMap()["path"], "expected path to be /baseline")
+			}
 		})
 	}
 }
