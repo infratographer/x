@@ -8,6 +8,8 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+
+	"go.infratographer.com/x/echojwtx"
 )
 
 var (
@@ -93,7 +95,10 @@ func (config MiddlewareConfig) ToMiddleware() (echo.MiddlewareFunc, error) {
 				reqID = response.Header().Get(echo.HeaderXRequestID)
 			}
 
-			fields = append(fields, zap.String("request_id", reqID))
+			fields = append(fields,
+				zap.String("request_id", reqID),
+				zap.String("actor", echojwtx.Actor(c)),
+			)
 
 			if err != nil {
 				fields = append(fields, zap.Error(err))

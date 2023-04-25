@@ -18,6 +18,8 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"go.uber.org/zap/zaptest/observer"
+
+	"go.infratographer.com/x/echojwtx"
 )
 
 func TestToMiddleware(t *testing.T) {
@@ -42,6 +44,7 @@ func TestToMiddleware(t *testing.T) {
 		requestMethod     string
 		requestPath       string
 		setRequestID      bool
+		setActor          bool
 		returnFn          echo.HandlerFunc
 		expectFields      map[string]interface{}
 		expectConfigError error
@@ -51,6 +54,7 @@ func TestToMiddleware(t *testing.T) {
 			MiddlewareConfig{},
 			"",
 			"",
+			false,
 			false,
 			nil,
 			nil,
@@ -63,6 +67,7 @@ func TestToMiddleware(t *testing.T) {
 			},
 			http.MethodGet,
 			"/test",
+			false,
 			false,
 			returnStatus(http.StatusOK),
 			map[string]interface{}{
@@ -82,6 +87,7 @@ func TestToMiddleware(t *testing.T) {
 			http.MethodGet,
 			"/test",
 			true,
+			false,
 			returnStatus(http.StatusOK),
 			map[string]interface{}{
 				"status":         int64(http.StatusOK),
@@ -100,6 +106,7 @@ func TestToMiddleware(t *testing.T) {
 			},
 			http.MethodGet,
 			"/test",
+			false,
 			false,
 			returnError(errors.New("test error")), //nolint:goerr113 // fine for tests
 			map[string]interface{}{
@@ -121,6 +128,7 @@ func TestToMiddleware(t *testing.T) {
 			http.MethodGet,
 			"/test",
 			false,
+			false,
 			returnError(errors.New("test error")), //nolint:goerr113 // fine for tests
 			map[string]interface{}{
 				"status":         int64(http.StatusInternalServerError),
@@ -139,6 +147,7 @@ func TestToMiddleware(t *testing.T) {
 			},
 			http.MethodGet,
 			"/test",
+			false,
 			false,
 			returnError(echo.NewHTTPError(http.StatusForbidden, "http error")),
 			map[string]interface{}{
@@ -160,6 +169,7 @@ func TestToMiddleware(t *testing.T) {
 			},
 			http.MethodGet,
 			"/test",
+			false,
 			false,
 			returnError(
 				echo.NewHTTPError(
@@ -192,6 +202,7 @@ func TestToMiddleware(t *testing.T) {
 			http.MethodGet,
 			"/test",
 			false,
+			false,
 			returnStatus(http.StatusOK),
 			map[string]interface{}{
 				"status":         int64(http.StatusOK),
@@ -217,6 +228,7 @@ func TestToMiddleware(t *testing.T) {
 			http.MethodGet,
 			"/test",
 			false,
+			false,
 			returnStatus(http.StatusOK),
 			map[string]interface{}{
 				"status":         int64(http.StatusOK),
@@ -225,6 +237,26 @@ func TestToMiddleware(t *testing.T) {
 				"query":          "",
 				"response_bytes": int64(3),
 				"status_text":    "OK",
+			},
+			nil,
+		},
+		{
+			"actor specified",
+			MiddlewareConfig{
+				Logger: zap.NewNop(),
+			},
+			http.MethodGet,
+			"/test",
+			false,
+			true,
+			returnStatus(http.StatusOK),
+			map[string]interface{}{
+				"status":         int64(http.StatusOK),
+				"method":         http.MethodGet,
+				"path":           "/test",
+				"query":          "",
+				"response_bytes": int64(3),
+				"actor":          "urn:user:test",
 			},
 			nil,
 		},
@@ -251,6 +283,15 @@ func TestToMiddleware(t *testing.T) {
 			e := echo.New()
 			e.Use(middleware.RequestID())
 			e.Use(mdw)
+			e.Use(func(next echo.HandlerFunc) echo.HandlerFunc {
+				return func(c echo.Context) error {
+					if tc.setActor {
+						c.Set(echojwtx.ActorKey, "urn:user:test")
+					}
+
+					return next(c)
+				}
+			})
 			e.GET(tc.requestPath, func(c echo.Context) error {
 				time.Sleep(20 * time.Millisecond)
 				return tc.returnFn(c)
@@ -314,6 +355,12 @@ func TestToMiddleware(t *testing.T) {
 				assert.NotEmpty(t, lastLogFields["request_id"], "expected request_id to be defined")
 
 				expectedKeys = append(expectedKeys, "request_id")
+			}
+
+			if !tc.setActor {
+				assert.Empty(t, lastLogFields["actor"], "expected actor to be empty")
+
+				expectedKeys = append(expectedKeys, "actor")
 			}
 
 			assert.GreaterOrEqual(t, lastLogFields["duration"], float64(20), "expected duration to be greater than 20 milliseconds")
