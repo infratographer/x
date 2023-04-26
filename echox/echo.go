@@ -66,10 +66,7 @@ type Server struct {
 
 // NewServer will return an opinionated echo server for processing API requests.
 func NewServer(logger *zap.Logger, cfg Config, version *versionx.Details) (*Server, error) {
-	shutdownTimeout := cfg.ShutdownGracePeriod
-	if shutdownTimeout == 0 {
-		shutdownTimeout = DefaultServerShutdownTimeout
-	}
+	cfg = cfg.withDefaults()
 
 	trustedProxies, err := parseIPNets(cfg.TrustedProxies)
 	if err != nil {
@@ -82,7 +79,7 @@ func NewServer(logger *zap.Logger, cfg Config, version *versionx.Details) (*Serv
 		logger:          logger.Named("echox"),
 		version:         version,
 		readinessChecks: map[string]CheckFunc{},
-		shutdownTimeout: shutdownTimeout,
+		shutdownTimeout: cfg.ShutdownGracePeriod,
 		trustedProxies:  trustedProxies,
 	}, nil
 }

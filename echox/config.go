@@ -31,10 +31,58 @@ var (
 
 // Config is used to configure a new ginx server
 type Config struct {
-	Debug               bool
-	Listen              string
+	// Debug enables echo's Debug option.
+	Debug bool
+
+	// Listen sets the listen address to serve the echo server on.
+	Listen string
+
+	// ShutdownGracePeriod sets the grace period for in flight requests before shutting down.
 	ShutdownGracePeriod time.Duration
-	TrustedProxies      []string
+
+	// TrustedProxies defines the allowed ip / network ranges to trust a proxy from.
+	TrustedProxies []string
+}
+
+// withDefaults returns a new config with defaults set if not already defined.
+func (c Config) withDefaults() Config {
+	if c.Listen == "" {
+		c.Listen = ":8080"
+	}
+
+	if c.ShutdownGracePeriod <= 0 {
+		c.ShutdownGracePeriod = DefaultServerShutdownTimeout
+	}
+
+	return c
+}
+
+// WithDebug enables echo's Debug option.
+func (c Config) WithDebug(debug bool) Config {
+	c.Debug = debug
+
+	return c
+}
+
+// WithListen sets the listen address to serve the echo server on.
+func (c Config) WithListen(listen string) Config {
+	c.Listen = listen
+
+	return c
+}
+
+// WithShutdownGracePeriod sets the grace period for in flight requests before shutting down.
+func (c Config) WithShutdownGracePeriod(period time.Duration) Config {
+	c.ShutdownGracePeriod = period
+
+	return c
+}
+
+// WithTrustedProxies defines the allowed ip / network ranges to trust a proxy from.
+func (c Config) WithTrustedProxies(trust ...string) Config {
+	c.TrustedProxies = append(c.TrustedProxies, trust...)
+
+	return c
 }
 
 // MustViperFlags returns the cobra flags and wires them up with viper to prevent code duplication
