@@ -56,12 +56,13 @@ type CheckFunc func(ctx context.Context) error
 type Server struct {
 	debug           bool
 	listen          string
-	handlers        []handler
 	logger          *zap.Logger
-	version         *versionx.Details
+	handlers        []handler
+	middleware      []echo.MiddlewareFunc
 	readinessChecks map[string]CheckFunc
 	shutdownTimeout time.Duration
 	trustedProxies  []*net.IPNet
+	version         *versionx.Details
 }
 
 // NewServer will return an opinionated echo server for processing API requests.
@@ -77,10 +78,11 @@ func NewServer(logger *zap.Logger, cfg Config, version *versionx.Details) (*Serv
 		debug:           cfg.Debug,
 		listen:          cfg.Listen,
 		logger:          logger.Named("echox"),
-		version:         version,
+		middleware:      cfg.Middleware,
 		readinessChecks: map[string]CheckFunc{},
 		shutdownTimeout: cfg.ShutdownGracePeriod,
 		trustedProxies:  trustedProxies,
+		version:         version,
 	}, nil
 }
 
@@ -132,6 +134,7 @@ type handler interface {
 // function, which allows the routes to be added to the server.
 func (s *Server) AddHandler(h handler) *Server {
 	s.handlers = append(s.handlers, h)
+
 	return s
 }
 
@@ -158,6 +161,8 @@ func (s *Server) Handler() http.Handler {
 	engine.Use(echozap.Middleware(s.logger))
 	engine.Use(middleware.Recover())
 	engine.Use(otelecho.Middleware(hostname, otelecho.WithSkipper(SkipDefaultEndpoints)))
+
+	engine.Use(s.middleware...)
 
 	engine.HideBanner = true
 	engine.HidePort = true

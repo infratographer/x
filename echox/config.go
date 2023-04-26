@@ -17,6 +17,7 @@ package echox
 import (
 	"time"
 
+	"github.com/labstack/echo/v4"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
@@ -42,6 +43,9 @@ type Config struct {
 
 	// TrustedProxies defines the allowed ip / network ranges to trust a proxy from.
 	TrustedProxies []string
+
+	// Middleware includes the provided middleware when echo is initialized.
+	Middleware []echo.MiddlewareFunc
 }
 
 // withDefaults returns a new config with defaults set if not already defined.
@@ -81,6 +85,13 @@ func (c Config) WithShutdownGracePeriod(period time.Duration) Config {
 // WithTrustedProxies defines the allowed ip / network ranges to trust a proxy from.
 func (c Config) WithTrustedProxies(trust ...string) Config {
 	c.TrustedProxies = append(c.TrustedProxies, trust...)
+
+	return c
+}
+
+// WithMiddleware includes the provided middleware when echo is initialized.
+func (c Config) WithMiddleware(mdw ...echo.MiddlewareFunc) Config {
+	c.Middleware = append(c.Middleware, mdw...)
 
 	return c
 }
