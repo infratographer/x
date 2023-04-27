@@ -126,6 +126,7 @@ func TestNewServer(t *testing.T) {
 			Config{},
 			&Server{
 				logger:          zap.NewNop().Named("echox"),
+				listen:          ":8080",
 				readinessChecks: map[string]CheckFunc{},
 				shutdownTimeout: DefaultServerShutdownTimeout,
 			},
@@ -145,6 +146,7 @@ func TestNewServer(t *testing.T) {
 			},
 			&Server{
 				logger:          zap.NewNop().Named("echox"),
+				listen:          ":8080",
 				readinessChecks: map[string]CheckFunc{},
 				shutdownTimeout: DefaultServerShutdownTimeout,
 				trustedProxies: []*net.IPNet{
