@@ -103,11 +103,11 @@ func testHelperOIDCProvider(keyIDs ...string) (string, func()) {
 		}
 	}()
 
-	close := func() {
+	closer := func() {
 		s.Close() //nolint:errcheck // error check not needed
 	}
 
-	return issuer, close
+	return issuer, closer
 }
 
 // testHelperGetToken will return a signed token
@@ -127,7 +127,7 @@ func testHelperGetToken(signer jose.Signer, cl jwt.Claims, key string, value int
 // TestOAuthClient creates a new http client handling OAuth automatically.
 // Returned is the new HTTP Client, OIDC URI and a close function.
 func TestOAuthClient(subject string, audience string) (*http.Client, string, func()) {
-	issuer, close := testHelperOIDCProvider(TestPrivRSAKey1ID, TestPrivRSAKey2ID)
+	issuer, closer := testHelperOIDCProvider(TestPrivRSAKey1ID, TestPrivRSAKey2ID)
 
 	ctx := context.Background()
 
@@ -149,5 +149,5 @@ func TestOAuthClient(subject string, audience string) (*http.Client, string, fun
 
 	return oauth2.NewClient(ctx, oauth2.StaticTokenSource(&oauth2.Token{
 		AccessToken: rawToken,
-	})), issuer, close
+	})), issuer, closer
 }

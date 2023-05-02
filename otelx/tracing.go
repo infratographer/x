@@ -110,7 +110,7 @@ func (c *ConfigError) Error() string {
 // InitTracer will configure the exporter setup in the provided config and create
 // an otel TracerProvider. The new TracerProvider will be set as the global trace
 // provider.
-func InitTracer(tc Config, appName string, logger *zap.SugaredLogger) error {
+func InitTracer(tc Config, appName string, _ *zap.SugaredLogger) error {
 	if !tc.Enabled {
 		return nil
 	}

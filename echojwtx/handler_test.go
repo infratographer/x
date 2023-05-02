@@ -19,8 +19,8 @@ const (
 )
 
 func TestNoAuth(t *testing.T) {
-	_, issuer, close := TestOAuthClient("urn:test:user", "")
-	defer close()
+	_, issuer, closer := TestOAuthClient("urn:test:user", "")
+	defer closer()
 
 	auth, err := NewAuth(context.Background(), AuthConfig{
 		Issuer: issuer,
@@ -116,8 +116,8 @@ func TestAudienceValidation(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			oauthClient, issuer, close := TestOAuthClient("urn:test:user", tc.clientAudience)
-			defer close()
+			oauthClient, issuer, closer := TestOAuthClient("urn:test:user", tc.clientAudience)
+			defer closer()
 
 			auth, err := NewAuth(context.Background(), AuthConfig{
 				Logger:   logger,
