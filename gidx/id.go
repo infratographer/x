@@ -81,7 +81,6 @@ func parts(str string) (string, string) {
 	p := strings.SplitN(string(str), "-", Parts)
 
 	if len(p) != Parts && len(p[0]) != PrefixPartLength {
-		fmt.Printf("split is: %+v", p)
 		return "", ""
 	}
 
@@ -94,7 +93,7 @@ func Parse(str string) (PrefixedID, error) {
 	prefix, id := parts(str)
 
 	if prefix == "" || id == "" {
-		return "", newErrInvalidID("missing prefix")
+		return "", newErrInvalidID(fmt.Sprintf("expected id format is prefix-id, but received %s", str))
 	}
 
 	if len(prefix) != PrefixPartLength {

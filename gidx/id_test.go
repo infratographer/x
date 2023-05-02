@@ -56,7 +56,7 @@ func TestParsers(t *testing.T) {
 		{name: "valid id", id: string(gidx.MustNewID("testing"))},
 		{name: "valid prefix with any length id", id: "testing-any_random#string@i*want(to-put-in-here-of-any-length"},
 		{name: "valid prefix with a uuid ", id: "testing-" + uuid.New().String()},
-		{name: "invalid id; no separator", id: "somestringthatisalltogether", errorMsg: "invalid id: missing prefix"},
+		{name: "invalid id; no separator", id: "somestringthatisalltogether", errorMsg: "invalid id: expected id format is prefix-id"},
 		{name: "invalid id; prefix length too short", id: "short-fm21VlAHHrGf6utn1JsKc", errorMsg: "invalid id: expected prefix length is 7"},
 		{name: "invalid id; prefix length too long", id: "notthatshort-fm21VlAHHrGf6utn1JsKc", errorMsg: "invalid id: expected prefix length is 7"},
 	}
