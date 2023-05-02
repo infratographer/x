@@ -64,7 +64,7 @@ func (c Config) GetURI() string {
 
 // MustViperFlags returns the cobra flags and viper config to prevent code duplication
 // and help provide consistent flags across the applications
-func MustViperFlags(v *viper.Viper, flags *pflag.FlagSet) {
+func MustViperFlags(v *viper.Viper, _ *pflag.FlagSet) {
 	v.MustBindEnv("crdb.host")
 	v.MustBindEnv("crdb.params")
 	v.MustBindEnv("crdb.user")
