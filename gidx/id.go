@@ -103,6 +103,11 @@ func Parse(str string) (PrefixedID, error) {
 	return PrefixedID(str), nil
 }
 
+// String returns PrefixedID as a string.
+func (p PrefixedID) String() string {
+	return string(p)
+}
+
 // Value implements sql.Valuer so that PrefixedIDs can be written to databases
 // transparently. PrefixedIDs map to strings.
 func (p PrefixedID) Value() (driver.Value, error) {
