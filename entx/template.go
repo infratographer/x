@@ -8,9 +8,6 @@ import (
 )
 
 var (
-	// PrefixedIDTemplate adds support for generating the methods needed to convert a prefixed ID to it's backend type
-	PrefixedIDTemplate = parseT("template/id_prefixes.tmpl")
-
 	// FederationTemplate adds support for generating the required output to support gql federation
 	FederationTemplate = parseT("template/gql_federation.tmpl")
 
