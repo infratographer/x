@@ -77,6 +77,14 @@ func migrate(command string, args []string) {
 	}
 }
 
+// MigrateUp will run migrations and is provided as an easy way to ensure migrations are ran in test suites
+func MigrateUp(uri string, fsys fs.FS) {
+	dbURI = uri
+
+	goose.SetBaseFS(fsys)
+	migrate("up", nil)
+}
+
 // SetBaseFS accepts an embedded golang filesystem and sets that as the location
 // for goose migration files.
 func SetBaseFS(fsys fs.FS) {
