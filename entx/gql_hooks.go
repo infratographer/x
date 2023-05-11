@@ -55,6 +55,17 @@ var (
 		return nil
 	}
 
+	setPageInfoShareable = func(g *gen.Graph, s *ast.Schema) error {
+		q, ok := s.Types["PageInfo"]
+		if !ok {
+			return nil
+		}
+
+		q.Directives = append(q.Directives, &ast.Directive{Name: "shareable"})
+
+		return nil
+	}
+
 	addJSONScalar = func(g *gen.Graph, s *ast.Schema) error {
 		s.Types["JSON"] = &ast.Definition{
 			Kind:        ast.Scalar,
