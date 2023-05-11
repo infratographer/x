@@ -24,7 +24,7 @@ type ExtensionOption func(*Extension) error
 func WithFederation() ExtensionOption {
 	return func(ex *Extension) error {
 		ex.templates = append(ex.templates, FederationTemplate)
-		ex.gqlSchemaHooks = append(ex.gqlSchemaHooks, removeNodeGoModel, removeNodeQueries)
+		ex.gqlSchemaHooks = append(ex.gqlSchemaHooks, removeNodeGoModel, removeNodeQueries, setPageInfoShareable)
 
 		return nil
 	}
