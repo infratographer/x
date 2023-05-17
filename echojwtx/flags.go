@@ -3,7 +3,7 @@ package echojwtx
 import (
 	"time"
 
-	"github.com/MicahParks/keyfunc"
+	"github.com/MicahParks/keyfunc/v2"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
