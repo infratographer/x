@@ -37,7 +37,7 @@ require (
 	go.opentelemetry.io/otel/sdk v1.14.0
 	go.uber.org/goleak v1.2.1
 	go.uber.org/zap v1.24.0
-	golang.org/x/exp v0.0.0-20221230185412-738e83a70c30
+	golang.org/x/exp v0.0.0-20230515195305-f3d0a9c9a5cc
 	golang.org/x/oauth2 v0.7.0
 	gopkg.in/square/go-jose.v2 v2.6.0
 )
