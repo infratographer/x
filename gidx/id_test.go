@@ -47,6 +47,11 @@ func TestPrefix(t *testing.T) {
 	assert.Equal(t, "testpre", id.Prefix())
 }
 
+func TestNull(t *testing.T) {
+	assert.True(t, gidx.NullPrefixedID == gidx.PrefixedID(""))
+	assert.False(t, gidx.NullPrefixedID == gidx.PrefixedID("a-value"))
+}
+
 func TestParsers(t *testing.T) {
 	cases := []struct {
 		name     string

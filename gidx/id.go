@@ -20,6 +20,8 @@ const (
 	Parts = 2
 	// TotalLength is the length of a idx generated PrefixID
 	TotalLength = PrefixPartLength + IDPartLength + Parts - 1
+	// NullPrefixedID represents a null value PrefixedID
+	NullPrefixedID = PrefixedID("")
 )
 
 // PrefixedID represents an ID that is formatted as prefix-id. PrefixedIDs are used
