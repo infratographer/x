@@ -20,6 +20,8 @@ const (
 	Parts = 2
 	// TotalLength is the length of a idx generated PrefixID
 	TotalLength = PrefixPartLength + IDPartLength + Parts - 1
+	// NullPrefixedID represents a null value PrefixedID
+	NullPrefixedID = PrefixedID("")
 )
 
 // PrefixedID represents an ID that is formatted as prefix-id. PrefixedIDs are used
@@ -90,6 +92,10 @@ func parts(str string) (string, string) {
 // Parse reads in a string and returns a PrefixedID if the string is a properly
 // formatted PrefixedID value
 func Parse(str string) (PrefixedID, error) {
+	if str == "" {
+		return PrefixedID(""), nil
+	}
+
 	prefix, id := parts(str)
 
 	if prefix == "" || id == "" {
@@ -123,7 +129,8 @@ func (p PrefixedID) Value() (driver.Value, error) {
 // properly formatted PrefixedID.
 func (p *PrefixedID) Scan(v any) error {
 	if v == nil {
-		return ErrNilValue
+		*p = PrefixedID("")
+		return nil
 	}
 
 	switch src := v.(type) {

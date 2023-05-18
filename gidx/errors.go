@@ -6,9 +6,6 @@ import (
 )
 
 var (
-	// ErrNilValue is returned when a nil value is provided
-	ErrNilValue = errors.New("no value provided")
-
 	// ErrUnsupportedType is returned when a value is provided of an unsupported type
 	ErrUnsupportedType = errors.New("unsupported type")
 )
