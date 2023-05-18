@@ -59,6 +59,7 @@ func TestParsers(t *testing.T) {
 		{name: "invalid id; no separator", id: "somestringthatisalltogether", errorMsg: "invalid id: expected id format is prefix-id"},
 		{name: "invalid id; prefix length too short", id: "short-fm21VlAHHrGf6utn1JsKc", errorMsg: "invalid id: expected prefix length is 7"},
 		{name: "invalid id; prefix length too long", id: "notthatshort-fm21VlAHHrGf6utn1JsKc", errorMsg: "invalid id: expected prefix length is 7"},
+		{name: "null id should be valid", id: ""},
 	}
 
 	t.Run("Test globalid.Parse", func(t *testing.T) {
@@ -98,7 +99,7 @@ func TestParsers(t *testing.T) {
 				err := id.Scan(tt.id)
 				// scan should never return an error, if it's in the database treat it like it's valid
 				assert.NoError(t, err)
-				assert.NotEqual(t, "", string(id))
+				assert.Equal(t, tt.id, string(id))
 			})
 		}
 	})

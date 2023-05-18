@@ -90,6 +90,10 @@ func parts(str string) (string, string) {
 // Parse reads in a string and returns a PrefixedID if the string is a properly
 // formatted PrefixedID value
 func Parse(str string) (PrefixedID, error) {
+	if str == "" {
+		return PrefixedID(""), nil
+	}
+
 	prefix, id := parts(str)
 
 	if prefix == "" || id == "" {
@@ -123,7 +127,8 @@ func (p PrefixedID) Value() (driver.Value, error) {
 // properly formatted PrefixedID.
 func (p *PrefixedID) Scan(v any) error {
 	if v == nil {
-		return ErrNilValue
+		*p = PrefixedID("")
+		return nil
 	}
 
 	switch src := v.(type) {
