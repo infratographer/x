@@ -2,9 +2,22 @@
 package pubsubx
 
 import (
+	"encoding/json"
 	"time"
 
 	"go.infratographer.com/x/gidx"
+)
+
+// ChangeType represents the possible event types for a ChangeMessage
+type ChangeType string
+
+var (
+	// CreateChangeType provides the event type for create events
+	CreateChangeType ChangeType = "create"
+	// UpdateChangeType provides the event type for update events
+	UpdateChangeType ChangeType = "update"
+	// DeleteChangeType provides the event type for delete events
+	DeleteChangeType ChangeType = "delete"
 )
 
 // FieldChange represents a single field that was changed in a changeset and is used to map fields to the old and new values
@@ -63,4 +76,18 @@ type EventMessage struct {
 	SpanID string `json:"spanID"`
 	// Data is a field to store any information that may be important to include about the event
 	Data map[string]interface{} `json:"data"`
+}
+
+func UnmarshalChangeMessage(b []byte) (ChangeMessage, error) {
+	var c ChangeMessage
+	err := json.Unmarshal(b, &c)
+
+	return c, err
+}
+
+func UnmarshalEventMessage(b []byte) (EventMessage, error) {
+	var m EventMessage
+	err := json.Unmarshal(b, &m)
+
+	return m, err
 }

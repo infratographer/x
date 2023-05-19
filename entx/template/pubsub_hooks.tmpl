@@ -114,9 +114,7 @@
 								return retValue, err
 							}
 
-						pubSubj := m.PubsubClient.NewSubject("changes", eventType(m.Op()), "{{ $nodeAnnotation.SubjectName }}")
-
-						if err := m.PubsubClient.PublishChange(ctx, pubSubj, msg); err != nil {
+						if err := m.PubsubxPublisher.PublishChange(ctx, "{{ $nodeAnnotation.SubjectName }}", msg); err != nil {
 							return nil, fmt.Errorf("failed to publish change: %w", err)
 						}
 
@@ -170,9 +168,7 @@
 						}
 
 
-						pubSubj := m.PubsubClient.NewSubject("changes", eventType(m.Op()), "{{ $nodeAnnotation.SubjectName }}")
-
-						if err := m.PubsubClient.PublishChange(ctx, pubSubj, msg); err != nil {
+						if err := m.PubsubxPublisher.PublishChange(ctx, "{{ $nodeAnnotation.SubjectName }}", msg); err != nil {
 							return nil, fmt.Errorf("failed to publish change: %w", err)
 						}
 
@@ -199,11 +195,11 @@
 	func eventType(op ent.Op) string {
 					switch op {
 					case ent.OpCreate:
-									return pubsub.CreateEventType
+									return pubsubx.CreateChangeType
 					case ent.OpUpdate, ent.OpUpdateOne:
-									return pubsub.UpdateEventType
+									return pubsubx.UpdateChangeType
 					case ent.OpDelete, ent.OpDeleteOne:
-									return pubsub.DeleteEventType
+									return pubsubx.DeleteChangeType
 					default:
 									return "unknown"
 					}
