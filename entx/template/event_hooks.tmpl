@@ -1,14 +1,14 @@
 {{/* gotype: entgo.io/ent/entc/gen.Graph */}}
 
-{{ define "pubsubhooks/pubsub" }}
-	{{ with extend $ "Package" "pubsubhooks" }}
+{{ define "eventhooks/hooks" }}
+	{{ with extend $ "Package" "eventhooks" }}
 		{{ template "header" . }}
 	{{ end }}
 
 	{{ $genPackage := base $.Config.Package }}
 
 	{{- range $node := $.Nodes }}
-		{{- if $nodeAnnotation := $node.Annotations.INFRA9_PUBSUBHOOK }}
+		{{- if $nodeAnnotation := $node.Annotations.INFRA9_EVENTHOOKS }}
 		{{- if ne $nodeAnnotation.SubjectName "" }}
 			func {{ $node.Name }}Hooks() []ent.Hook {
 				return []ent.Hook{
@@ -23,14 +23,14 @@
 								return nil, fmt.Errorf("object doesn't have an id %s", objID)
 							}
 
-							changeset := []pubsubx.FieldChange{}
+							changeset := []events.FieldChange{}
 
 							{{- range $f := $node.Fields }}
 								{{- if $f.Sensitive }}
 									// sensitive field, only return <redacted>
 									_, ok = m.{{ $f.MutationGet }}()
 									if ok {
-										changeset = append(changeset, pubsubx.FieldChange{
+										changeset = append(changeset, events.FieldChange{
 											Field:         "{{ $f.Name | camel }}",
 											PreviousValue: "<redacted>",
 											CurrentValue:  "<redacted>",
@@ -39,7 +39,7 @@
 									{{- $currentValue := print "cv_" $f.Name }}
 									{{ $currentValue }} := ""
 									{{ $f.Name }}, ok := m.{{ $f.MutationGet }}()
-									{{- $annotation := $f.Annotations.INFRA9_PUBSUBHOOK }}
+									{{- $annotation := $f.Annotations.INFRA9_EVENTHOOKS }}
 									{{- if $annotation.IsAdditionalSubjectField }}
 										if !ok && !m.Op().Is(ent.OpCreate) {
 											// since we are doing an update or delete and these fields didn't change, load the "old" value
@@ -59,7 +59,7 @@
 
 									if ok {
 										{{- if $f.Sensitive }}
-											changeset = append(changeset, pubsubx.FieldChange{
+											changeset = append(changeset, events.FieldChange{
 												Field:         "{{ $f.Name | camel }}",
 												PreviousValue: "<sensitive>",
 												CurrentValue:  "<sensitive>",
@@ -90,7 +90,7 @@
 												}
 											}
 
-											changeset = append(changeset, pubsubx.FieldChange{
+											changeset = append(changeset, events.FieldChange{
 												Field:         "{{ $f.Name }}",
 												PreviousValue: {{ $prevVar }},
 												CurrentValue: {{ $currentValue }},
@@ -100,7 +100,7 @@
 								{{ end }}
 							{{ end }}
 
-						msg := pubsubx.ChangeMessage{
+						msg := events.ChangeMessage{
 							EventType:    					eventType(m.Op()),
 							SubjectID:    					objID,
 							AdditionalSubjectIDs: 	additionalSubjects,
@@ -114,7 +114,7 @@
 								return retValue, err
 							}
 
-						if err := m.PubsubxPublisher.PublishChange(ctx, "{{ $nodeAnnotation.SubjectName }}", msg); err != nil {
+						if err := m.EventsPublisher.PublishChange(ctx, "{{ $nodeAnnotation.SubjectName }}", msg); err != nil {
 							return nil, fmt.Errorf("failed to publish change: %w", err)
 						}
 
@@ -136,12 +136,12 @@
 
 							dbObj, err := m.Client().{{ $node.Name }}.Get(ctx, objID)
 							if err != nil {
-								return nil, fmt.Errorf("failed to load object to get values for pubsub, err %w", err)
+								return nil, fmt.Errorf("failed to load object to get values for event, err %w", err)
 							}
 
 							{{- range $f := $node.Fields }}
 								{{- if not $f.Sensitive }}
-									{{- $annotation := $f.Annotations.INFRA9_PUBSUBHOOK }}
+									{{- $annotation := $f.Annotations.INFRA9_EVENTHOOKS }}
 									{{- if $annotation.IsAdditionalSubjectField }}
 										{{- if $f.Optional }}
 											if dbObj.{{ $f.MutationGet }} != gidx.NullPrefixedID {
@@ -160,7 +160,7 @@
 								return retValue, err
 							}
 
-						msg := pubsubx.ChangeMessage{
+						msg := events.ChangeMessage{
 							EventType:    					eventType(m.Op()),
 							SubjectID:    					objID,
 							AdditionalSubjectIDs: 	additionalSubjects,
@@ -168,7 +168,7 @@
 						}
 
 
-						if err := m.PubsubxPublisher.PublishChange(ctx, "{{ $nodeAnnotation.SubjectName }}", msg); err != nil {
+						if err := m.EventsPublisher.PublishChange(ctx, "{{ $nodeAnnotation.SubjectName }}", msg); err != nil {
 							return nil, fmt.Errorf("failed to publish change: %w", err)
 						}
 
@@ -182,9 +182,9 @@
 			{{- end }}
 	{{- end }}
 
-	func PubsubHooks(c *{{ $genPackage }}.Client) {
+	func EventHooks(c *{{ $genPackage }}.Client) {
 		{{- range $node := $.Nodes }}
-			{{- if $nodeAnnotation := $node.Annotations.INFRA9_PUBSUBHOOK }}
+			{{- if $nodeAnnotation := $node.Annotations.INFRA9_EVENTHOOKS }}
 				{{- if ne $nodeAnnotation.SubjectName "" }}
 					c.{{ $node.Name }}.Use({{ $node.Name }}Hooks()...)
 				{{ end }}
@@ -193,16 +193,17 @@
 	}
 
 	func eventType(op ent.Op) string {
-					switch op {
-					case ent.OpCreate:
-									return pubsubx.CreateChangeType
-					case ent.OpUpdate, ent.OpUpdateOne:
-									return pubsubx.UpdateChangeType
-					case ent.OpDelete, ent.OpDeleteOne:
-									return pubsubx.DeleteChangeType
-					default:
-									return "unknown"
-					}
+		switch op {
+		case ent.OpCreate:
+			return string(events.CreateChangeType)
+		case ent.OpUpdate, ent.OpUpdateOne:
+			return string(events.UpdateChangeType)
+		case ent.OpDelete, ent.OpDeleteOne:
+			return string(events.DeleteChangeType)
+		default:
+			return "unknown"
+		}
 	}
+
 
 {{ end }}

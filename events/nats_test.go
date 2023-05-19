@@ -1,4 +1,4 @@
-package pubsubx_test
+package events_test
 
 import (
 	"context"
@@ -13,16 +13,16 @@ import (
 
 	"go.infratographer.com/x/gidx"
 
-	"go.infratographer.com/x/pubsubx"
-	"go.infratographer.com/x/testing/pubsubxtools"
+	"go.infratographer.com/x/events"
+	"go.infratographer.com/x/testing/eventtools"
 )
 
 func TestNatsPublishAndSubscribe(t *testing.T) {
 	ctx := context.Background()
-	pubCfg, subCfg, err := pubsubxtools.NewNatsServer()
+	pubCfg, subCfg, err := eventtools.NewNatsServer()
 	require.NoError(t, err)
 
-	publisher, err := pubsubx.NewPublisher(pubCfg)
+	publisher, err := events.NewPublisher(pubCfg)
 	require.NoError(t, err)
 
 	change := testCreateChange()
@@ -35,7 +35,7 @@ func TestNatsPublishAndSubscribe(t *testing.T) {
 	err = publisher.PublishChange(ctx, "test", change2)
 	require.NoError(t, err)
 
-	sub, err := pubsubx.NewSubscriber(subCfg)
+	sub, err := events.NewSubscriber(subCfg)
 	require.NoError(t, err)
 
 	messages, err := sub.SubscribeChanges(context.Background(), ">")
@@ -44,7 +44,7 @@ func TestNatsPublishAndSubscribe(t *testing.T) {
 	receivedMsg, err := getSingleMessage(messages, time.Second*1)
 	require.NoError(t, err)
 
-	chgMsg, err := pubsubx.UnmarshalChangeMessage(receivedMsg.Payload)
+	chgMsg, err := events.UnmarshalChangeMessage(receivedMsg.Payload)
 	require.NoError(t, err)
 	assert.EqualValues(t, change, chgMsg)
 	assert.True(t, receivedMsg.Ack())
@@ -52,7 +52,7 @@ func TestNatsPublishAndSubscribe(t *testing.T) {
 	receivedMsg, err = getSingleMessage(messages, time.Second*1)
 	require.NoError(t, err)
 
-	chgMsg, err = pubsubx.UnmarshalChangeMessage(receivedMsg.Payload)
+	chgMsg, err = events.UnmarshalChangeMessage(receivedMsg.Payload)
 	require.NoError(t, err)
 	assert.EqualValues(t, change2, chgMsg)
 	assert.True(t, receivedMsg.Ack())
@@ -60,10 +60,10 @@ func TestNatsPublishAndSubscribe(t *testing.T) {
 
 func TestNatsMultipleSubscribers(t *testing.T) {
 	ctx := context.Background()
-	pubCfg, subCfg, err := pubsubxtools.NewNatsServer()
+	pubCfg, subCfg, err := eventtools.NewNatsServer()
 	require.NoError(t, err)
 
-	publisher, err := pubsubx.NewPublisher(pubCfg)
+	publisher, err := events.NewPublisher(pubCfg)
 	require.NoError(t, err)
 
 	change := testCreateChange()
@@ -71,7 +71,7 @@ func TestNatsMultipleSubscribers(t *testing.T) {
 	err = publisher.PublishChange(ctx, "test", change)
 	require.NoError(t, err)
 
-	sub, err := pubsubx.NewSubscriber(subCfg)
+	sub, err := events.NewSubscriber(subCfg)
 	require.NoError(t, err)
 
 	messages, err := sub.SubscribeChanges(context.Background(), ">")
@@ -80,12 +80,12 @@ func TestNatsMultipleSubscribers(t *testing.T) {
 	receivedMsg, err := getSingleMessage(messages, time.Second*1)
 	require.NoError(t, err)
 
-	chgMsg, err := pubsubx.UnmarshalChangeMessage(receivedMsg.Payload)
+	chgMsg, err := events.UnmarshalChangeMessage(receivedMsg.Payload)
 	require.NoError(t, err)
 	assert.EqualValues(t, change, chgMsg)
 	assert.True(t, receivedMsg.Ack())
 
-	sub2, err := pubsubx.NewSubscriber(subCfg)
+	sub2, err := events.NewSubscriber(subCfg)
 	require.NoError(t, err)
 
 	messages, err = sub2.SubscribeChanges(context.Background(), ">")
@@ -94,7 +94,7 @@ func TestNatsMultipleSubscribers(t *testing.T) {
 	receivedMsg, err = getSingleMessage(messages, time.Second*1)
 	require.NoError(t, err)
 
-	chgMsg, err = pubsubx.UnmarshalChangeMessage(receivedMsg.Payload)
+	chgMsg, err = events.UnmarshalChangeMessage(receivedMsg.Payload)
 	require.NoError(t, err)
 	assert.EqualValues(t, change, chgMsg)
 	assert.True(t, receivedMsg.Ack())
@@ -102,10 +102,10 @@ func TestNatsMultipleSubscribers(t *testing.T) {
 
 func TestNatsGroupedSubscribers(t *testing.T) {
 	ctx := context.Background()
-	pubCfg, subCfg, err := pubsubxtools.NewNatsServer()
+	pubCfg, subCfg, err := eventtools.NewNatsServer()
 	require.NoError(t, err)
 
-	publisher, err := pubsubx.NewPublisher(pubCfg)
+	publisher, err := events.NewPublisher(pubCfg)
 	require.NoError(t, err)
 
 	change := testCreateChange()
@@ -116,7 +116,7 @@ func TestNatsGroupedSubscribers(t *testing.T) {
 	// put both subscribers in the same queue group so that combined the message is only delivered once
 	subCfg.QueueGroup = "queue-test"
 
-	sub, err := pubsubx.NewSubscriber(subCfg)
+	sub, err := events.NewSubscriber(subCfg)
 	require.NoError(t, err)
 
 	messages, err := sub.SubscribeChanges(context.Background(), ">")
@@ -125,12 +125,12 @@ func TestNatsGroupedSubscribers(t *testing.T) {
 	receivedMsg, err := getSingleMessage(messages, time.Second*1)
 	require.NoError(t, err)
 
-	chgMsg, err := pubsubx.UnmarshalChangeMessage(receivedMsg.Payload)
+	chgMsg, err := events.UnmarshalChangeMessage(receivedMsg.Payload)
 	require.NoError(t, err)
 	assert.EqualValues(t, change, chgMsg)
 	assert.True(t, receivedMsg.Ack())
 
-	sub2, err := pubsubx.NewSubscriber(subCfg)
+	sub2, err := events.NewSubscriber(subCfg)
 	require.NoError(t, err)
 
 	messages, err = sub2.SubscribeChanges(context.Background(), ">")
@@ -151,18 +151,18 @@ func getSingleMessage(messages <-chan *message.Message, timeout time.Duration) (
 	}
 }
 
-func testChange(eventType string) pubsubx.ChangeMessage {
+func testChange(eventType string) events.ChangeMessage {
 	js, err := gofakeit.JSON(nil)
 	if err != nil {
 		js = []byte("json-failed-so-have-a-string")
 	}
 
-	return pubsubx.ChangeMessage{
+	return events.ChangeMessage{
 		EventType:            eventType,
 		SubjectID:            gidx.MustNewID("testing"),
 		ActorID:              gidx.MustNewID("testusr"),
 		AdditionalSubjectIDs: []gidx.PrefixedID{gidx.MustNewID("testusr"), gidx.MustNewID("testtnt")},
-		FieldChanges: []pubsubx.FieldChange{
+		FieldChanges: []events.FieldChange{
 			{
 				Field:         "name",
 				PreviousValue: gofakeit.Name(),
@@ -177,6 +177,6 @@ func testChange(eventType string) pubsubx.ChangeMessage {
 	}
 }
 
-func testCreateChange() pubsubx.ChangeMessage {
+func testCreateChange() events.ChangeMessage {
 	return testChange("create")
 }

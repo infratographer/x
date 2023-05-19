@@ -1,29 +1,29 @@
 package entx
 
-// PubsubAnnotationName is the value of the annotation when read during ent compilation
-var PubsubAnnotationName = "INFRA9_PUBSUBHOOK"
+// EventsHookAnnotationName is the value of the annotation when read during ent compilation
+var EventsHookAnnotationName = "INFRA9_EVENTHOOKS"
 
-// PubsubAnnotation provides a ent.Annotation spec. These shouldn't be set directly, you should use PubsubAdditionalSubject() and PubsubSubjectName instead
-type PubsubAnnotation struct {
+// EventsHookAnnotation provides a ent.Annotation spec. These shouldn't be set directly, you should use EventsHookAdditionalSubject() and EventsHookSubjectName instead
+type EventsHookAnnotation struct {
 	SubjectName              string
 	IsAdditionalSubjectField bool
 }
 
 // Name implements the ent Annotation interface.
-func (a PubsubAnnotation) Name() string {
-	return PubsubAnnotationName
+func (a EventsHookAnnotation) Name() string {
+	return EventsHookAnnotationName
 }
 
-// PubsubAdditionalSubject marks this field as a field to return as an additional subject
-func PubsubAdditionalSubject() *PubsubAnnotation {
-	return &PubsubAnnotation{
+// EventsHookAdditionalSubject marks this field as a field to return as an additional subject
+func EventsHookAdditionalSubject() *EventsHookAnnotation {
+	return &EventsHookAnnotation{
 		IsAdditionalSubjectField: true,
 	}
 }
 
-// PubsubSubjectName sets the subject name that is where the messages for this object will be sent
-func PubsubSubjectName(s string) *PubsubAnnotation {
-	return &PubsubAnnotation{
+// EventsHookSubjectName sets the subject name that is where the messages for this object will be sent
+func EventsHookSubjectName(s string) *EventsHookAnnotation {
+	return &EventsHookAnnotation{
 		SubjectName: s,
 	}
 }

@@ -1,4 +1,4 @@
-package pubsubxtools
+package eventtools
 
 import (
 	"errors"
@@ -9,7 +9,7 @@ import (
 	"github.com/nats-io/nats-server/v2/server"
 	"github.com/nats-io/nats.go"
 
-	"go.infratographer.com/x/pubsubx"
+	"go.infratographer.com/x/events"
 )
 
 const (
@@ -25,7 +25,7 @@ var (
 )
 
 // NewNatsServer returns a simple NATs server that starts and stores it's data in a tmp dir
-func NewNatsServer() (pCfg pubsubx.PublisherConfig, sCfg pubsubx.SubscriberConfig, err error) {
+func NewNatsServer() (pCfg events.PublisherConfig, sCfg events.SubscriberConfig, err error) {
 	tmpdir, err := os.MkdirTemp(os.TempDir(), "tenant-nats")
 	if err != nil {
 		err = fmt.Errorf("failed making tmp dir for nats storage: %w", err)
@@ -72,7 +72,7 @@ func NewNatsServer() (pCfg pubsubx.PublisherConfig, sCfg pubsubx.SubscriberConfi
 	}
 
 	_, err = js.AddStream(&nats.StreamConfig{
-		Name:     "pubsubx-tests",
+		Name:     "events-tests",
 		Subjects: Subjects,
 	})
 	if err != nil {

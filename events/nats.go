@@ -1,4 +1,4 @@
-package pubsubx
+package events
 
 import (
 	"github.com/ThreeDotsLabs/watermill"
