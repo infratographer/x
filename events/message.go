@@ -1,4 +1,4 @@
-// Package pubsubx provides common utilities and formats for working with pubsub systems
+// Package events provides common utilities and formats for working with infratographer events
 package events
 
 import (
@@ -78,6 +78,7 @@ type EventMessage struct {
 	Data map[string]interface{} `json:"data"`
 }
 
+// UnmarshalChangeMessage returns a ChangeMessage from a json []byte.
 func UnmarshalChangeMessage(b []byte) (ChangeMessage, error) {
 	var c ChangeMessage
 	err := json.Unmarshal(b, &c)
@@ -85,6 +86,7 @@ func UnmarshalChangeMessage(b []byte) (ChangeMessage, error) {
 	return c, err
 }
 
+// UnmarshalEventMessage returns a EventMessage from a json []byte.
 func UnmarshalEventMessage(b []byte) (EventMessage, error) {
 	var m EventMessage
 	err := json.Unmarshal(b, &m)

@@ -8,12 +8,16 @@ import (
 
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
+
 	"go.infratographer.com/x/echojwtx"
 	"go.infratographer.com/x/gidx"
 )
 
 // ErrUnsupportedPubsub is returned when the pubsub URL is not a supported provider
 var ErrUnsupportedPubsub = errors.New("unsupported pubsub provider")
+
+// ErrMissingEventType is returned when attempting to publish an event without an event type specified
+var ErrMissingEventType = errors.New("event type missing")
 
 // Publisher provides a pubsub publisher that uses the watermill pubsub package
 type Publisher struct {
@@ -47,7 +51,7 @@ func NewPublisher(cfg PublisherConfig) (*Publisher, error) {
 // PublishChange will publish a ChangeMessage to the topic for the change
 func (p *Publisher) PublishChange(ctx context.Context, subjectType string, change ChangeMessage) error {
 	if change.EventType == "" {
-		return errors.New("invalid event type")
+		return ErrMissingEventType
 	}
 
 	topic := strings.Join([]string{p.prefix, "changes", change.EventType, subjectType}, ".")
@@ -75,7 +79,7 @@ func (p *Publisher) PublishChange(ctx context.Context, subjectType string, chang
 // PublishEvent will publish an EventMessage to the proper topic for that event
 func (p *Publisher) PublishEvent(_ context.Context, event EventMessage) error {
 	if event.EventType == "" {
-		return errors.New("invalid event type")
+		return ErrMissingEventType
 	}
 
 	topic := strings.Join([]string{p.prefix, "events", event.EventType}, ".")

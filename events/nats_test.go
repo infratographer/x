@@ -17,6 +17,8 @@ import (
 	"go.infratographer.com/x/testing/eventtools"
 )
 
+var errTimeout = errors.New("timeout waiting for event")
+
 func TestNatsPublishAndSubscribe(t *testing.T) {
 	ctx := context.Background()
 	pubCfg, subCfg, err := eventtools.NewNatsServer()
@@ -147,7 +149,7 @@ func getSingleMessage(messages <-chan *message.Message, timeout time.Duration) (
 	case message := <-messages:
 		return message, nil
 	case <-time.After(timeout):
-		return nil, errors.New("timeout")
+		return nil, errTimeout
 	}
 }
 
