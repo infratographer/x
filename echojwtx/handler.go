@@ -1,6 +1,7 @@
 package echojwtx
 
 import (
+	"context"
 	"errors"
 	"net/http"
 
@@ -38,6 +39,10 @@ func (a *Auth) jwtHandler(c echo.Context) error {
 	}
 
 	if subject, ok := claims["sub"]; ok {
+		// store the actor in the request context as well so it's available outside of echo contexts
+		req := c.Request()
+		req = req.WithContext(context.WithValue(req.Context(), ActorCtxKey, subject))
+		c.SetRequest(req)
 		c.Set(ActorKey, subject)
 	}
 

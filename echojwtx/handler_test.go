@@ -19,7 +19,7 @@ const (
 )
 
 func TestNoAuth(t *testing.T) {
-	_, issuer, closer := TestOAuthClient("urn:test:user", "")
+	_, issuer, closer := TestOAuthClient("testing-user", "")
 	defer closer()
 
 	auth, err := NewAuth(context.Background(), AuthConfig{
@@ -129,6 +129,7 @@ func TestAudienceValidation(t *testing.T) {
 
 			gotUserTokenCh := make(chan *jwt.Token, 1)
 			gotActorCh := make(chan string, 1)
+			gotActorCtxCh := make(chan string, 1)
 
 			e := echo.New()
 
@@ -137,9 +138,11 @@ func TestAudienceValidation(t *testing.T) {
 			e.GET("/test", func(c echo.Context) error {
 				token, _ := c.Get("user").(*jwt.Token)
 				actor, _ := c.Get(ActorKey).(string)
+				actorCtx, _ := c.Request().Context().Value(ActorCtxKey).(string)
 
 				gotUserTokenCh <- token
 				gotActorCh <- actor
+				gotActorCtxCh <- actorCtx
 
 				return nil
 			})
@@ -169,6 +172,17 @@ func TestAudienceValidation(t *testing.T) {
 
 				select {
 				case actor := <-gotActorCh:
+					if tc.expectActor {
+						assert.NotEmpty(t, actor, "expected actor not to be empty")
+					} else {
+						assert.Empty(t, actor, "expected actor to be empty")
+					}
+				case <-time.After(chanTimeout):
+					t.Error("failed to receive actor result")
+				}
+
+				select {
+				case actor := <-gotActorCtxCh:
 					if tc.expectActor {
 						assert.NotEmpty(t, actor, "expected actor not to be empty")
 					} else {

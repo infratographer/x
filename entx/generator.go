@@ -38,11 +38,20 @@ func WithJSONScalar() ExtensionOption {
 	}
 }
 
+// WithPubsubHooks adds the templates for generating pubsub hooks
+func WithPubsubHooks() ExtensionOption {
+	return func(ex *Extension) error {
+		ex.templates = append(ex.templates, PubsubHooksTemplate)
+
+		return nil
+	}
+}
+
 // NewExtension returns an entc Extension that allows the entx package to generate
 // the schema changes and templates needed to function
 func NewExtension(opts ...ExtensionOption) (*Extension, error) {
 	e := &Extension{
-		templates:      MixinTemplates,
+		templates:      []*gen.Template{},
 		gqlSchemaHooks: []entgql.SchemaHook{},
 	}
 
