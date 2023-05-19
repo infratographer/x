@@ -14,9 +14,16 @@ import (
 	"go.uber.org/zap"
 )
 
+type actorContext struct{}
+
 const (
-	// ActorKey defines the context key an actor is stored in.
+	// ActorKey defines the context key an actor is stored in for an echo context
 	ActorKey = "actor"
+)
+
+var (
+	// ActorCtxKey defines the context key an actor is stored in for a plain context
+	ActorCtxKey = actorContext{}
 )
 
 var (

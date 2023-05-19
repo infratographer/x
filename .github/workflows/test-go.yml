@@ -16,9 +16,9 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.20'
+          go-version: "1.20"
       - name: Run go tests and generate coverage report
-        run: go test -race -coverprofile=coverage.txt -covermode=atomic -tags testtools -p 1 ./...
+        run: go test -race -coverprofile=coverage.txt -covermode=atomic ./...
       - name: Upload coverage report
         uses: codecov/codecov-action@v3
         with:
