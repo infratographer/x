@@ -8,6 +8,7 @@ require (
 	github.com/99designs/gqlgen v0.17.31
 	github.com/MicahParks/keyfunc v1.9.0
 	github.com/XSAM/otelsql v0.21.0
+	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869
 	github.com/cockroachdb/cockroach-go/v2 v2.3.3
 	github.com/gin-contrib/requestid v0.0.6
 	github.com/gin-contrib/zap v0.1.0
@@ -21,6 +22,7 @@ require (
 	github.com/labstack/gommon v0.4.0
 	github.com/lib/pq v1.10.9
 	github.com/pressly/goose/v3 v3.10.0
+	github.com/rs/zerolog v1.29.1
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.15.0
@@ -54,9 +56,12 @@ require (
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/hashicorp/hcl/v2 v2.13.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
+	github.com/kr/pretty v0.3.1 // indirect
+	github.com/kr/text v0.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
@@ -113,7 +118,7 @@ require (
 	github.com/spf13/afero v1.9.3 // indirect
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
-	github.com/stretchr/testify v1.8.2
+	github.com/stretchr/testify v1.8.3
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/ugorji/go/codec v1.2.9 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/internal/retry v1.14.0 // indirect
