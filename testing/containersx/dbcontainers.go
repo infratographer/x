@@ -20,7 +20,7 @@ type DBContainer struct {
 // NewCockroachDB will return a new DBContainer backed by cockroachdb
 func NewCockroachDB(ctx context.Context, img string) (*DBContainer, error) {
 	image := "docker.io/cockroachdb/cockroach"
-	imageTag := "latest-v22.2"
+	imageTag := "latest"
 
 	if strings.Contains(img, ":") {
 		p := strings.SplitN(img, ":", 2) //nolint:gomnd
