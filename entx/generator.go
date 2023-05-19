@@ -38,10 +38,10 @@ func WithJSONScalar() ExtensionOption {
 	}
 }
 
-// WithPubsubHooks adds the templates for generating pubsub hooks
-func WithPubsubHooks() ExtensionOption {
+// WithEventHooks adds the templates for generating event hooks
+func WithEventHooks() ExtensionOption {
 	return func(ex *Extension) error {
-		ex.templates = append(ex.templates, PubsubHooksTemplate)
+		ex.templates = append(ex.templates, EventHooksTemplate)
 
 		return nil
 	}
