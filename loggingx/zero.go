@@ -1,4 +1,4 @@
-// Copyright 2022 The Infratographer Authors
+// Copyright 2023 The Infratographer Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,11 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
+
+package loggingx
+
 // Looking around at echo loggers there's github.com/ziflex/lecho which provides a
 // generic interface to zerolog as middleware and reduces the overall code footprint
 // the Infratographer project maintains relative to zap. This is a good thing.
-package loggingx
 
 import (
 	"io"
@@ -23,6 +24,7 @@ import (
 	"time"
 
 	"github.com/rs/zerolog"
+
 	"go.infratographer.com/x/versionx"
 )
 
@@ -31,6 +33,7 @@ func InitZeroLogger(appName string, cfg Config) *zerolog.Logger {
 	return InitLoggerWithWriter(appName, cfg, os.Stdout)
 }
 
+// InitLoggerWithWriter returns a logger that writes to a given io.Writer
 func InitLoggerWithWriter(appName string, cfg Config, out io.Writer) *zerolog.Logger {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	if cfg.Debug {
@@ -53,6 +56,7 @@ func InitLoggerWithWriter(appName string, cfg Config, out io.Writer) *zerolog.Lo
 			TimeFormat: time.RFC3339,
 		}
 	}
+
 	ctx := zerolog.New(out).
 		With().
 		Fields(fields).

@@ -4,9 +4,10 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
+	"golang.org/x/exp/slices"
 )
 
 var (
@@ -53,16 +54,24 @@ func Actor(c echo.Context) string {
 }
 
 func (a *Auth) validateClaims(claims jwt.MapClaims) error {
-	if a.audience != "" && !claims.VerifyAudience(a.audience, true) {
-		a.logger.Error("jwt user claim invalid audience", zap.Any("audience", claims["aud"]))
+	if a.audience != "" {
+		if audiences, err := claims.GetAudience(); err != nil {
+			a.logger.Error("jwt user failed to get audience", zap.Error(err), zap.Any("audience", claims["aud"]))
+		} else if !slices.Contains(audiences, a.audience) {
+			a.logger.Error("jwt user claim invalid audience", zap.Any("audience", claims["aud"]))
 
-		return echo.NewHTTPError(http.StatusUnauthorized, "invalid or expired jwt").SetInternal(errInvalidAudience)
+			return echo.NewHTTPError(http.StatusUnauthorized, "invalid or expired jwt").SetInternal(errInvalidAudience)
+		}
 	}
 
-	if a.issuer != "" && !claims.VerifyIssuer(a.issuer, true) {
-		a.logger.Error("jwt user claim invalid issuer", zap.Any("issuer", claims["iss"]))
+	if a.issuer != "" {
+		if issuer, err := claims.GetIssuer(); err != nil {
+			a.logger.Error("jwt user failed to get issuer", zap.Error(err), zap.Any("issuer", claims["iss"]))
+		} else if issuer != a.issuer {
+			a.logger.Error("jwt user claim invalid issuer", zap.Any("issuer", claims["iss"]))
 
-		return echo.NewHTTPError(http.StatusUnauthorized, "invalid or expired jwt").SetInternal(errInvalidIssuer)
+			return echo.NewHTTPError(http.StatusUnauthorized, "invalid or expired jwt").SetInternal(errInvalidIssuer)
+		}
 	}
 
 	return nil
