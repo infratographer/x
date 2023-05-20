@@ -8,6 +8,7 @@ import (
 
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
+	"go.uber.org/zap"
 
 	"go.infratographer.com/x/echojwtx"
 	"go.infratographer.com/x/gidx"
@@ -24,18 +25,20 @@ type Publisher struct {
 	prefix    string
 	source    string
 	publisher message.Publisher
+	logger    *zap.SugaredLogger
 }
 
-// NewPublisher returns a publisher for the given config provided
-func NewPublisher(cfg PublisherConfig) (*Publisher, error) {
+// NewPublisherWithLogger returns a publisher for the given config provided
+func NewPublisherWithLogger(cfg PublisherConfig, logger *zap.SugaredLogger) (*Publisher, error) {
 	p := &Publisher{
 		prefix: cfg.Prefix,
 		source: cfg.Source,
+		logger: logger,
 	}
 
 	switch {
 	case strings.HasPrefix(cfg.URL, "nats://"):
-		np, err := newNATSPublisher(cfg)
+		np, err := newNATSPublisher(cfg, p.logger)
 		if err != nil {
 			return nil, err
 		}
@@ -46,6 +49,11 @@ func NewPublisher(cfg PublisherConfig) (*Publisher, error) {
 	}
 
 	return p, nil
+}
+
+// NewPublisher returns a publisher for the given config provided
+func NewPublisher(cfg PublisherConfig) (*Publisher, error) {
+	return NewPublisherWithLogger(cfg, zap.NewNop().Sugar())
 }
 
 // PublishChange will publish a ChangeMessage to the topic for the change

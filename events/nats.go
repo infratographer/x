@@ -1,16 +1,17 @@
 package events
 
 import (
-	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill-nats/v2/pkg/nats"
 	"github.com/ThreeDotsLabs/watermill/message"
+	"github.com/garsue/watermillzap"
 	nc "github.com/nats-io/nats.go"
+	"go.uber.org/zap"
 )
 
 var natsMarshaler = &nats.JSONMarshaler{}
 
-func newNATSPublisher(cfg PublisherConfig) (message.Publisher, error) {
-	logger := watermill.NewStdLogger(false, false)
+func newNATSPublisher(cfg PublisherConfig, logger *zap.SugaredLogger) (message.Publisher, error) {
+	logAdapter := watermillzap.NewLogger(logger.Desugar())
 
 	options := []nc.Option{
 		nc.Timeout(cfg.Timeout),
@@ -40,12 +41,12 @@ func newNATSPublisher(cfg PublisherConfig) (message.Publisher, error) {
 			Marshaler:   natsMarshaler,
 			JetStream:   jsConfig,
 		},
-		logger,
+		logAdapter,
 	)
 }
 
-func newNATSSubscriber(cfg SubscriberConfig) (message.Subscriber, error) {
-	logger := watermill.NewStdLogger(false, false)
+func newNATSSubscriber(cfg SubscriberConfig, logger *zap.SugaredLogger) (message.Subscriber, error) {
+	logAdapter := watermillzap.NewLogger(logger.Desugar())
 
 	options := []nc.Option{
 		nc.Timeout(cfg.Timeout),
@@ -69,7 +70,7 @@ func newNATSSubscriber(cfg SubscriberConfig) (message.Subscriber, error) {
 			JetStream:        jsConfig,
 			QueueGroupPrefix: cfg.QueueGroup,
 		},
-		logger,
+		logAdapter,
 	)
 
 	return sub, err
