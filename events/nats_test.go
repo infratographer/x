@@ -37,6 +37,12 @@ func TestNatsPublishAndSubscribe(t *testing.T) {
 	err = publisher.PublishChange(ctx, "test", change2)
 	require.NoError(t, err)
 
+	change3 := testCreateChange()
+	change3.ActorID = ""
+
+	err = publisher.PublishChange(ctx, "test", change3)
+	require.NoError(t, err)
+
 	sub, err := events.NewSubscriber(subCfg)
 	require.NoError(t, err)
 
@@ -57,6 +63,15 @@ func TestNatsPublishAndSubscribe(t *testing.T) {
 	chgMsg, err = events.UnmarshalChangeMessage(receivedMsg.Payload)
 	require.NoError(t, err)
 	assert.EqualValues(t, change2, chgMsg)
+	assert.True(t, receivedMsg.Ack())
+
+	receivedMsg, err = getSingleMessage(messages, time.Second*1)
+	require.NoError(t, err)
+
+	chgMsg, err = events.UnmarshalChangeMessage(receivedMsg.Payload)
+	require.NoError(t, err)
+	assert.NotEqualValues(t, change3, chgMsg)
+	assert.Equal(t, "unknown-actor", chgMsg.ActorID.String())
 	assert.True(t, receivedMsg.Ack())
 }
 

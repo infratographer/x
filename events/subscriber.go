@@ -5,23 +5,26 @@ import (
 	"strings"
 
 	"github.com/ThreeDotsLabs/watermill/message"
+	"go.uber.org/zap"
 )
 
 // Subscriber provides a pubsub subscriber that uses the watermill pubsub package
 type Subscriber struct {
 	prefix     string
 	subscriber message.Subscriber
+	logger     *zap.SugaredLogger
 }
 
-// NewSubscriber returns a subscriber for the given config provided
-func NewSubscriber(cfg SubscriberConfig) (*Subscriber, error) {
+// NewSubscriberWithLogger returns a subscriber for the given config provided
+func NewSubscriberWithLogger(cfg SubscriberConfig, logger *zap.SugaredLogger) (*Subscriber, error) {
 	s := &Subscriber{
 		prefix: cfg.Prefix,
+		logger: logger,
 	}
 
 	switch {
 	case strings.HasPrefix(cfg.URL, "nats://"):
-		ns, err := newNATSSubscriber(cfg)
+		ns, err := newNATSSubscriber(cfg, s.logger)
 		if err != nil {
 			return nil, err
 		}
@@ -32,6 +35,11 @@ func NewSubscriber(cfg SubscriberConfig) (*Subscriber, error) {
 	}
 
 	return s, nil
+}
+
+// NewSubscriber returns a subscriber for the given config provided
+func NewSubscriber(cfg SubscriberConfig) (*Subscriber, error) {
+	return NewSubscriberWithLogger(cfg, zap.NewNop().Sugar())
 }
 
 // SubscribeChanges will subscribe you to the changes for a given topic. To receive all changes of any kind you can
