@@ -7,6 +7,7 @@ import (
 	"io"
 	"strconv"
 	"strings"
+	"unicode"
 
 	"github.com/jaevor/go-nanoid"
 )
@@ -54,11 +55,36 @@ func MustNewID(prefix string) PrefixedID {
 	return id
 }
 
+// ValidatePrefix will return an error if the prefix is not a valid prefix
+// value. A valid prefix is 7 characters long and is alphanumeric a-z1-9.
+func ValidatePrefix(prefix string) error {
+	// Ensure the prefix length is correct
+	if len(prefix) != PrefixPartLength {
+		return newErrInvalidID(fmt.Sprintf("expected prefix length is %d, '%s' is %d", PrefixPartLength, prefix, len(prefix)))
+	}
+
+	// Ensure the prefix is alphanumeric a-z1-9, this is done by checking each
+	// byte in the prefix and ensuring it's either a-z or 0-9. Preferred over regex
+	// for performance and because it's relatively simple.
+	for i, b := range prefix {
+		if !((b >= 'a' && b <= 'z') || (b >= '0' && b <= '9' && i > 0)) {
+			// This checks of a prefix contains utf8 characters for better errors
+			if b > unicode.MaxASCII {
+				return newErrInvalidID(fmt.Sprintf("expected prefix to be ascii not utf8, '%s' contains utf8", prefix))
+			}
+
+			return newErrInvalidID(fmt.Sprintf("expected prefix to be alphanumeric a-z1-9, '%s' is not", prefix))
+		}
+	}
+
+	return nil
+}
+
 // NewID will return a new PrefixedID with the given prefix and a generated ID value.
 // The ID value will be a 21 character nanoID value.
 func NewID(prefix string) (PrefixedID, error) {
 	prefix = strings.ToLower(prefix)
-	if len(prefix) != PrefixPartLength {
+	if ValidatePrefix(prefix) != nil {
 		return "", newErrInvalidID(fmt.Sprintf("expected prefix length is %d, '%s' is %d", PrefixPartLength, prefix, len(prefix)))
 	}
 
@@ -71,6 +97,8 @@ func NewID(prefix string) (PrefixedID, error) {
 }
 
 func newIDValue() (string, error) {
+	// This would only return an error if the const value for IDPartLength is
+	// changed to an invalid value, must be within 2-255 per nanoid docs.
 	id, err := nanoid.Standard(IDPartLength)
 	if err != nil {
 		return "", err
@@ -161,5 +189,7 @@ func (p *PrefixedID) UnmarshalGQL(v interface{}) error {
 }
 
 // Verify interfaces are satisfied
-var _ driver.Valuer = PrefixedID("")
-var _ sql.Scanner = (*PrefixedID)(nil)
+var (
+	_ driver.Valuer = PrefixedID("")
+	_ sql.Scanner   = (*PrefixedID)(nil)
+)
