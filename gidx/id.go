@@ -5,6 +5,7 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"io"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -23,6 +24,9 @@ const (
 	// NullPrefixedID represents a null value PrefixedID
 	NullPrefixedID = PrefixedID("")
 )
+
+// PrefixRegexp is the regular expression used to validate a prefix
+var PrefixRegexp = regexp.MustCompile(`^[a-z0-9]{7}$`)
 
 // PrefixedID represents an ID that is formatted as prefix-id. PrefixedIDs are used
 // to implement the relay spec for graphql, which required all IDs to be globally
@@ -54,12 +58,24 @@ func MustNewID(prefix string) PrefixedID {
 	return id
 }
 
+func validPrefix(s string) error {
+	if len(s) != PrefixPartLength {
+		return newErrInvalidID(fmt.Sprintf("expected prefix length is %d, '%s' is %d", PrefixPartLength, s, len(s)))
+	}
+
+	if !PrefixRegexp.MatchString(s) {
+		return newErrInvalidID(fmt.Sprintf("expected prefix must match %s, '%s' does not", PrefixRegexp.String(), s))
+	}
+
+	return nil
+}
+
 // NewID will return a new PrefixedID with the given prefix and a generated ID value.
 // The ID value will be a 21 character nanoID value.
 func NewID(prefix string) (PrefixedID, error) {
 	prefix = strings.ToLower(prefix)
-	if len(prefix) != PrefixPartLength {
-		return "", newErrInvalidID(fmt.Sprintf("expected prefix length is %d, '%s' is %d", PrefixPartLength, prefix, len(prefix)))
+	if err := validPrefix(prefix); err != nil {
+		return "", err
 	}
 
 	id, err := newIDValue()
@@ -71,6 +87,8 @@ func NewID(prefix string) (PrefixedID, error) {
 }
 
 func newIDValue() (string, error) {
+	// This would only return an error if the const value for IDPartLength is
+	// changed to an invalid value, must be within 2-255 per nanoid docs.
 	id, err := nanoid.Standard(IDPartLength)
 	if err != nil {
 		return "", err
@@ -80,11 +98,11 @@ func newIDValue() (string, error) {
 }
 
 func parts(str string) (string, string) {
-	p := strings.SplitN(string(str), "-", Parts)
-
-	if len(p) != Parts && len(p[0]) != PrefixPartLength {
+	if cnt := strings.Count(str, "-"); cnt == 0 {
 		return "", ""
 	}
+
+	p := strings.SplitN(string(str), "-", Parts)
 
 	return p[0], p[1]
 }
@@ -102,8 +120,8 @@ func Parse(str string) (PrefixedID, error) {
 		return "", newErrInvalidID(fmt.Sprintf("expected id format is prefix-id, but received %s", str))
 	}
 
-	if len(prefix) != PrefixPartLength {
-		return "", newErrInvalidID(fmt.Sprintf("expected prefix length is %d, '%s' is %d", PrefixPartLength, prefix, len(prefix)))
+	if err := validPrefix(prefix); err != nil {
+		return "", err
 	}
 
 	return PrefixedID(str), nil
@@ -161,5 +179,7 @@ func (p *PrefixedID) UnmarshalGQL(v interface{}) error {
 }
 
 // Verify interfaces are satisfied
-var _ driver.Valuer = PrefixedID("")
-var _ sql.Scanner = (*PrefixedID)(nil)
+var (
+	_ driver.Valuer = PrefixedID("")
+	_ sql.Scanner   = (*PrefixedID)(nil)
+)
