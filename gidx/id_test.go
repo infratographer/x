@@ -64,14 +64,17 @@ func TestParsers(t *testing.T) {
 		id       string
 		errorMsg string
 	}{
+		{name: "valid id: null id should be valid", id: ""},
 		{name: "valid id", id: string(gidx.MustNewID("testing"))},
 		{name: "valid prefix with any length id", id: "testing-any_random#string@i*want(to-put-in-here-of-any-length"},
 		{name: "valid prefix with a uuid ", id: "testing-" + uuid.New().String()},
+		{name: "valid prefix with a additional separators ", id: "testing-------------------"},
 		{name: "invalid id; no separator", id: "somestringthatisalltogether", errorMsg: "invalid id: expected id format is prefix-id"},
+		{name: "invalid id; 1 trailing separator", id: "somestringthatisalltogether-", errorMsg: "invalid id: expected id format is prefix-id"},
+		{name: "invalid id; 1 leading separator", id: "-strings", errorMsg: "invalid id: expected id format is prefix-id"},
 		{name: "invalid id; prefix length too short", id: "short-fm21VlAHHrGf6utn1JsKc", errorMsg: "invalid id: expected prefix length is 7"},
 		{name: "invalid id; prefix length too long", id: "notthatshort-fm21VlAHHrGf6utn1JsKc", errorMsg: "invalid id: expected prefix length is 7"},
-		{name: "null id should be valid", id: ""},
-		{name: "unicode prefix bad", id: "👹bad-fm21VlAHHrGf6utn1JsKc", errorMsg: "invalid id: expected prefix must match"},
+		{name: "nvalid id; unicode prefix bad", id: "👹bad-fm21VlAHHrGf6utn1JsKc", errorMsg: "invalid id: expected prefix must match"},
 	}
 
 	t.Run("Test globalid.Parse", func(t *testing.T) {

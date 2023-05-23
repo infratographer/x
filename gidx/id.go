@@ -98,11 +98,11 @@ func newIDValue() (string, error) {
 }
 
 func parts(str string) (string, string) {
-	p := strings.SplitN(string(str), "-", Parts)
-
-	if len(p[0]) != PrefixPartLength {
+	if cnt := strings.Count(str, "-"); cnt == 0 {
 		return "", ""
 	}
+
+	p := strings.SplitN(string(str), "-", Parts)
 
 	return p[0], p[1]
 }
