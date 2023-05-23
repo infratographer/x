@@ -100,7 +100,7 @@ func newIDValue() (string, error) {
 func parts(str string) (string, string) {
 	p := strings.SplitN(string(str), "-", Parts)
 
-	if len(p) != Parts && len(p[0]) != PrefixPartLength {
+	if len(p[0]) != PrefixPartLength {
 		return "", ""
 	}
 
