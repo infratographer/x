@@ -5,9 +5,9 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"io"
+	"regexp"
 	"strconv"
 	"strings"
-	"unicode"
 
 	"github.com/jaevor/go-nanoid"
 )
@@ -24,6 +24,9 @@ const (
 	// NullPrefixedID represents a null value PrefixedID
 	NullPrefixedID = PrefixedID("")
 )
+
+// PrefixRegexp is the regular expression used to validate a prefix
+var PrefixRegexp = regexp.MustCompile(`^[a-z0-9]{7}$`)
 
 // PrefixedID represents an ID that is formatted as prefix-id. PrefixedIDs are used
 // to implement the relay spec for graphql, which required all IDs to be globally
@@ -55,26 +58,13 @@ func MustNewID(prefix string) PrefixedID {
 	return id
 }
 
-// ValidatePrefix will return an error if the prefix is not a valid prefix
-// value. A valid prefix is 7 characters long and is alphanumeric a-z1-9.
-func ValidatePrefix(prefix string) error {
-	// Ensure the prefix length is correct
-	if len(prefix) != PrefixPartLength {
-		return newErrInvalidID(fmt.Sprintf("expected prefix length is %d, '%s' is %d", PrefixPartLength, prefix, len(prefix)))
+func validPrefix(s string) error {
+	if len(s) != PrefixPartLength {
+		return newErrInvalidID(fmt.Sprintf("expected prefix length is %d, '%s' is %d", PrefixPartLength, s, len(s)))
 	}
 
-	// Ensure the prefix is alphanumeric a-z1-9, this is done by checking each
-	// byte in the prefix and ensuring it's either a-z or 0-9. Preferred over regex
-	// for performance and because it's relatively simple.
-	for i, b := range prefix {
-		if !((b >= 'a' && b <= 'z') || (b >= '0' && b <= '9' && i > 0)) {
-			// This checks of a prefix contains utf8 characters for better errors
-			if b > unicode.MaxASCII {
-				return newErrInvalidID(fmt.Sprintf("expected prefix to be ascii not utf8, '%s' contains utf8", prefix))
-			}
-
-			return newErrInvalidID(fmt.Sprintf("expected prefix to be alphanumeric a-z1-9, '%s' is not", prefix))
-		}
+	if !PrefixRegexp.MatchString(s) {
+		return newErrInvalidID(fmt.Sprintf("expected prefix must match %s, '%s' does not", PrefixRegexp.String(), s))
 	}
 
 	return nil
@@ -84,8 +74,8 @@ func ValidatePrefix(prefix string) error {
 // The ID value will be a 21 character nanoID value.
 func NewID(prefix string) (PrefixedID, error) {
 	prefix = strings.ToLower(prefix)
-	if ValidatePrefix(prefix) != nil {
-		return "", newErrInvalidID(fmt.Sprintf("expected prefix length is %d, '%s' is %d", PrefixPartLength, prefix, len(prefix)))
+	if err := validPrefix(prefix); err != nil {
+		return "", err
 	}
 
 	id, err := newIDValue()
@@ -128,6 +118,10 @@ func Parse(str string) (PrefixedID, error) {
 
 	if prefix == "" || id == "" {
 		return "", newErrInvalidID(fmt.Sprintf("expected id format is prefix-id, but received %s", str))
+	}
+
+	if err := validPrefix(prefix); err != nil {
+		return "", err
 	}
 
 	if len(prefix) != PrefixPartLength {

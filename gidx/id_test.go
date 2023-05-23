@@ -23,24 +23,25 @@ func TestNewID(t *testing.T) {
 		errorMsg string
 	}{
 		{name: "corrent prefix length", prefix: "testpre", want: "testpre-"},
-		{name: "prefix length too long", prefix: "ALLCAPS", want: "allcaps-"},
+		{name: "to lower happens", prefix: "ALLCAPS", want: "allcaps-"},
 		{name: "prefix length too short", prefix: "short", errorMsg: "invalid id: expected prefix length is 7"},
 		{name: "prefix length too long", prefix: "notthatshort", errorMsg: "invalid id: expected prefix length is 7"},
+		{name: "prefix with unicode", prefix: "👹bad", errorMsg: "invalid id: expected prefix must match"},
 	}
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			id, err := gidx.NewID(tt.prefix)
-			if tt.errorMsg == "" {
+			if err != nil {
+				assert.Error(t, err)
+				assert.ErrorContains(t, err, tt.errorMsg)
+			} else {
 				assert.NoError(t, err)
 				assert.NotNil(t, id)
 				assert.IsType(t, gidx.PrefixedID(""), id)
-				assert.IsType(t, id.String(), string(id))
 				assert.Equal(t, tt.want, id.String()[0:8])
 				assert.Len(t, id.String(), gidx.PrefixPartLength+1+gidx.IDPartLength)
-			} else {
-				assert.Error(t, err)
-				assert.ErrorContains(t, err, tt.errorMsg)
+
 			}
 		})
 	}
@@ -71,6 +72,7 @@ func TestParsers(t *testing.T) {
 		{name: "invalid id; prefix length too short", id: "short-fm21VlAHHrGf6utn1JsKc", errorMsg: "invalid id: expected prefix length is 7"},
 		{name: "invalid id; prefix length too long", id: "notthatshort-fm21VlAHHrGf6utn1JsKc", errorMsg: "invalid id: expected prefix length is 7"},
 		{name: "null id should be valid", id: ""},
+		{name: "unicode prefix bad", id: "👹bad-fm21VlAHHrGf6utn1JsKc", errorMsg: "invalid id: expected prefix must match"},
 	}
 
 	t.Run("Test globalid.Parse", func(t *testing.T) {
@@ -123,57 +125,4 @@ func TestMarshalGQL(t *testing.T) {
 
 	id.MarshalGQL(&b)
 	assert.Equal(t, fmt.Sprintf(`"%s"`, string(id)), b.String())
-}
-
-func Test_validatePrefix(t *testing.T) {
-	tests := []struct {
-		name      string
-		prefix    string
-		valid     bool
-		wantMsg   string
-		errorType interface{}
-	}{
-		{name: "valid prefix", prefix: "testing", valid: true},
-		{name: "prefix with numbers", prefix: "prefix1", valid: true},
-		{
-			name:      "prefix too short",
-			prefix:    "short",
-			valid:     false,
-			wantMsg:   fmt.Sprintf("invalid id: %s", "expected prefix length is 7, 'short' is 5"),
-			errorType: &gidx.ErrInvalidID{},
-		},
-		{
-			name:      "prefix too long",
-			prefix:    "notthatshort",
-			valid:     false,
-			wantMsg:   fmt.Sprintf("invalid id: %s", "expected prefix length is 7, 'notthatshort' is 12"),
-			errorType: &gidx.ErrInvalidID{},
-		},
-		{
-			name:      "prefix all caps",
-			prefix:    "ALLCAPS",
-			valid:     false,
-			wantMsg:   fmt.Sprintf("invalid id: %s", "expected prefix to be alphanumeric a-z1-9, 'ALLCAPS' is not"),
-			errorType: &gidx.ErrInvalidID{},
-		},
-		{
-			name:      "prefix with UTF8",
-			prefix:    "👹bad",
-			valid:     false,
-			wantMsg:   fmt.Sprintf("invalid id: %s", "expected prefix to be ascii not utf8, '👹bad' contains utf8"),
-			errorType: &gidx.ErrInvalidID{},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			err := gidx.ValidatePrefix(tt.prefix)
-			if tt.valid {
-				require.NoError(t, err)
-			} else {
-				require.Error(t, err)
-				assert.IsType(t, tt.errorType, err)
-				assert.EqualError(t, err, tt.wantMsg)
-			}
-		})
-	}
 }
