@@ -41,7 +41,6 @@ func TestNewID(t *testing.T) {
 				assert.IsType(t, gidx.PrefixedID(""), id)
 				assert.Equal(t, tt.want, id.String()[0:8])
 				assert.Len(t, id.String(), gidx.PrefixPartLength+1+gidx.IDPartLength)
-
 			}
 		})
 	}
