@@ -61,9 +61,9 @@ type ChangeMessage struct {
 // an event from an events message queue
 type EventMessage struct {
 	// SubjectID is the PrefixedID representing the node of the topic of this message
-	SubjectID gidx.PrefixedID `json:"subject_id"`
+	SubjectID gidx.PrefixedID `json:"subjectID"`
 	// EventType describes the type of event that has triggered this message
-	EventType string `json:"event_type"`
+	EventType string `json:"eventType"`
 	// AdditionalSubjectIDs is a group of PrefixedIDs representing additional nodes associated with this message
 	AdditionalSubjectIDs []gidx.PrefixedID `json:"additionalSubjects"`
 	// Source is a string representing the identity of the source system that created the message
