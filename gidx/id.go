@@ -124,10 +124,6 @@ func Parse(str string) (PrefixedID, error) {
 		return "", err
 	}
 
-	if len(prefix) != PrefixPartLength {
-		return "", newErrInvalidID(fmt.Sprintf("expected prefix length is %d, '%s' is %d", PrefixPartLength, prefix, len(prefix)))
-	}
-
 	return PrefixedID(str), nil
 }
 
