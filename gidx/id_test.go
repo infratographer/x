@@ -74,7 +74,7 @@ func TestParsers(t *testing.T) {
 		{name: "invalid id; 1 leading separator", id: "-strings", errorMsg: "invalid id: expected id format is prefix-id"},
 		{name: "invalid id; prefix length too short", id: "short-fm21VlAHHrGf6utn1JsKc", errorMsg: "invalid id: expected prefix length is 7"},
 		{name: "invalid id; prefix length too long", id: "notthatshort-fm21VlAHHrGf6utn1JsKc", errorMsg: "invalid id: expected prefix length is 7"},
-		{name: "nvalid id; unicode prefix bad", id: "👹bad-fm21VlAHHrGf6utn1JsKc", errorMsg: "invalid id: expected prefix must match"},
+		{name: "invalid id; unicode prefix bad", id: "👹bad-fm21VlAHHrGf6utn1JsKc", errorMsg: "invalid id: expected prefix must match"},
 	}
 
 	t.Run("Test globalid.Parse", func(t *testing.T) {
