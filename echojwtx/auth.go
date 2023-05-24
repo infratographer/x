@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/MicahParks/keyfunc/v2"
 	echojwt "github.com/labstack/echo-jwt/v4"
@@ -38,26 +39,14 @@ type Opts func(*Auth)
 
 // AuthConfig provides configuration for JWT validation using JWKS.
 type AuthConfig struct {
-	// Logger defines the auth logger to use.
-	//
-	// Deprecated: use WithLogger instead. This will be removed in a future release.
-	Logger *zap.Logger
-
 	// Issuer is the Auth Issuer
 	Issuer string `mapstructure:"issuer"`
 
 	// Audience is the Auth Audience
 	Audience string `mapstructure:"audience"`
 
-	// JWTConfig configuration for handling JWT validation.
-	//
-	// Deprecated: use WithJWTConfig instead. This will be removed in a future release.
-	JWTConfig echojwt.Config
-
-	// KeyFuncOptions configuration for fetching JWKS.
-	//
-	// Deprecated: use WithKeyFuncOptions instead. This will be removed in a future release.
-	KeyFuncOptions keyfunc.Options
+	// RefreshTimeout is the timeout for fetching the JWKS from the issuer.
+	RefreshTimeout time.Duration `mapstructure:"refresh_timeout"`
 }
 
 // Auth handles JWT Authentication as echo middleware.
@@ -67,10 +56,10 @@ type Auth struct {
 	middleware echo.MiddlewareFunc
 
 	// JWTConfig configuration for handling JWT validation.
-	JWTConfig *echojwt.Config
+	JWTConfig echojwt.Config
 
 	// KeyFuncOptions configuration for fetching JWKS.
-	KeyFuncOptions *keyfunc.Options
+	KeyFuncOptions keyfunc.Options
 
 	issuer   string
 	audience string
@@ -86,78 +75,56 @@ func WithLogger(logger *zap.Logger) Opts {
 // WithJWTConfig sets the JWTConfig for the auth middleware.
 func WithJWTConfig(jwtConfig echojwt.Config) Opts {
 	return func(a *Auth) {
-		a.JWTConfig = &jwtConfig
+		a.JWTConfig = jwtConfig
 	}
 }
 
 // WithKeyFuncOptions sets the KeyFuncOptions for the auth middleware.
 func WithKeyFuncOptions(keyFuncOptions keyfunc.Options) Opts {
 	return func(a *Auth) {
-		a.KeyFuncOptions = &keyFuncOptions
+		a.KeyFuncOptions = keyFuncOptions
 	}
 }
 
 func (a *Auth) setup(ctx context.Context, config AuthConfig, options ...Opts) error {
-	// The logger in the AuthConfig object is being deprecated.
-	// During this time it is used if passed, otherwise a no-op logger is used.
-	// In a future release, the logger will be removed from the AuthConfig object.
-	// Until then the etup function will try to use the logger from the AuthConfig object
-	// then check Options for a logger, and finally use a no-op logger if it is still nil.
-	// The last check is to ensure that the logger is never nil, if ta nil point is
-	// passed by mistake.
-	if config.Logger != nil {
-		a.logger = config.Logger
-	} else {
-		a.logger = zap.NewNop()
-	}
-
 	for _, opt := range options {
 		opt(a)
 	}
 
+	// Ensure the logger is not nil
 	if a.logger == nil {
 		a.logger = zap.NewNop()
+	}
+
+	if config.RefreshTimeout > 0 {
+		a.KeyFuncOptions.RefreshTimeout = config.RefreshTimeout
 	}
 
 	a.issuer = config.Issuer
 	a.audience = config.Audience
 
-	// While the JWTConfig is being deprecated, it is still used
-	// if passed and the with function is not used
-	if a.JWTConfig == nil {
-		a.JWTConfig = &config.JWTConfig
-	}
-
-	jwtConfig := a.JWTConfig
-
-	if a.KeyFuncOptions == nil {
-		a.KeyFuncOptions = &config.KeyFuncOptions
-	}
-
-	keyFuncOptions := *a.KeyFuncOptions
-
-	if jwtConfig.KeyFunc == nil {
+	if a.JWTConfig.KeyFunc == nil {
 		jwksURI, err := jwksURI(ctx, a.issuer)
 		if err != nil {
 			return err
 		}
 
-		jwks, err := keyfunc.Get(jwksURI, keyFuncOptions)
+		jwks, err := keyfunc.Get(jwksURI, a.KeyFuncOptions)
 		if err != nil {
 			return err
 		}
 
-		jwtConfig.KeyFunc = jwks.Keyfunc
+		a.JWTConfig.KeyFunc = jwks.Keyfunc
 	}
 
-	mdw, err := jwtConfig.ToMiddleware()
+	mdw, err := a.JWTConfig.ToMiddleware()
 	if err != nil {
 		return err
 	}
 
 	// intercepts the next function to run final validation.
 	a.middleware = func(next echo.HandlerFunc) echo.HandlerFunc {
-		skipper := jwtConfig.Skipper
+		skipper := a.JWTConfig.Skipper
 		if skipper == nil {
 			skipper = middleware.DefaultSkipper
 		}
@@ -189,8 +156,8 @@ func (a *Auth) Middleware() echo.MiddlewareFunc {
 	return a.middleware
 }
 
-// NewJWTAuth creates a new auth middleware handler for JWTs using JWKS with a logger.
-func NewJWTAuth(ctx context.Context, config AuthConfig, options ...Opts) (*Auth, error) {
+// NewAuth creates a new auth middleware handler for JWTs using JWKS.
+func NewAuth(ctx context.Context, config AuthConfig, options ...Opts) (*Auth, error) {
 	auth := new(Auth)
 
 	if err := auth.setup(ctx, config, options...); err != nil {
@@ -198,14 +165,6 @@ func NewJWTAuth(ctx context.Context, config AuthConfig, options ...Opts) (*Auth,
 	}
 
 	return auth, nil
-}
-
-// NewAuth creates a new auth middleware handler for JWTs using JWKS.
-//
-// Deprecated: use NewJWTAuth instead. This will be removed in a future release.
-// The AuthConfig shouldn't carry a logger with it.
-func NewAuth(ctx context.Context, config AuthConfig) (*Auth, error) {
-	return NewJWTAuth(ctx, config)
 }
 
 func jwksURI(ctx context.Context, issuer string) (string, error) {

@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/MicahParks/keyfunc/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -25,7 +26,8 @@ func TestNoAuth(t *testing.T) {
 	defer closer()
 
 	auth, err := echojwtx.NewAuth(context.Background(), echojwtx.AuthConfig{
-		Issuer: issuer,
+		Issuer:         issuer,
+		RefreshTimeout: 5 * time.Second,
 	})
 
 	require.NoError(t, err, "no error expected for NewAuth")
@@ -121,10 +123,15 @@ func TestAudienceValidation(t *testing.T) {
 			oauthClient, issuer, closer := OAuthTestClient("urn:test:user", tc.clientAudience)
 			defer closer()
 
-			auth, err := echojwtx.NewJWTAuth(context.Background(), echojwtx.AuthConfig{
-				Audience: tc.serverAudience,
-				Issuer:   issuer,
-			}, echojwtx.WithLogger(logger))
+			auth, err := echojwtx.NewAuth(context.Background(),
+				echojwtx.AuthConfig{
+					Audience: tc.serverAudience,
+					Issuer:   issuer,
+				},
+				echojwtx.WithLogger(logger), echojwtx.WithKeyFuncOptions(keyfunc.Options{
+					RefreshTimeout: 5 * time.Second,
+				}),
+			)
 
 			require.NoError(t, err, "no error expected for NewAuth")
 
