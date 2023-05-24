@@ -30,10 +30,6 @@ var (
 	ErrJWKSURIMissing = errors.New("jwks_uri missing from oidc provider")
 )
 
-func noopMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
-	return next
-}
-
 // Opts defines options for the Auth middleware.
 type Opts func(*Auth)
 
@@ -150,7 +146,9 @@ func (a *Auth) setup(ctx context.Context, config AuthConfig, options ...Opts) er
 // Middleware returns echo middleware for validation jwt tokens.
 func (a *Auth) Middleware() echo.MiddlewareFunc {
 	if a == nil || a.middleware == nil {
-		return noopMiddleware
+		return func(next echo.HandlerFunc) echo.HandlerFunc {
+			return next
+		}
 	}
 
 	return a.middleware
