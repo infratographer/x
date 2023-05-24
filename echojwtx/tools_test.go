@@ -1,4 +1,4 @@
-package echojwtx
+package echojwtx_test
 
 import (
 	"context"
@@ -124,9 +124,9 @@ func testHelperGetToken(signer jose.Signer, cl jwt.Claims, key string, value int
 	return raw
 }
 
-// TestOAuthClient creates a new http client handling OAuth automatically.
+// OAuthTestClient creates a new http client handling OAuth automatically.
 // Returned is the new HTTP Client, OIDC URI and a close function.
-func TestOAuthClient(subject string, audience string) (*http.Client, string, func()) {
+func OAuthTestClient(subject string, audience string) (*http.Client, string, func()) {
 	issuer, closer := testHelperOIDCProvider(TestPrivRSAKey1ID, TestPrivRSAKey2ID)
 
 	ctx := context.Background()

@@ -32,7 +32,7 @@ func MustViperFlags(v *viper.Viper, flags *pflag.FlagSet) {
 
 // AuthConfigFromViper builds a new AuthConfig from viper.
 func AuthConfigFromViper(v *viper.Viper) (*AuthConfig, error) {
-	if !v.GetBool("oidc.enabled") {
+	if !v.GetBool("oidc.enabled") || v.GetBool("dev") {
 		return nil, nil
 	}
 
