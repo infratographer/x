@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/MicahParks/keyfunc/v2"
 	echojwt "github.com/labstack/echo-jwt/v4"
@@ -24,33 +25,24 @@ const (
 var (
 	// ActorCtxKey defines the context key an actor is stored in for a plain context
 	ActorCtxKey = actorContext{}
-)
 
-var (
 	// ErrJWKSURIMissing is returned when the jwks_uri field is not found in the issuer's oidc well-known configuration.
 	ErrJWKSURIMissing = errors.New("jwks_uri missing from oidc provider")
 )
 
-func noopMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
-	return next
-}
+// Opts defines options for the Auth middleware.
+type Opts func(*Auth)
 
 // AuthConfig provides configuration for JWT validation using JWKS.
 type AuthConfig struct {
-	// Logger defines the auth logger to use.
-	Logger *zap.Logger
-
 	// Issuer is the Auth Issuer
-	Issuer string
+	Issuer string `mapstructure:"issuer"`
 
 	// Audience is the Auth Audience
-	Audience string
+	Audience string `mapstructure:"audience"`
 
-	// JWTConfig configuration for handling JWT validation.
-	JWTConfig echojwt.Config
-
-	// KeyFuncOptions configuration for fetching JWKS.
-	KeyFuncOptions keyfunc.Options
+	// RefreshTimeout is the timeout for fetching the JWKS from the issuer.
+	RefreshTimeout time.Duration `mapstructure:"refresh_timeout"`
 }
 
 // Auth handles JWT Authentication as echo middleware.
@@ -59,44 +51,76 @@ type Auth struct {
 
 	middleware echo.MiddlewareFunc
 
+	// JWTConfig configuration for handling JWT validation.
+	JWTConfig echojwt.Config
+
+	// KeyFuncOptions configuration for fetching JWKS.
+	KeyFuncOptions keyfunc.Options
+
 	issuer   string
 	audience string
 }
 
-func (a *Auth) setup(ctx context.Context, config AuthConfig) error {
-	if config.Logger != nil {
-		a.logger = config.Logger
-	} else {
+// WithLogger sets the logger for the auth middleware.
+func WithLogger(logger *zap.Logger) Opts {
+	return func(a *Auth) {
+		a.logger = logger
+	}
+}
+
+// WithJWTConfig sets the JWTConfig for the auth middleware.
+func WithJWTConfig(jwtConfig echojwt.Config) Opts {
+	return func(a *Auth) {
+		a.JWTConfig = jwtConfig
+	}
+}
+
+// WithKeyFuncOptions sets the KeyFuncOptions for the auth middleware.
+func WithKeyFuncOptions(keyFuncOptions keyfunc.Options) Opts {
+	return func(a *Auth) {
+		a.KeyFuncOptions = keyFuncOptions
+	}
+}
+
+func (a *Auth) setup(ctx context.Context, config AuthConfig, options ...Opts) error {
+	for _, opt := range options {
+		opt(a)
+	}
+
+	// Ensure the logger is not nil
+	if a.logger == nil {
 		a.logger = zap.NewNop()
+	}
+
+	if config.RefreshTimeout > 0 {
+		a.KeyFuncOptions.RefreshTimeout = config.RefreshTimeout
 	}
 
 	a.issuer = config.Issuer
 	a.audience = config.Audience
 
-	jwtConfig := &config.JWTConfig
-
-	if jwtConfig.KeyFunc == nil {
+	if a.JWTConfig.KeyFunc == nil {
 		jwksURI, err := jwksURI(ctx, a.issuer)
 		if err != nil {
 			return err
 		}
 
-		jwks, err := keyfunc.Get(jwksURI, config.KeyFuncOptions)
+		jwks, err := keyfunc.Get(jwksURI, a.KeyFuncOptions)
 		if err != nil {
 			return err
 		}
 
-		jwtConfig.KeyFunc = jwks.Keyfunc
+		a.JWTConfig.KeyFunc = jwks.Keyfunc
 	}
 
-	mdw, err := jwtConfig.ToMiddleware()
+	mdw, err := a.JWTConfig.ToMiddleware()
 	if err != nil {
 		return err
 	}
 
 	// intercepts the next function to run final validation.
 	a.middleware = func(next echo.HandlerFunc) echo.HandlerFunc {
-		skipper := jwtConfig.Skipper
+		skipper := a.JWTConfig.Skipper
 		if skipper == nil {
 			skipper = middleware.DefaultSkipper
 		}
@@ -122,17 +146,19 @@ func (a *Auth) setup(ctx context.Context, config AuthConfig) error {
 // Middleware returns echo middleware for validation jwt tokens.
 func (a *Auth) Middleware() echo.MiddlewareFunc {
 	if a == nil || a.middleware == nil {
-		return noopMiddleware
+		return func(next echo.HandlerFunc) echo.HandlerFunc {
+			return next
+		}
 	}
 
 	return a.middleware
 }
 
 // NewAuth creates a new auth middleware handler for JWTs using JWKS.
-func NewAuth(ctx context.Context, config AuthConfig) (*Auth, error) {
+func NewAuth(ctx context.Context, config AuthConfig, options ...Opts) (*Auth, error) {
 	auth := new(Auth)
 
-	if err := auth.setup(ctx, config); err != nil {
+	if err := auth.setup(ctx, config, options...); err != nil {
 		return nil, err
 	}
 

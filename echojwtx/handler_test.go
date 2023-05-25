@@ -1,4 +1,4 @@
-package echojwtx
+package echojwtx_test
 
 import (
 	"context"
@@ -7,11 +7,14 @@ import (
 	"testing"
 	"time"
 
+	"github.com/MicahParks/keyfunc/v2"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
+
+	"go.infratographer.com/x/echojwtx"
 )
 
 const (
@@ -19,11 +22,12 @@ const (
 )
 
 func TestNoAuth(t *testing.T) {
-	_, issuer, closer := TestOAuthClient("testing-user", "")
+	_, issuer, closer := OAuthTestClient("testing-user", "")
 	defer closer()
 
-	auth, err := NewAuth(context.Background(), AuthConfig{
-		Issuer: issuer,
+	auth, err := echojwtx.NewAuth(context.Background(), echojwtx.AuthConfig{
+		Issuer:         issuer,
+		RefreshTimeout: 5 * time.Second,
 	})
 
 	require.NoError(t, err, "no error expected for NewAuth")
@@ -37,7 +41,7 @@ func TestNoAuth(t *testing.T) {
 
 	e.GET("/test", func(c echo.Context) error {
 		token, _ := c.Get("user").(*jwt.Token)
-		actor, _ := c.Get(ActorKey).(string)
+		actor, _ := c.Get(echojwtx.ActorKey).(string)
 
 		gotUserTokenCh <- token
 		gotActorCh <- actor
@@ -116,14 +120,18 @@ func TestAudienceValidation(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			oauthClient, issuer, closer := TestOAuthClient("urn:test:user", tc.clientAudience)
+			oauthClient, issuer, closer := OAuthTestClient("urn:test:user", tc.clientAudience)
 			defer closer()
 
-			auth, err := NewAuth(context.Background(), AuthConfig{
-				Logger:   logger,
-				Audience: tc.serverAudience,
-				Issuer:   issuer,
-			})
+			auth, err := echojwtx.NewAuth(context.Background(),
+				echojwtx.AuthConfig{
+					Audience: tc.serverAudience,
+					Issuer:   issuer,
+				},
+				echojwtx.WithLogger(logger), echojwtx.WithKeyFuncOptions(keyfunc.Options{
+					RefreshTimeout: 5 * time.Second,
+				}),
+			)
 
 			require.NoError(t, err, "no error expected for NewAuth")
 
@@ -137,8 +145,8 @@ func TestAudienceValidation(t *testing.T) {
 
 			e.GET("/test", func(c echo.Context) error {
 				token, _ := c.Get("user").(*jwt.Token)
-				actor, _ := c.Get(ActorKey).(string)
-				actorCtx, _ := c.Request().Context().Value(ActorCtxKey).(string)
+				actor, _ := c.Get(echojwtx.ActorKey).(string)
+				actorCtx, _ := c.Request().Context().Value(echojwtx.ActorCtxKey).(string)
 
 				gotUserTokenCh <- token
 				gotActorCh <- actor
