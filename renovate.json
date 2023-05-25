@@ -14,8 +14,10 @@
         "go"
       ],
       "matchPackagePrefixes": [
-        "go.opentelemetry.io/",
-        "github.com/XSAM/otelsq/"
+        "go.opentelemetry.io/"
+      ],
+      "matchPackageNames": [
+        "github.com/XSAM/otelsql"
       ]
     }
   ]
