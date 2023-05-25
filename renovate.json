@@ -5,5 +5,18 @@
   ],
   "postUpdateOptions": [
     "gomodTidy"
+  ],
+  "packageRules": [
+    {
+      "groupName": "go opentelemetry packages and libraries",
+      "groupSlug": "opentelemetry-go and libraries",
+      "matchDatasources": [
+        "go"
+      ],
+      "matchPackagePrefixes": [
+        "go.opentelemetry.io/",
+        "github.com/XSAM/otelsq/"
+      ]
+    }
   ]
 }
