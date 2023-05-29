@@ -71,18 +71,23 @@ func newNATSSubscriber(cfg SubscriberConfig, logger *zap.SugaredLogger) (message
 		SubscribeOptions: nil,
 		TrackMsgId:       false,
 		AckAsync:         false,
-		DurableCalculator: func(_ string, topic string) string {
+		DurablePrefix:    "",
+	}
+
+	if cfg.QueueGroup != "" {
+		jsConfig.DurableCalculator = func(_ string, topic string) string {
 			hash := md5.Sum([]byte(topic))
 			return cfg.QueueGroup + hex.EncodeToString(hash[:])
-		},
+		}
 	}
 
 	sub, err := nats.NewSubscriber(
 		nats.SubscriberConfig{
-			URL:         cfg.URL,
-			NatsOptions: options,
-			Unmarshaler: natsMarshaler,
-			JetStream:   jsConfig,
+			URL:              cfg.URL,
+			NatsOptions:      options,
+			Unmarshaler:      natsMarshaler,
+			JetStream:        jsConfig,
+			QueueGroupPrefix: cfg.QueueGroup,
 		},
 		logAdapter,
 	)
