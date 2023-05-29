@@ -68,7 +68,7 @@ func newNATSSubscriber(cfg SubscriberConfig, logger *zap.SugaredLogger) (message
 		AutoProvision:    false,
 		ConnectOptions:   nil,
 		PublishOptions:   nil,
-		SubscribeOptions: sopts,
+		SubscribeOptions: nil,
 		TrackMsgId:       false,
 		AckAsync:         false,
 		DurableCalculator: func(_ string, topic string) string {
@@ -93,8 +93,8 @@ func newNATSSubscriber(cfg SubscriberConfig, logger *zap.SugaredLogger) (message
 // WithNATS sets the NATS config for a SubscriberConfig from viper
 func (s *SubscriberConfig) WithNATS(v *viper.Viper) {
 	s.NATSConfig = NATSConfig{
-		Token:      v.GetString("events.subscriber.nats.token"),
-		CredsFile:  v.GetString("events.subscriber.nats.credsFile"),
+		Token:     v.GetString("events.subscriber.nats.token"),
+		CredsFile: v.GetString("events.subscriber.nats.credsFile"),
 	}
 }
 

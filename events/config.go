@@ -45,8 +45,8 @@ type SubscriberConfig struct {
 
 // NATSConfig handles reading in all pubsub values specific to NATS
 type NATSConfig struct {
-	Token      string `mapstructure:"token"`
-	CredsFile  string `mapstructure:"credsFile"`
+	Token     string `mapstructure:"token"`
+	CredsFile string `mapstructure:"credsFile"`
 }
 
 // MustViperFlagsForPublisher returns the cobra flags and viper config for an event publisher
