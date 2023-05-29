@@ -45,8 +45,8 @@ type SubscriberConfig struct {
 
 // NATSConfig handles reading in all pubsub values specific to NATS
 type NATSConfig struct {
-	Token     string `mapstructure:"token"`
-	CredsFile string `mapstructure:"credsFile"`
+	Token      string `mapstructure:"token"`
+	CredsFile  string `mapstructure:"credsFile"`
 }
 
 // MustViperFlagsForPublisher returns the cobra flags and viper config for an event publisher
@@ -77,4 +77,24 @@ func MustViperFlagsForSubscriber(v *viper.Viper, flags *pflag.FlagSet) {
 	v.MustBindEnv("events.subscriber.nats.credsFile")
 
 	v.SetDefault("events.subscriber.timeout", defaultTimeout)
+}
+
+// SubscriberConfigFromViper builds a new SubscriberConfig from viper.
+func SubscriberConfigFromViper(v *viper.Viper) SubscriberConfig {
+	return SubscriberConfig{
+		URL:        v.GetString("events.subscriber.url"),
+		Timeout:    v.GetDuration("events.subscriber.timeout"),
+		Prefix:     v.GetString("events.subscriber.prefix"),
+		QueueGroup: v.GetString("events.subscriber.queueGroup"),
+	}
+}
+
+// PublisherConfigFromViper builds a new PublisherConfig from viper.
+func PublisherConfigFromViper(v *viper.Viper) PublisherConfig {
+	return PublisherConfig{
+		URL:     v.GetString("events.publisher.url"),
+		Timeout: v.GetDuration("events.publisher.timeout"),
+		Prefix:  v.GetString("events.publisher.prefix"),
+		Source:  v.GetString("events.publisher.source"),
+	}
 }

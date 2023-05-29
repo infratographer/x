@@ -85,12 +85,12 @@ func (p *Publisher) PublishChange(ctx context.Context, subjectType string, chang
 }
 
 // PublishEvent will publish an EventMessage to the proper topic for that event
-func (p *Publisher) PublishEvent(_ context.Context, event EventMessage) error {
+func (p *Publisher) PublishEvent(_ context.Context, subjectType string, event EventMessage) error {
 	if event.EventType == "" {
 		return ErrMissingEventType
 	}
 
-	topic := strings.Join([]string{p.prefix, "events", event.EventType}, ".")
+	topic := strings.Join([]string{p.prefix, "events", event.EventType, subjectType}, ".")
 
 	event.Source = p.source
 
