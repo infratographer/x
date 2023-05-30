@@ -1,14 +1,10 @@
 package events
 
 import (
-	"crypto/md5"
-	"encoding/hex"
-
 	"github.com/ThreeDotsLabs/watermill-nats/v2/pkg/nats"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/garsue/watermillzap"
 	nc "github.com/nats-io/nats.go"
-	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
 
@@ -74,12 +70,12 @@ func newNATSSubscriber(cfg SubscriberConfig, logger *zap.SugaredLogger) (message
 		DurablePrefix:    "",
 	}
 
-	if cfg.QueueGroup != "" {
-		jsConfig.DurableCalculator = func(_ string, topic string) string {
-			hash := md5.Sum([]byte(topic))
-			return cfg.QueueGroup + hex.EncodeToString(hash[:])
-		}
-	}
+	// if cfg.QueueGroup != "" {
+	// 	jsConfig.DurableCalculator = func(_ string, topic string) string {
+	// 		hash := md5.Sum([]byte(topic))
+	// 		return cfg.QueueGroup + hex.EncodeToString(hash[:])
+	// 	}
+	// }
 
 	sub, err := nats.NewSubscriber(
 		nats.SubscriberConfig{
@@ -93,20 +89,4 @@ func newNATSSubscriber(cfg SubscriberConfig, logger *zap.SugaredLogger) (message
 	)
 
 	return sub, err
-}
-
-// WithNATS sets the NATS config for a SubscriberConfig from viper
-func (s *SubscriberConfig) WithNATS(v *viper.Viper) {
-	s.NATSConfig = NATSConfig{
-		Token:     v.GetString("events.subscriber.nats.token"),
-		CredsFile: v.GetString("events.subscriber.nats.credsFile"),
-	}
-}
-
-// WithNATS sets the NATS config for a SubscriberConfig from viper
-func (p *PublisherConfig) WithNATS(v *viper.Viper) {
-	p.NATSConfig = NATSConfig{
-		Token:     v.GetString("events.publisher.nats.token"),
-		CredsFile: v.GetString("events.publisher.nats.credsFile"),
-	}
 }

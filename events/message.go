@@ -11,9 +11,6 @@ import (
 // ChangeType represents the possible event types for a ChangeMessage
 type ChangeType string
 
-// EventType represents the possible event types for an EventMessage
-type EventType string
-
 var (
 	// CreateChangeType provides the event type for create events
 	CreateChangeType ChangeType = "create"
@@ -21,13 +18,6 @@ var (
 	UpdateChangeType ChangeType = "update"
 	// DeleteChangeType provides the event type for delete events
 	DeleteChangeType ChangeType = "delete"
-
-	// CreateEventType provides the event type for create events
-	CreateEventType EventType = "create"
-	// UpdateEventType provides the event type for update events
-	UpdateEventType EventType = "update"
-	// DeleteEventType provides the event type for delete events
-	DeleteEventType EventType = "delete"
 )
 
 // FieldChange represents a single field that was changed in a changeset and is used to map fields to the old and new values
