@@ -1,6 +1,9 @@
 package events
 
 import (
+	"crypto/md5"
+	"encoding/hex"
+
 	"github.com/ThreeDotsLabs/watermill-nats/v2/pkg/nats"
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/garsue/watermillzap"
@@ -70,12 +73,12 @@ func newNATSSubscriber(cfg SubscriberConfig, logger *zap.SugaredLogger) (message
 		DurablePrefix:    "",
 	}
 
-	// if cfg.QueueGroup != "" {
-	// 	jsConfig.DurableCalculator = func(_ string, topic string) string {
-	// 		hash := md5.Sum([]byte(topic))
-	// 		return cfg.QueueGroup + hex.EncodeToString(hash[:])
-	// 	}
-	// }
+	if cfg.QueueGroup != "" {
+		jsConfig.DurableCalculator = func(_ string, topic string) string {
+			hash := md5.Sum([]byte(topic))
+			return cfg.QueueGroup + hex.EncodeToString(hash[:])
+		}
+	}
 
 	sub, err := nats.NewSubscriber(
 		nats.SubscriberConfig{
