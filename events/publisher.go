@@ -90,7 +90,7 @@ func (p *Publisher) PublishEvent(_ context.Context, subjectType string, event Ev
 		return ErrMissingEventType
 	}
 
-	topic := strings.Join([]string{p.prefix, "events", event.EventType, subjectType}, ".")
+	topic := strings.Join([]string{p.prefix, "events", subjectType, event.EventType}, ".")
 
 	event.Source = p.source
 
