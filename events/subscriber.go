@@ -57,3 +57,8 @@ func (s *Subscriber) SubscribeEvents(ctx context.Context, topic string) (<-chan 
 
 	return s.subscriber.Subscribe(ctx, topic)
 }
+
+// Close will close the subscriber
+func (s *Subscriber) Close() error {
+	return s.subscriber.Close()
+}
