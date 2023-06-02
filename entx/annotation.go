@@ -6,6 +6,7 @@ package entx
 
 // EventsHookAnnotationName is the value of the annotation when read during ent compilation
 var EventsHookAnnotationName = "INFRA9_EVENTHOOKS"
+var NamespacedAnnotationName = "INFRA9_ENTX"
 
 // EventsHookAnnotation provides a ent.Annotation spec. These shouldn't be set directly, you should use EventsHookAdditionalSubject() and EventsHookSubjectName instead
 type EventsHookAnnotation struct {
@@ -30,4 +31,14 @@ func EventsHookSubjectName(s string) *EventsHookAnnotation {
 	return &EventsHookAnnotation{
 		SubjectName: s,
 	}
+}
+
+// Annotation provides a ent.Annotaion spec
+type NamespacedAnnotation struct {
+	IsNamespacedDataJSONField bool
+}
+
+// Name implements the ent Annotation interface.
+func (a NamespacedAnnotation) Name() string {
+	return NamespacedAnnotationName
 }
