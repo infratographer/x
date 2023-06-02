@@ -104,7 +104,7 @@ func (p *Publisher) PublishEvent(_ context.Context, subjectType string, event Ev
 	return p.publisher.Publish(topic, msg)
 }
 
-// Close will close the subscriber
+// Close will close the publisher
 func (p *Publisher) Close() error {
 	return p.publisher.Close()
 }
