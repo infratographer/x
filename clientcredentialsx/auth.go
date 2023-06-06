@@ -27,7 +27,7 @@ type AuthConfig struct {
 	Scopes []string
 }
 
-// Auth is an oauth2 http client
+// Auth handles client credentials oauth2 authentication
 type Auth struct {
 	cfg clientcredentials.Config
 }
@@ -48,7 +48,7 @@ func NewAuth(cfg AuthConfig) *Auth {
 	return cli
 }
 
-// HTTPClient returns an http client using the configured token.
+// HTTPClient returns an http client using the configured client credentials config.
 // The token will auto-refresh as necessary.
 func (a Auth) HTTPClient(ctx context.Context) *http.Client {
 	return a.cfg.Client(ctx)
