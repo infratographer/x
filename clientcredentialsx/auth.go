@@ -14,8 +14,44 @@ import (
 
 // AuthConfig is an oauth2 client config
 type AuthConfig struct {
-	config *clientcredentials.Config
-	ctx    context.Context
+	// ClientID is the applications's ID
+	ClientID string
+
+	// ClientSecret is the application's secret
+	ClientSecret string
+
+	// TokenURL is the resource server's token endpoint URL. This is a constant specific to each server.
+	TokenURL string
+
+	// Scopes specifies optional requested permissions
+	Scopes []string
+}
+
+// Auth is an oauth2 http client
+type Auth struct {
+	cfg clientcredentials.Config
+}
+
+// NewAuth returns a new oauth2 http client
+func NewAuth(cfg AuthConfig) *Auth {
+	ccCfg := clientcredentials.Config{
+		ClientID:     cfg.ClientID,
+		ClientSecret: cfg.ClientSecret,
+		TokenURL:     cfg.TokenURL,
+		Scopes:       cfg.Scopes,
+	}
+
+	cli := &Auth{
+		cfg: ccCfg,
+	}
+
+	return cli
+}
+
+// HTTPClient returns an http client using the configured token.
+// The token will auto-refresh as necessary.
+func (a Auth) HTTPClient(ctx context.Context) *http.Client {
+	return a.cfg.Client(ctx)
 }
 
 // MustViperFlags adds oidc oauth2 client config to the provided flagset and binds to viper
@@ -31,21 +67,4 @@ func MustViperFlags(v *viper.Viper, flags *pflag.FlagSet) {
 
 	flags.String("oidc-client-token-url", "", "expected oidc token url")
 	viperx.MustBindFlag(v, "oidc.client.token-url", flags.Lookup("oidc-client-token-url"))
-}
-
-// NewAuth returns a new jwt auth
-func NewAuth(ctx context.Context, cfg *clientcredentials.Config) *AuthConfig {
-	return &AuthConfig{
-		config: cfg,
-		ctx:    ctx,
-	}
-}
-
-// HTTPClient returns an oauth2 http client with valid cfg, otherwise returns the default http client
-func (a AuthConfig) HTTPClient() *http.Client {
-	if a.config != nil {
-		return a.config.Client(a.ctx)
-	}
-
-	return http.DefaultClient
 }
