@@ -12,8 +12,8 @@ import (
 	"golang.org/x/oauth2/clientcredentials"
 )
 
-// Auth is an oauth2 client config
-type Auth struct {
+// AuthConfig is an oauth2 client config
+type AuthConfig struct {
 	config *clientcredentials.Config
 	ctx    context.Context
 }
@@ -33,47 +33,16 @@ func MustViperFlags(v *viper.Viper, flags *pflag.FlagSet) {
 	viperx.MustBindFlag(v, "oidc.client.token-url", flags.Lookup("oidc-client-token-url"))
 }
 
-// configFromViper returns an oauth2 client credentials config from the provided viper config
-func configFromViper(v *viper.Viper) (*clientcredentials.Config, error) {
-	if !v.GetBool("oidc.client.enabled") {
-		return nil, nil
-	}
-
-	if v.GetString("oidc.client.id") == "" {
-		return nil, ErrClientIDRequired
-	}
-
-	if v.GetString("oidc.client.secret") == "" {
-		return nil, ErrClientSecretRequired
-	}
-
-	if v.GetString("oidc.client.token-url") == "" {
-		return nil, ErrTokenURLRequired
-	}
-
-	return &clientcredentials.Config{
-		ClientID:     v.GetString("oidc.client.id"),
-		ClientSecret: v.GetString("oidc.client.secret"),
-		TokenURL:     v.GetString("oidc.client.token-url"),
-		Scopes:       []string{},
-	}, nil
-}
-
 // NewAuth returns a new jwt auth
-func NewAuth(ctx context.Context) (*Auth, error) {
-	cfg, err := configFromViper(viper.GetViper())
-	if err != nil {
-		return nil, err
-	}
-
-	return &Auth{
+func NewAuth(ctx context.Context, cfg *clientcredentials.Config) *AuthConfig {
+	return &AuthConfig{
 		config: cfg,
 		ctx:    ctx,
-	}, nil
+	}
 }
 
-// HTTPClient returns an oauth2 http client if the oauth2 config is set, otherwise the default http client
-func (a Auth) HTTPClient() *http.Client {
+// HTTPClient returns an oauth2 http client with valid cfg, otherwise returns the default http client
+func (a AuthConfig) HTTPClient() *http.Client {
 	if a.config != nil {
 		return a.config.Client(a.ctx)
 	}
