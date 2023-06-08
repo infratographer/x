@@ -32,19 +32,19 @@ func NewClient(ctx context.Context, tokenSrc oauth2.TokenSource) *http.Client {
 // Config handles reading in all the config values available
 // for setting up an oauth2 configuration
 type Config struct {
-	ClientID     string `mapstructure:"id"`
-	ClientSecret string `mapstructure:"secret"`
-	TokenURL     string `mapstructure:"tokenURL"`
+	ClientID     string `mapstructure:"client_id"`
+	ClientSecret string `mapstructure:"client_secret"`
+	TokenURL     string `mapstructure:"token_url"`
 }
 
-// MustClientCredentialsViperFlags adds oidc oauth2 client credentials config to the provided flagset and binds to viper
-func MustClientCredentialsViperFlags(v *viper.Viper, flags *pflag.FlagSet) {
-	flags.String("oidc-client-id", "", "expected oidc client identifier")
-	viperx.MustBindFlag(v, "oidc.client.id", flags.Lookup("oidc-client-id"))
+// MustViperFlags adds oidc oauth2 client credentials config to the provided flagset and binds to viper
+func MustViperFlags(v *viper.Viper, flags *pflag.FlagSet) {
+	flags.String("oidc-client-id", "", "oidc client identifier")
+	viperx.MustBindFlag(v, "oidc.client_id", flags.Lookup("oidc-client-id"))
 
-	flags.String("oidc-client-secret", "", "expected oidc client secret")
-	viperx.MustBindFlag(v, "oidc.client.secret", flags.Lookup("oidc-client-secret"))
+	flags.String("oidc-client-secret", "", "oidc client secret")
+	viperx.MustBindFlag(v, "oidc.client_secret", flags.Lookup("oidc-client-secret"))
 
-	flags.String("oidc-client-token-url", "", "expected oidc token url")
-	viperx.MustBindFlag(v, "oidc.client.tokenURL", flags.Lookup("oidc-client-token-url"))
+	flags.String("oidc-client-token-url", "", "oidc token url")
+	viperx.MustBindFlag(v, "oidc.token_url", flags.Lookup("oidc-client-token-url"))
 }
