@@ -24,6 +24,15 @@ type actorContext struct{}
 const (
 	// ActorKey defines the context key an actor is stored in for an echo context
 	ActorKey = "actor"
+
+	// DefaultKeyFuncOptionRefreshInterval defines the frequency at which the jwks file is refreshed.
+	DefaultKeyFuncOptionRefreshInterval = time.Hour
+
+	// DefaultKeyFuncOptionRefreshRateLimit limits how frequently jwks is reloaded when a provided KID is not found.
+	DefaultKeyFuncOptionRefreshRateLimit = 5 * time.Minute
+
+	// DefaultKeyFuncOptionRefreshTimeout limits the runtime of a reload of jwks.
+	DefaultKeyFuncOptionRefreshTimeout = 10 * time.Second
 )
 
 var (
@@ -108,6 +117,30 @@ func (a *Auth) setup(ctx context.Context, config AuthConfig, options ...Opts) er
 		if err != nil {
 			return err
 		}
+
+		if a.KeyFuncOptions.Ctx == nil {
+			a.KeyFuncOptions.Ctx = ctx
+		}
+
+		if a.KeyFuncOptions.RefreshErrorHandler == nil {
+			a.KeyFuncOptions.RefreshErrorHandler = func(err error) {
+				a.logger.Error("error refreshing jwks", zap.Error(err))
+			}
+		}
+
+		if a.KeyFuncOptions.RefreshInterval == 0 {
+			a.KeyFuncOptions.RefreshInterval = DefaultKeyFuncOptionRefreshInterval
+		}
+
+		if a.KeyFuncOptions.RefreshRateLimit == 0 {
+			a.KeyFuncOptions.RefreshRateLimit = DefaultKeyFuncOptionRefreshRateLimit
+		}
+
+		if a.KeyFuncOptions.RefreshTimeout == 0 {
+			a.KeyFuncOptions.RefreshTimeout = DefaultKeyFuncOptionRefreshTimeout
+		}
+
+		a.KeyFuncOptions.RefreshUnknownKID = true
 
 		jwks, err := keyfunc.Get(jwksURI, a.KeyFuncOptions)
 		if err != nil {
