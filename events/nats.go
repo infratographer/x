@@ -52,7 +52,7 @@ func newNATSPublisher(cfg PublisherConfig, logger *zap.SugaredLogger) (message.P
 	)
 }
 
-func newNATSSubscriber(cfg SubscriberConfig, logger *zap.SugaredLogger) (message.Subscriber, error) {
+func newNATSSubscriber(cfg SubscriberConfig, logger *zap.SugaredLogger, subOpts ...nc.SubOpt) (message.Subscriber, error) {
 	logAdapter := watermillzap.NewLogger(logger.Desugar())
 
 	options := []nc.Option{
@@ -71,7 +71,7 @@ func newNATSSubscriber(cfg SubscriberConfig, logger *zap.SugaredLogger) (message
 		AutoProvision:    false,
 		ConnectOptions:   nil,
 		PublishOptions:   nil,
-		SubscribeOptions: nil,
+		SubscribeOptions: subOpts,
 		TrackMsgId:       false,
 		AckAsync:         false,
 		DurablePrefix:    "",

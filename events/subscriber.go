@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/ThreeDotsLabs/watermill/message"
+	"github.com/nats-io/nats.go"
 	"go.uber.org/zap"
 )
 
@@ -20,7 +21,7 @@ type Subscriber struct {
 }
 
 // NewSubscriberWithLogger returns a subscriber for the given config provided
-func NewSubscriberWithLogger(cfg SubscriberConfig, logger *zap.SugaredLogger) (*Subscriber, error) {
+func NewSubscriberWithLogger(cfg SubscriberConfig, logger *zap.SugaredLogger, options ...nats.SubOpt) (*Subscriber, error) {
 	s := &Subscriber{
 		prefix: cfg.Prefix,
 		logger: logger,
@@ -28,7 +29,7 @@ func NewSubscriberWithLogger(cfg SubscriberConfig, logger *zap.SugaredLogger) (*
 
 	switch {
 	case strings.HasPrefix(cfg.URL, "nats://"):
-		ns, err := newNATSSubscriber(cfg, s.logger)
+		ns, err := newNATSSubscriber(cfg, s.logger, options...)
 		if err != nil {
 			return nil, err
 		}
@@ -42,8 +43,8 @@ func NewSubscriberWithLogger(cfg SubscriberConfig, logger *zap.SugaredLogger) (*
 }
 
 // NewSubscriber returns a subscriber for the given config provided
-func NewSubscriber(cfg SubscriberConfig) (*Subscriber, error) {
-	return NewSubscriberWithLogger(cfg, zap.NewNop().Sugar())
+func NewSubscriber(cfg SubscriberConfig, options ...nats.SubOpt) (*Subscriber, error) {
+	return NewSubscriberWithLogger(cfg, zap.NewNop().Sugar(), options...)
 }
 
 // SubscribeChanges will subscribe you to the changes for a given topic. To receive all changes of any kind you can
