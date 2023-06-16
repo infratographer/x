@@ -33,18 +33,18 @@ func TestNatsPublishAndSubscribe(t *testing.T) {
 
 	change := testCreateChange()
 
-	err = publisher.PublishChange(ctx, "test", change)
+	_, err = publisher.PublishChange(ctx, "test", change)
 	require.NoError(t, err)
 
 	change2 := testCreateChange()
 
-	err = publisher.PublishChange(ctx, "test", change2)
+	_, err = publisher.PublishChange(ctx, "test", change2)
 	require.NoError(t, err)
 
 	change3 := testCreateChange()
 	change3.ActorID = ""
 
-	err = publisher.PublishChange(ctx, "test", change3)
+	_, err = publisher.PublishChange(ctx, "test", change3)
 	require.NoError(t, err)
 
 	sub, err := events.NewSubscriber(subCfg)
@@ -89,7 +89,7 @@ func TestNatsMultipleSubscribers(t *testing.T) {
 
 	change := testCreateChange()
 
-	err = publisher.PublishChange(ctx, "test", change)
+	_, err = publisher.PublishChange(ctx, "test", change)
 	require.NoError(t, err)
 
 	sub, err := events.NewSubscriber(subCfg)
@@ -131,7 +131,7 @@ func TestNatsGroupedSubscribers(t *testing.T) {
 
 	change := testCreateChange()
 
-	err = publisher.PublishChange(ctx, "test", change)
+	_, err = publisher.PublishChange(ctx, "test", change)
 	require.NoError(t, err)
 
 	// put both subscribers in the same queue group so that combined the message is only delivered once

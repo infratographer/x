@@ -61,9 +61,9 @@ func NewPublisher(cfg PublisherConfig) (*Publisher, error) {
 }
 
 // PublishChange will publish a ChangeMessage to the topic for the change
-func (p *Publisher) PublishChange(ctx context.Context, subjectType string, change ChangeMessage) error {
+func (p *Publisher) PublishChange(ctx context.Context, subjectType string, change ChangeMessage) (*message.Message, error) {
 	if change.EventType == "" {
-		return ErrMissingEventType
+		return nil, ErrMissingEventType
 	}
 
 	topic := strings.Join([]string{p.prefix, "changes", change.EventType, subjectType}, ".")
@@ -80,18 +80,18 @@ func (p *Publisher) PublishChange(ctx context.Context, subjectType string, chang
 
 	v, err := json.Marshal(change)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	msg := message.NewMessage(watermill.NewUUID(), v)
 
-	return p.publisher.Publish(topic, msg)
+	return msg, p.publisher.Publish(topic, msg)
 }
 
 // PublishEvent will publish an EventMessage to the proper topic for that event
-func (p *Publisher) PublishEvent(_ context.Context, subjectType string, event EventMessage) error {
+func (p *Publisher) PublishEvent(_ context.Context, subjectType string, event EventMessage) (*message.Message, error) {
 	if event.EventType == "" {
-		return ErrMissingEventType
+		return nil, ErrMissingEventType
 	}
 
 	topic := strings.Join([]string{p.prefix, "events", subjectType, event.EventType}, ".")
@@ -100,12 +100,12 @@ func (p *Publisher) PublishEvent(_ context.Context, subjectType string, event Ev
 
 	v, err := json.Marshal(event)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	msg := message.NewMessage(watermill.NewUUID(), v)
 
-	return p.publisher.Publish(topic, msg)
+	return msg, p.publisher.Publish(topic, msg)
 }
 
 // Close will close the publisher
