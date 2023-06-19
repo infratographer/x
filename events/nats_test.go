@@ -25,10 +25,12 @@ var errTimeout = errors.New("timeout waiting for event")
 
 func TestNatsPublishAndSubscribe(t *testing.T) {
 	ctx := context.Background()
-	pubCfg, subCfg, err := eventtools.NewNatsServer()
+	nats, err := eventtools.NewNatsServer()
 	require.NoError(t, err)
 
-	publisher, err := events.NewPublisher(pubCfg)
+	defer nats.Close()
+
+	publisher, err := events.NewPublisher(nats.PublisherConfig)
 	require.NoError(t, err)
 
 	change := testCreateChange()
@@ -47,7 +49,7 @@ func TestNatsPublishAndSubscribe(t *testing.T) {
 	err = publisher.PublishChange(ctx, "test", change3)
 	require.NoError(t, err)
 
-	sub, err := events.NewSubscriber(subCfg)
+	sub, err := events.NewSubscriber(nats.SubscriberConfig)
 	require.NoError(t, err)
 
 	messages, err := sub.SubscribeChanges(context.Background(), ">")
@@ -81,10 +83,12 @@ func TestNatsPublishAndSubscribe(t *testing.T) {
 
 func TestNatsMultipleSubscribers(t *testing.T) {
 	ctx := context.Background()
-	pubCfg, subCfg, err := eventtools.NewNatsServer()
+	nats, err := eventtools.NewNatsServer()
 	require.NoError(t, err)
 
-	publisher, err := events.NewPublisher(pubCfg)
+	defer nats.Close()
+
+	publisher, err := events.NewPublisher(nats.PublisherConfig)
 	require.NoError(t, err)
 
 	change := testCreateChange()
@@ -92,7 +96,7 @@ func TestNatsMultipleSubscribers(t *testing.T) {
 	err = publisher.PublishChange(ctx, "test", change)
 	require.NoError(t, err)
 
-	sub, err := events.NewSubscriber(subCfg)
+	sub, err := events.NewSubscriber(nats.SubscriberConfig)
 	require.NoError(t, err)
 
 	messages, err := sub.SubscribeChanges(context.Background(), ">")
@@ -106,7 +110,7 @@ func TestNatsMultipleSubscribers(t *testing.T) {
 	assert.EqualValues(t, change, chgMsg)
 	assert.True(t, receivedMsg.Ack())
 
-	sub2, err := events.NewSubscriber(subCfg)
+	sub2, err := events.NewSubscriber(nats.SubscriberConfig)
 	require.NoError(t, err)
 
 	messages, err = sub2.SubscribeChanges(context.Background(), ">")
@@ -123,10 +127,10 @@ func TestNatsMultipleSubscribers(t *testing.T) {
 
 func TestNatsGroupedSubscribers(t *testing.T) {
 	ctx := context.Background()
-	pubCfg, subCfg, err := eventtools.NewNatsServer()
+	nats, err := eventtools.NewNatsServer()
 	require.NoError(t, err)
 
-	publisher, err := events.NewPublisher(pubCfg)
+	publisher, err := events.NewPublisher(nats.PublisherConfig)
 	require.NoError(t, err)
 
 	change := testCreateChange()
@@ -135,9 +139,9 @@ func TestNatsGroupedSubscribers(t *testing.T) {
 	require.NoError(t, err)
 
 	// put both subscribers in the same queue group so that combined the message is only delivered once
-	subCfg.QueueGroup = "queue-test"
+	nats.SubscriberConfig.QueueGroup = "queue-test"
 
-	sub, err := events.NewSubscriber(subCfg)
+	sub, err := events.NewSubscriber(nats.SubscriberConfig)
 	require.NoError(t, err)
 
 	messages, err := sub.SubscribeChanges(context.Background(), ">")
@@ -151,7 +155,7 @@ func TestNatsGroupedSubscribers(t *testing.T) {
 	assert.EqualValues(t, change, chgMsg)
 	assert.True(t, receivedMsg.Ack())
 
-	sub2, err := events.NewSubscriber(subCfg)
+	sub2, err := events.NewSubscriber(nats.SubscriberConfig)
 	require.NoError(t, err)
 
 	messages, err = sub2.SubscribeChanges(context.Background(), ">")
