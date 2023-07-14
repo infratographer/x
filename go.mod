@@ -5,7 +5,7 @@ go 1.20
 require (
 	entgo.io/contrib v0.4.5
 	entgo.io/ent v0.12.3
-	github.com/99designs/gqlgen v0.17.31
+	github.com/99designs/gqlgen v0.17.34
 	github.com/MicahParks/keyfunc/v2 v2.0.3
 	github.com/ThreeDotsLabs/watermill v1.2.0
 	github.com/ThreeDotsLabs/watermill-nats/v2 v2.0.0
