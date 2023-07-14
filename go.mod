@@ -46,7 +46,7 @@ require (
 	go.opentelemetry.io/otel/sdk v1.16.0
 	go.uber.org/goleak v1.2.1
 	go.uber.org/zap v1.24.0
-	golang.org/x/exp v0.0.0-20230522175609-2e198f4a06a1
+	golang.org/x/exp v0.0.0-20230713183714-613f0c0eb8a1
 	golang.org/x/oauth2 v0.8.0
 	gopkg.in/square/go-jose.v2 v2.6.0
 )
@@ -100,7 +100,7 @@ require (
 	github.com/vmihailenco/tagparser v0.1.2 // indirect
 	github.com/zclconf/go-cty v1.8.0 // indirect
 	golang.org/x/arch v0.3.0 // indirect
-	golang.org/x/mod v0.10.0 // indirect
+	golang.org/x/mod v0.11.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.8.1-0.20230428195545-5283a0178901 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
