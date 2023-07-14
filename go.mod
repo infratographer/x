@@ -10,7 +10,7 @@ require (
 	github.com/ThreeDotsLabs/watermill v1.2.0
 	github.com/ThreeDotsLabs/watermill-nats/v2 v2.0.0
 	github.com/XSAM/otelsql v0.23.0
-	github.com/brianvoe/gofakeit/v6 v6.21.0
+	github.com/brianvoe/gofakeit/v6 v6.23.0
 	github.com/cockroachdb/cockroach-go/v2 v2.3.3
 	github.com/docker/go-connections v0.4.0
 	github.com/garsue/watermillzap v1.2.0
