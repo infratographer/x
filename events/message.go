@@ -92,9 +92,9 @@ type EventMessage struct {
 	Data map[string]interface{} `json:"data"`
 }
 
-// AuthRelationshipMessage contains the data structure expected to be used to write or delete
+// AuthRelationshipRequest contains the data structure expected to be used to write or delete
 // an auth relationship from PermissionsAPI
-type AuthRelationshipMessage struct {
+type AuthRelationshipRequest struct {
 	// ObjectID is the PrefixedID of the object the permissions will be granted on
 	ObjectID gidx.PrefixedID `json:"objectID"`
 	// RelationshipName is the relationship being created on the object for the subject
@@ -106,6 +106,17 @@ type AuthRelationshipMessage struct {
 	ConditionName string `json:"conditionName"`
 	// ConditionValues are the condition values to be used on the condition check. (Optional)
 	ConditionValues map[string]interface{} `json:"conditionValue"`
+	// TraceID is the ID of the trace for this event
+	TraceID string `json:"traceID"`
+	// SpanID is the ID of the span that additional traces should based off of
+	SpanID string `json:"spanID"`
+}
+
+// AuthRelationshipResponse contains the data structure expected to be received from an AuthRelationshipRequest
+// message to write or delete an auth relationship from PermissionsAPI
+type AuthRelationshipResponse struct {
+	// Errors contains any errors, if empty the request was successful
+	Errors []error `json:"errors"`
 	// TraceID is the ID of the trace for this event
 	TraceID string `json:"traceID"`
 	// SpanID is the ID of the span that additional traces should based off of
@@ -128,9 +139,17 @@ func UnmarshalEventMessage(b []byte) (EventMessage, error) {
 	return m, err
 }
 
-// UnmarshalAuthRelationshipMessage returns an AuthRelationshipMessage from a json []byte.
-func UnmarshalAuthRelationshipMessage(b []byte) (AuthRelationshipMessage, error) {
-	var m AuthRelationshipMessage
+// UnmarshalAuthRelationshipRequest returns an AuthRelationshipRequest from a json []byte.
+func UnmarshalAuthRelationshipRequest(b []byte) (AuthRelationshipRequest, error) {
+	var m AuthRelationshipRequest
+	err := json.Unmarshal(b, &m)
+
+	return m, err
+}
+
+// UnmarshalAuthRelationshipResponse returns an AuthRelationshipRsponse from a json []byte.
+func UnmarshalAuthRelationshipResponse(b []byte) (AuthRelationshipResponse, error) {
+	var m AuthRelationshipResponse
 	err := json.Unmarshal(b, &m)
 
 	return m, err
