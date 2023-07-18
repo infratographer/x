@@ -25,6 +25,9 @@ import (
 // ChangeType represents the possible event types for a ChangeMessage
 type ChangeType string
 
+// AuthRelationshipAction represents the possible auth relationship request actions for an AuthRelationshipRequest
+type AuthRelationshipAction string
+
 var (
 	// CreateChangeType provides the event type for create events
 	CreateChangeType ChangeType = "create"
@@ -32,6 +35,10 @@ var (
 	UpdateChangeType ChangeType = "update"
 	// DeleteChangeType provides the event type for delete events
 	DeleteChangeType ChangeType = "delete"
+	// WriteAuthRelationshipAction provides the auth relationship action for write requests
+	WriteAuthRelationshipAction AuthRelationshipAction = "write"
+	// DeleteAuthRelationshipAction provides the auth relationship action for delete requests
+	DeleteAuthRelationshipAction AuthRelationshipAction = "delete"
 )
 
 // FieldChange represents a single field that was changed in a changeset and is used to map fields to the old and new values
@@ -95,6 +102,8 @@ type EventMessage struct {
 // AuthRelationshipRequest contains the data structure expected to be used to write or delete
 // an auth relationship from PermissionsAPI
 type AuthRelationshipRequest struct {
+	// Action describes the type of action being performed. Valid options are "write" and "delete".
+	Action AuthRelationshipAction `json:"action"`
 	// ObjectID is the PrefixedID of the object the permissions will be granted on
 	ObjectID gidx.PrefixedID `json:"objectID"`
 	// RelationshipName is the relationship being created on the object for the subject
