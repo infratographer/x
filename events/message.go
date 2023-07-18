@@ -95,6 +95,8 @@ type EventMessage struct {
 // AuthRelationshipRequest contains the data structure expected to be used to write or delete
 // an auth relationship from PermissionsAPI
 type AuthRelationshipRequest struct {
+	// EventType describes the type of event that has triggered this message
+	EventType string `json:"eventType"`
 	// ObjectID is the PrefixedID of the object the permissions will be granted on
 	ObjectID gidx.PrefixedID `json:"objectID"`
 	// RelationshipName is the relationship being created on the object for the subject
