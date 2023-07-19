@@ -20,6 +20,8 @@ import (
 
 	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/nats-io/nats.go"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
 	"go.uber.org/zap"
 )
 
@@ -76,4 +78,18 @@ func (s *Subscriber) SubscribeEvents(ctx context.Context, topic string) (<-chan 
 // Close will close the subscriber
 func (s *Subscriber) Close() error {
 	return s.subscriber.Close()
+}
+
+// TraceContextFromChangeMessage creates a new OpenTelemetry context from the given ChangeMessage.
+func TraceContextFromChangeMessage(ctx context.Context, msg ChangeMessage) context.Context {
+	tp := otel.GetTextMapPropagator()
+
+	return tp.Extract(ctx, propagation.MapCarrier(msg.TraceContext))
+}
+
+// TraceContextFromEventMessage creates a new OpenTelemetry context from the given ChangeMessage.
+func TraceContextFromEventMessage(ctx context.Context, msg EventMessage) context.Context {
+	tp := otel.GetTextMapPropagator()
+
+	return tp.Extract(ctx, propagation.MapCarrier(msg.TraceContext))
 }

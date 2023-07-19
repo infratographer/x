@@ -22,11 +22,20 @@ import (
 
 	"github.com/ThreeDotsLabs/watermill"
 	"github.com/ThreeDotsLabs/watermill/message"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/propagation"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 
 	"go.infratographer.com/x/echojwtx"
 	"go.infratographer.com/x/gidx"
 )
+
+const instrumentationName = "go.infratographer.com/x/events"
+
+var tracer = otel.GetTracerProvider().Tracer(instrumentationName)
 
 // ErrUnsupportedPubsub is returned when the pubsub URL is not a supported provider
 var ErrUnsupportedPubsub = errors.New("unsupported pubsub provider")
@@ -72,11 +81,53 @@ func NewPublisher(cfg PublisherConfig) (*Publisher, error) {
 
 // PublishChange will publish a ChangeMessage to the topic for the change
 func (p *Publisher) PublishChange(ctx context.Context, subjectType string, change ChangeMessage) error {
+	ctx, span := tracer.Start(
+		ctx,
+		"events.publishChange",
+		trace.WithAttributes(
+			attribute.String(
+				"events.subject_type",
+				subjectType,
+			),
+			attribute.String(
+				"events.subject_id",
+				change.SubjectID.String(),
+			),
+			attribute.String(
+				"events.event_type",
+				change.EventType,
+			),
+			attribute.String(
+				"events.source",
+				p.source,
+			),
+		),
+	)
+
+	defer span.End()
+
+	// Propagate trace context into the message for the subscriber
+	var mapCarrier propagation.MapCarrier = make(map[string]string)
+
+	otel.GetTextMapPropagator().Inject(ctx, mapCarrier)
+
+	change.TraceContext = mapCarrier
+
 	if change.EventType == "" {
+		span.RecordError(ErrMissingEventType)
+		span.SetStatus(codes.Error, ErrMissingEventType.Error())
+
 		return ErrMissingEventType
 	}
 
 	topic := strings.Join([]string{p.prefix, "changes", change.EventType, subjectType}, ".")
+
+	span.SetAttributes(
+		attribute.String(
+			"events.topic",
+			topic,
+		),
+	)
 
 	change.Source = p.source
 	if change.ActorID == gidx.NullPrefixedID {
@@ -88,34 +139,117 @@ func (p *Publisher) PublishChange(ctx context.Context, subjectType string, chang
 		}
 	}
 
+	span.SetAttributes(
+		attribute.String(
+			"events.actor_id",
+			change.ActorID.String(),
+		),
+	)
+
 	v, err := json.Marshal(change)
 	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+
 		return err
 	}
 
 	msg := message.NewMessage(watermill.NewUUID(), v)
 
-	return p.publisher.Publish(topic, msg)
+	span.SetAttributes(
+		attribute.String(
+			"events.message_id",
+			msg.UUID,
+		),
+	)
+
+	if err := p.publisher.Publish(topic, msg); err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+
+		return err
+	}
+
+	return nil
 }
 
 // PublishEvent will publish an EventMessage to the proper topic for that event
-func (p *Publisher) PublishEvent(_ context.Context, subjectType string, event EventMessage) error {
+func (p *Publisher) PublishEvent(ctx context.Context, subjectType string, event EventMessage) error {
+	ctx, span := tracer.Start(
+		ctx,
+		"events.publishEvent",
+		trace.WithAttributes(
+			attribute.String(
+				"events.subject_type",
+				subjectType,
+			),
+			attribute.String(
+				"events.subject_id",
+				event.SubjectID.String(),
+			),
+			attribute.String(
+				"events.event_type",
+				event.EventType,
+			),
+			attribute.String(
+				"events.source",
+				p.source,
+			),
+		),
+	)
+
+	defer span.End()
+
+	// Propagate trace context into the message for the subscriber
+	var mapCarrier propagation.MapCarrier = make(map[string]string)
+
+	otel.GetTextMapPropagator().Inject(ctx, mapCarrier)
+
+	event.TraceContext = mapCarrier
+
 	if event.EventType == "" {
+		span.RecordError(ErrMissingEventType)
+		span.SetStatus(codes.Error, ErrMissingEventType.Error())
+
 		return ErrMissingEventType
 	}
 
 	topic := strings.Join([]string{p.prefix, "events", subjectType, event.EventType}, ".")
 
+	span.SetAttributes(
+		attribute.String(
+			"events.topic",
+			topic,
+		),
+	)
+
 	event.Source = p.source
 
 	v, err := json.Marshal(event)
 	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+
 		return err
 	}
 
 	msg := message.NewMessage(watermill.NewUUID(), v)
 
-	return p.publisher.Publish(topic, msg)
+	span.SetAttributes(
+		attribute.String(
+			"events.message_id",
+			msg.UUID,
+		),
+	)
+
+	if err := p.publisher.Publish(topic, msg); err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+
+		return err
+	}
+
+	return nil
 }
 
 // Close will close the publisher
