@@ -5,9 +5,11 @@
 # All events related packages will be owned by sig-events
 events/ @infratographer/sig-events
 pubsubx/ @infratographer/sig-events
+testing/eventtools @infratographer/sig-events
 
 # All identity related packages will be owned by identity_maintainers
 oauth2x/ @infratographer/identity_maintainers
+testing/auth @infratographer/identity_maintainers
 
 # As many packages are built, the sig-bootstrap team will be owners
 # As more sigs are created, these may move ownership
@@ -24,3 +26,4 @@ otelx/ @infratographer/sig-bootstrap
 versionx/ @infratographer/sig-bootstrap
 viperx/ @infratographer/sig-bootstrap
 zapx/ @infratographer/sig-bootstrap
+testing/containersx @infratographer/sig-bootstrap
