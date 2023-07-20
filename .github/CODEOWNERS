@@ -1,1 +1,26 @@
+# These owners will be the default owners for everything in
+# the repo. Unless a later match takes precedence
 * @nicolerenee @sfunkhouser
+
+# All events related packages will be owned by sig-events
+events/ @infratographer/sig-events
+pubsubx/ @infratographer/sig-events
+
+# All identity related packages will be owned by identity_maintainers
+oauth2x/ @infratographer/identity_maintainers
+
+# As many packages are built, the sig-bootstrap team will be owners
+# As more sigs are created, these may move ownership
+crdbx/ @infratographer/sig-bootstrap
+echojwtx/ @infratographer/sig-bootstrap
+echox/ @infratographer/sig-bootstrap
+entx/ @infratographer/sig-bootstrap
+gidx/ @infratographer/sig-bootstrap
+ginx/ @infratographer/sig-bootstrap
+goosex/ @infratographer/sig-bootstrap
+gqlgenx/ @infratographer/sig-bootstrap
+loggingx/ @infratographer/sig-bootstrap
+otelx/ @infratographer/sig-bootstrap
+versionx/ @infratographer/sig-bootstrap
+viperx/ @infratographer/sig-bootstrap
+zapx/ @infratographer/sig-bootstrap
