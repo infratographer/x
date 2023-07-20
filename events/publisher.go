@@ -35,8 +35,6 @@ import (
 
 const instrumentationName = "go.infratographer.com/x/events"
 
-var tracer = otel.GetTracerProvider().Tracer(instrumentationName)
-
 // ErrUnsupportedPubsub is returned when the pubsub URL is not a supported provider
 var ErrUnsupportedPubsub = errors.New("unsupported pubsub provider")
 
@@ -49,14 +47,18 @@ type Publisher struct {
 	source    string
 	publisher message.Publisher
 	logger    *zap.SugaredLogger
+	tracer    trace.Tracer
 }
 
 // NewPublisherWithLogger returns a publisher for the given config provided
 func NewPublisherWithLogger(cfg PublisherConfig, logger *zap.SugaredLogger) (*Publisher, error) {
+	tracer := otel.GetTracerProvider().Tracer(instrumentationName)
+
 	p := &Publisher{
 		prefix: cfg.Prefix,
 		source: cfg.Source,
 		logger: logger,
+		tracer: tracer,
 	}
 
 	switch {
@@ -81,7 +83,7 @@ func NewPublisher(cfg PublisherConfig) (*Publisher, error) {
 
 // PublishChange will publish a ChangeMessage to the topic for the change
 func (p *Publisher) PublishChange(ctx context.Context, subjectType string, change ChangeMessage) error {
-	ctx, span := tracer.Start(
+	ctx, span := p.tracer.Start(
 		ctx,
 		"events.publishChange",
 		trace.WithAttributes(
@@ -175,7 +177,7 @@ func (p *Publisher) PublishChange(ctx context.Context, subjectType string, chang
 
 // PublishEvent will publish an EventMessage to the proper topic for that event
 func (p *Publisher) PublishEvent(ctx context.Context, subjectType string, event EventMessage) error {
-	ctx, span := tracer.Start(
+	ctx, span := p.tracer.Start(
 		ctx,
 		"events.publishEvent",
 		trace.WithAttributes(
