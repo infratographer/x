@@ -101,7 +101,7 @@ func (p *Publisher) PublishChange(ctx context.Context, subjectType string, chang
 			),
 			attribute.String(
 				"events.source",
-				p.source,
+				change.Source,
 			),
 		),
 	)
@@ -195,7 +195,7 @@ func (p *Publisher) PublishEvent(ctx context.Context, subjectType string, event 
 			),
 			attribute.String(
 				"events.source",
-				p.source,
+				event.Source,
 			),
 		),
 	)
