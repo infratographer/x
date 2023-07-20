@@ -209,6 +209,7 @@ func testChange(eventType string) events.ChangeMessage {
 				CurrentValue:  string(js),
 			},
 		},
+		TraceContext: map[string]string{},
 	}
 }
 
