@@ -41,6 +41,9 @@ var ErrUnsupportedPubsub = errors.New("unsupported pubsub provider")
 // ErrMissingEventType is returned when attempting to publish an event without an event type specified
 var ErrMissingEventType = errors.New("event type missing")
 
+// InvalidAuthRelationshipAction is returned when attempting to publish an AuthRelationshipAction that isn't write or delete
+var ErrInvalidAuthRelationshipAction = errors.New("invalid auth relationship action")
+
 // Publisher provides a pubsub publisher that uses the watermill pubsub package
 type Publisher struct {
 	prefix    string
@@ -79,6 +82,97 @@ func NewPublisherWithLogger(cfg PublisherConfig, logger *zap.SugaredLogger) (*Pu
 // NewPublisher returns a publisher for the given config provided
 func NewPublisher(cfg PublisherConfig) (*Publisher, error) {
 	return NewPublisherWithLogger(cfg, zap.NewNop().Sugar())
+}
+
+func (p *Publisher) PublishAuthRelationshipRequest(ctx context.Context, msg AuthRelationshipRequest) error {
+	ctx, span := p.tracer.Start(
+		ctx,
+		"events.publishAuthRelationshipRequest",
+		trace.WithAttributes(
+			attribute.String(
+				"events.action",
+				string(msg.Action),
+			),
+			attribute.String(
+				"events.subject_id",
+				msg.SubjectID.String(),
+			),
+			attribute.String(
+				"events.object_id",
+				msg.ObjectID.String(),
+			),
+			attribute.String(
+				"events.relationship_name",
+				msg.RelationshipName,
+			),
+		),
+	)
+	defer span.End()
+
+	var mapCarrier propagation.MapCarrier = make(map[string]string)
+
+	otel.GetTextMapPropagator().Inject(ctx, mapCarrier)
+
+	msg.TraceContext = mapCarrier
+
+	if strings.ToLower(string(msg.Action)) != string(WriteAuthRelationshipAction) || strings.ToLower(string(msg.Action)) != string(DeleteAuthRelationshipAction) {
+		span.RecordError(ErrInvalidAuthRelationshipAction)
+		span.SetStatus(codes.Error, ErrInvalidAuthRelationshipAction.Error())
+
+		return ErrInvalidAuthRelationshipAction
+	}
+
+	topic := strings.Join([]string{p.prefix, "permissions.relationship", string(msg.Action)}, ".")
+
+	span.SetAttributes(
+		attribute.String(
+			"events.topic",
+			topic,
+		),
+	)
+
+	v, err := json.Marshal(msg)
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+
+		return err
+	}
+
+	m := message.NewMessage(watermill.NewUUID(), v)
+
+	span.SetAttributes(
+		attribute.String(
+			"events.message_id",
+			m.UUID,
+		),
+	)
+
+	if err := p.publisher.Publish(topic, m); err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+
+		return err
+	}
+
+	return nil
+}
+
+func (p *Publisher) PublishAuthRelationshipResponse(ctx context.Context, msg AuthRelationshipResponse) AuthRelationshipResponse {
+	ctx, span := p.tracer.Start(
+		ctx,
+		"events.publishAuthRelationshipResponse",
+	)
+	defer span.End()
+
+	// Propagate trace context into the message for the subscriber
+	var mapCarrier propagation.MapCarrier = make(map[string]string)
+
+	otel.GetTextMapPropagator().Inject(ctx, mapCarrier)
+
+	msg.TraceContext = mapCarrier
+
+	return msg
 }
 
 // PublishChange will publish a ChangeMessage to the topic for the change
