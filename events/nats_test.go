@@ -1,17 +1,3 @@
-// Copyright 2023 The Infratographer Authors
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// 	http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package events_test
 
 import (
@@ -20,164 +6,163 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"go.infratographer.com/x/gidx"
-
 	"go.infratographer.com/x/events"
+	"go.infratographer.com/x/gidx"
 	"go.infratographer.com/x/testing/eventtools"
 )
 
 var errTimeout = errors.New("timeout waiting for event")
 
-func TestNatsPublishAndSubscribe(t *testing.T) {
+func TestNATSPublishAndSubscribe(t *testing.T) {
 	ctx := context.Background()
 	nats, err := eventtools.NewNatsServer()
 	require.NoError(t, err)
 
 	defer nats.Close()
 
-	publisher, err := events.NewPublisher(nats.PublisherConfig)
+	conn, err := events.NewNATSConnection(nats.Config.NATS)
 	require.NoError(t, err)
+
+	defer conn.Shutdown(ctx) //nolint:errcheck // within test
 
 	change := testCreateChange()
 
-	err = publisher.PublishChange(ctx, "test", change)
+	msg, err := conn.PublishChange(ctx, "test", change)
 	require.NoError(t, err)
+	require.Equal(t, change, msg.Message())
 
 	change2 := testCreateChange()
 
-	err = publisher.PublishChange(ctx, "test", change2)
+	msg, err = conn.PublishChange(ctx, "test", change2)
 	require.NoError(t, err)
+	require.Equal(t, change2, msg.Message())
 
 	change3 := testCreateChange()
 	change3.ActorID = ""
 
-	err = publisher.PublishChange(ctx, "test", change3)
+	msg, err = conn.PublishChange(ctx, "test", change3)
 	require.NoError(t, err)
+	require.NotEqual(t, change3, msg.Message())
 
-	sub, err := events.NewSubscriber(nats.SubscriberConfig)
-	require.NoError(t, err)
-
-	messages, err := sub.SubscribeChanges(context.Background(), ">")
+	messages, err := conn.SubscribeChanges(ctx, ">")
 	require.NoError(t, err)
 
 	receivedMsg, err := getSingleMessage(messages, time.Second*1)
 	require.NoError(t, err)
-
-	chgMsg, err := events.UnmarshalChangeMessage(receivedMsg.Payload)
-	require.NoError(t, err)
-	assert.EqualValues(t, change, chgMsg)
-	assert.True(t, receivedMsg.Ack())
+	require.NoError(t, receivedMsg.Error())
+	assert.EqualValues(t, change, receivedMsg.Message())
 
 	receivedMsg, err = getSingleMessage(messages, time.Second*1)
 	require.NoError(t, err)
-
-	chgMsg, err = events.UnmarshalChangeMessage(receivedMsg.Payload)
-	require.NoError(t, err)
-	assert.EqualValues(t, change2, chgMsg)
-	assert.True(t, receivedMsg.Ack())
+	require.NoError(t, receivedMsg.Error())
+	assert.EqualValues(t, change2, receivedMsg.Message())
+	assert.NoError(t, receivedMsg.Ack())
 
 	receivedMsg, err = getSingleMessage(messages, time.Second*1)
 	require.NoError(t, err)
-
-	chgMsg, err = events.UnmarshalChangeMessage(receivedMsg.Payload)
-	require.NoError(t, err)
-	assert.NotEqualValues(t, change3, chgMsg)
-	assert.Equal(t, "unknown-actor", chgMsg.ActorID.String())
-	assert.True(t, receivedMsg.Ack())
+	require.NoError(t, receivedMsg.Error())
+	assert.NotEqualValues(t, change3, receivedMsg.Message())
+	assert.Equal(t, "unknown-actor", receivedMsg.Message().ActorID.String())
+	assert.NoError(t, receivedMsg.Ack())
 }
 
-func TestNatsMultipleSubscribers(t *testing.T) {
+func TestNATSRequestReply(t *testing.T) {
 	ctx := context.Background()
 	nats, err := eventtools.NewNatsServer()
 	require.NoError(t, err)
 
 	defer nats.Close()
 
-	publisher, err := events.NewPublisher(nats.PublisherConfig)
+	conn, err := events.NewNATSConnection(nats.Config.NATS)
 	require.NoError(t, err)
 
-	change := testCreateChange()
+	defer conn.Shutdown(ctx) //nolint:errcheck // within test
 
-	err = publisher.PublishChange(ctx, "test", change)
-	require.NoError(t, err)
+	authRequest := events.AuthRelationshipRequest{
+		Action:           events.WriteAuthRelationshipAction,
+		ObjectID:         gidx.PrefixedID("prntobj-abc123"),
+		RelationshipName: "owner",
+		SubjectID:        gidx.PrefixedID("chldobj-abc123"),
+		TraceContext:     map[string]string{},
+	}
 
-	sub, err := events.NewSubscriber(nats.SubscriberConfig)
-	require.NoError(t, err)
+	authResponse := events.AuthRelationshipResponse{
+		TraceID:      "some-id",
+		TraceContext: map[string]string{},
+	}
 
-	messages, err := sub.SubscribeChanges(context.Background(), ">")
-	require.NoError(t, err)
+	reqGot := make(chan events.Message[events.AuthRelationshipRequest], 1)
+	respGot := make(chan events.Message[events.AuthRelationshipResponse], 1)
 
-	receivedMsg, err := getSingleMessage(messages, time.Second*1)
-	require.NoError(t, err)
+	authSubscribed := make(chan bool, 1)
 
-	chgMsg, err := events.UnmarshalChangeMessage(receivedMsg.Payload)
-	require.NoError(t, err)
-	assert.EqualValues(t, change, chgMsg)
-	assert.True(t, receivedMsg.Ack())
+	go func() {
+		ctx, cancel := context.WithCancel(ctx)
 
-	sub2, err := events.NewSubscriber(nats.SubscriberConfig)
-	require.NoError(t, err)
+		defer cancel()
 
-	messages, err = sub2.SubscribeChanges(context.Background(), ">")
-	require.NoError(t, err)
+		msgs, err := conn.SubscribeAuthRelationshipRequests(ctx, "*.test")
 
-	receivedMsg, err = getSingleMessage(messages, time.Second*1)
-	require.NoError(t, err)
+		close(authSubscribed)
 
-	chgMsg, err = events.UnmarshalChangeMessage(receivedMsg.Payload)
-	require.NoError(t, err)
-	assert.EqualValues(t, change, chgMsg)
-	assert.True(t, receivedMsg.Ack())
+		require.NoError(t, err)
+
+		select {
+		case reqMsg, ok := <-msgs:
+			if !ok {
+				return
+			}
+
+			reqGot <- reqMsg
+
+			respMsg, err := reqMsg.ReplyAuthRelationshipRequest(ctx, authResponse)
+			assert.NoError(t, err)
+			assert.NotNil(t, respMsg)
+		case <-time.After(time.Second * 2):
+		}
+	}()
+
+	<-authSubscribed
+
+	go func() {
+		ctx, cancel := context.WithTimeout(ctx, time.Second*2)
+
+		defer cancel()
+
+		resp, err := conn.PublishAuthRelationshipRequest(ctx, "test", authRequest)
+		assert.NoError(t, err)
+
+		respGot <- resp
+	}()
+
+	select {
+	case authRequestGot := <-reqGot:
+		require.NotNil(t, authRequestGot)
+		require.NoError(t, authRequestGot.Error())
+		require.EqualValues(t, authRequest, authRequestGot.Message())
+	case <-time.After(time.Second * 2):
+		t.Error("timed out waiting for auth relationship request")
+	}
+
+	close(reqGot)
+
+	select {
+	case authResponseGot := <-respGot:
+		require.NotNil(t, authResponseGot)
+		require.NoError(t, authResponseGot.Error())
+		require.EqualValues(t, authResponse, authResponseGot.Message())
+	case <-time.After(time.Second * 2):
+		t.Error("timed out waiting for auth relationship response")
+	}
+
+	close(respGot)
 }
 
-func TestNatsGroupedSubscribers(t *testing.T) {
-	ctx := context.Background()
-	nats, err := eventtools.NewNatsServer()
-	require.NoError(t, err)
-
-	publisher, err := events.NewPublisher(nats.PublisherConfig)
-	require.NoError(t, err)
-
-	change := testCreateChange()
-
-	err = publisher.PublishChange(ctx, "test", change)
-	require.NoError(t, err)
-
-	// put both subscribers in the same queue group so that combined the message is only delivered once
-	nats.SubscriberConfig.QueueGroup = "queue-test"
-
-	sub, err := events.NewSubscriber(nats.SubscriberConfig)
-	require.NoError(t, err)
-
-	messages, err := sub.SubscribeChanges(context.Background(), ">")
-	require.NoError(t, err)
-
-	receivedMsg, err := getSingleMessage(messages, time.Second*1)
-	require.NoError(t, err)
-
-	chgMsg, err := events.UnmarshalChangeMessage(receivedMsg.Payload)
-	require.NoError(t, err)
-	assert.EqualValues(t, change, chgMsg)
-	assert.True(t, receivedMsg.Ack())
-
-	sub2, err := events.NewSubscriber(nats.SubscriberConfig)
-	require.NoError(t, err)
-
-	messages, err = sub2.SubscribeChanges(context.Background(), ">")
-	require.NoError(t, err)
-
-	receivedMsg, err = getSingleMessage(messages, time.Second*1)
-	assert.Error(t, err, "this should fail since the other subscriber in the group already received the message")
-	assert.ErrorContains(t, err, "timeout")
-	assert.Nil(t, receivedMsg)
-}
-
-func getSingleMessage(messages <-chan *message.Message, timeout time.Duration) (*message.Message, error) {
+func getSingleMessage[T any](messages <-chan events.Message[T], timeout time.Duration) (events.Message[T], error) {
 	select {
 	case message := <-messages:
 		return message, nil
