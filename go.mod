@@ -5,7 +5,7 @@ go 1.20
 require (
 	entgo.io/contrib v0.4.5
 	entgo.io/ent v0.12.3
-	github.com/99designs/gqlgen v0.17.34
+	github.com/99designs/gqlgen v0.17.36
 	github.com/MicahParks/keyfunc/v2 v2.0.3
 	github.com/ThreeDotsLabs/watermill v1.2.0
 	github.com/ThreeDotsLabs/watermill-nats/v2 v2.0.0
@@ -33,7 +33,7 @@ require (
 	github.com/spf13/viper v1.16.0
 	github.com/testcontainers/testcontainers-go v0.21.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.21.0
-	github.com/vektah/gqlparser/v2 v2.5.6
+	github.com/vektah/gqlparser/v2 v2.5.8
 	github.com/zsais/go-gin-prometheus v0.1.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.42.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho v0.42.0
