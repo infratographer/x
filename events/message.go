@@ -18,6 +18,7 @@ package events
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"go.opentelemetry.io/otel"
@@ -196,10 +197,8 @@ type AuthRelationshipRequest struct {
 	Action AuthRelationshipAction `json:"action"`
 	// ObjectID is the PrefixedID of the object the permissions will be granted on
 	ObjectID gidx.PrefixedID `json:"objectID"`
-	// RelationshipName is the relationship being created on the object for the subject
-	RelationshipName string `json:"relationshipName"`
-	// SubjectID is the PrefixedID of the object the permissions apply to
-	SubjectID gidx.PrefixedID `json:"subjectID"`
+	// Relations defines all relations which should be written or deleted for this object.
+	Relations []AuthRelationshipRelation `json:"relations"`
 	// ConditionName represents the name of a conditional check that will be applied to this relationship. (Optional)
 	// In SpiceDB this would be a caveat name
 	ConditionName string `json:"conditionName"`
@@ -234,12 +233,37 @@ func (m AuthRelationshipRequest) Validate() error {
 		err = multierr.Append(err, ErrMissingAuthRelationshipRequestObjectID)
 	}
 
-	if m.RelationshipName == "" {
-		err = multierr.Append(err, ErrMissingAuthRelationshipRequestRelationshipName)
+	if len(m.Relations) == 0 {
+		err = multierr.Append(err, ErrMissingAuthRelationshipRequestRelation)
 	}
 
-	if m.SubjectID == "" {
-		err = multierr.Append(err, ErrMissingAuthRelationshipRequestSubjectID)
+	for i, rel := range m.Relations {
+		if rErr := rel.Validate(); rErr != nil {
+			err = multierr.Append(err, fmt.Errorf("%w: relation %d", rErr, i))
+		}
+	}
+
+	return err
+}
+
+// AuthRelationshipRelation defines the relation an object from an AuthRelationshipRequest has to a subject.
+type AuthRelationshipRelation struct {
+	// Relation is the name of the relation the object from AuthRelationshipRequest has to the subject.
+	Relation string `json:"relation"`
+	// The subject the relation is to.
+	SubjectID gidx.PrefixedID `json:"subjectID"`
+}
+
+// Validate ensures the message has all the required fields.
+func (r AuthRelationshipRelation) Validate() error {
+	var err error
+
+	if r.Relation == "" {
+		err = multierr.Append(err, ErrMissingAuthRelationshipRequestRelationRelation)
+	}
+
+	if r.SubjectID == "" {
+		err = multierr.Append(err, ErrMissingAuthRelationshipRequestRelationSubjectID)
 	}
 
 	return err

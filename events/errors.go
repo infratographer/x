@@ -20,8 +20,10 @@ var (
 	ErrInvalidAuthRelationshipRequestAction = errors.New("auth relationship request message Action field must be write or delete")
 	// ErrMissingAuthRelationshipRequestObjectID is returned when the event message has the incorrect field ObjectID value.
 	ErrMissingAuthRelationshipRequestObjectID = errors.New("auth relationship request message ObjectID field required")
-	// ErrMissingAuthRelationshipRequestRelationshipName is returned when the event message has the incorrect field RelationshipName value.
-	ErrMissingAuthRelationshipRequestRelationshipName = errors.New("auth relationship request message RelationshipName field required")
-	// ErrMissingAuthRelationshipRequestSubjectID is returned when the event message has the incorrect field SubjectID value.
-	ErrMissingAuthRelationshipRequestSubjectID = errors.New("auth relationship request message SubjectID field required")
+	// ErrMissingAuthRelationshipRequestRelation is returned when the event message has no relations defined.
+	ErrMissingAuthRelationshipRequestRelation = errors.New("auth relationship request message Relations field required")
+	// ErrMissingAuthRelationshipRequestRelationRelation is returned when the event message Relations has the incorrect field for Relation value.
+	ErrMissingAuthRelationshipRequestRelationRelation = errors.New("auth relationship request message Relations Relation field required")
+	// ErrMissingAuthRelationshipRequestRelationSubjectID is returned when the event message Relations has the incorrect field SubjectID value.
+	ErrMissingAuthRelationshipRequestRelationSubjectID = errors.New("auth relationship request message Relations SubjectID field required")
 )

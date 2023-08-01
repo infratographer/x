@@ -83,11 +83,15 @@ func TestNATSRequestReply(t *testing.T) {
 	defer conn.Shutdown(ctx) //nolint:errcheck // within test
 
 	authRequest := events.AuthRelationshipRequest{
-		Action:           events.WriteAuthRelationshipAction,
-		ObjectID:         gidx.PrefixedID("prntobj-abc123"),
-		RelationshipName: "owner",
-		SubjectID:        gidx.PrefixedID("chldobj-abc123"),
-		TraceContext:     map[string]string{},
+		Action:   events.WriteAuthRelationshipAction,
+		ObjectID: gidx.PrefixedID("prntobj-abc123"),
+		Relations: []events.AuthRelationshipRelation{
+			{
+				Relation:  "owner",
+				SubjectID: gidx.PrefixedID("chldobj-abc123"),
+			},
+		},
+		TraceContext: map[string]string{},
 	}
 
 	authResponse := events.AuthRelationshipResponse{
