@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/brianvoe/gofakeit/v6"
+	nc "github.com/nats-io/nats.go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -98,6 +99,12 @@ func TestNATSRequestReply(t *testing.T) {
 		TraceID:      "some-id",
 		TraceContext: map[string]string{},
 	}
+
+	resp, err := conn.PublishAuthRelationshipRequest(ctx, "test", authRequest)
+	require.Error(t, err)
+	require.ErrorIs(t, err, events.ErrRequestNoResponders)
+	require.ErrorIs(t, err, nc.ErrNoResponders)
+	require.Nil(t, resp)
 
 	reqGot := make(chan events.Message[events.AuthRelationshipRequest], 1)
 	respGot := make(chan events.Message[events.AuthRelationshipResponse], 1)

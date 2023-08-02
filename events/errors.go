@@ -26,4 +26,7 @@ var (
 	ErrMissingAuthRelationshipRequestRelationRelation = errors.New("auth relationship request message Relations Relation field required")
 	// ErrMissingAuthRelationshipRequestRelationSubjectID is returned when the event message Relations has the incorrect field SubjectID value.
 	ErrMissingAuthRelationshipRequestRelationSubjectID = errors.New("auth relationship request message Relations SubjectID field required")
+
+	// ErrRequestNoResponders is returned when a request is attempted but no responder is listening.
+	ErrRequestNoResponders = errors.New("no responders for request")
 )

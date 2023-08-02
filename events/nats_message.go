@@ -3,6 +3,8 @@ package events
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -182,6 +184,11 @@ func (m *NATSMessage[T]) request(ctx context.Context) (Message[AuthRelationshipR
 
 	nMsg, err := m.conn.conn.RequestMsgWithContext(ctx, m.source)
 	if err != nil {
+		// ensure we wrap no responder errors with ErrRequestNoResponders.
+		if errors.Is(err, nats.ErrNoResponders) {
+			return nil, fmt.Errorf("%w: %w", ErrRequestNoResponders, err)
+		}
+
 		return nil, err
 	}
 
