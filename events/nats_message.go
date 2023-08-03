@@ -34,6 +34,30 @@ func natsSubscriptionMessageChan[T any](ctx context.Context, conn *NATSConnectio
 	return msgCh
 }
 
+func natsSubscriptionAuthRelationshipRequestChan(ctx context.Context, conn *NATSConnection, batchSize int, natsCh <-chan *nats.Msg) chan Request[AuthRelationshipRequest, AuthRelationshipResponse] {
+	msgCh := make(chan Request[AuthRelationshipRequest, AuthRelationshipResponse], batchSize)
+
+	go func() {
+		defer close(msgCh)
+
+		for nMsg := range natsCh {
+			msg := natsDecodeMessage[AuthRelationshipRequest](conn, nMsg)
+
+			req := &NATSAuthRelationshipRequest{
+				NATSMessage: msg.(*NATSMessage[AuthRelationshipRequest]),
+			}
+
+			select {
+			case msgCh <- req:
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+
+	return msgCh
+}
+
 func natsDecodeMessage[T any](conn *NATSConnection, nMsg *nats.Msg) Message[T] {
 	msg := &NATSMessage[T]{
 		conn:   conn,
@@ -129,45 +153,6 @@ func (m *NATSMessage[T]) Error() error {
 	return nil
 }
 
-// ReplyAuthRelationshipRequest responds to an AuthRelationshipRequest with an AuthRelationshipResponse
-func (m *NATSMessage[T]) ReplyAuthRelationshipRequest(ctx context.Context, message AuthRelationshipResponse) (Message[AuthRelationshipResponse], error) {
-	ctx, span := m.conn.tracer.Start(ctx, "events.ReplyAuthRelationshipRequest")
-
-	defer span.End()
-
-	if m.source.Reply == "" {
-		span.RecordError(ErrNATSMessageNoReplySubject)
-		span.SetStatus(codes.Error, ErrNATSMessageNoReplySubject.Error())
-
-		return nil, ErrNATSMessageNoReplySubject
-	}
-
-	if err := message.Validate(); err != nil {
-		span.RecordError(err)
-		span.SetStatus(codes.Error, err.Error())
-
-		return nil, err
-	}
-
-	// Propagate trace context into the message for the subscriber
-	var mapCarrier propagation.MapCarrier = make(map[string]string)
-
-	otel.GetTextMapPropagator().Inject(ctx, mapCarrier)
-
-	message.TraceContext = mapCarrier
-
-	respMsg, err := newNATSMessage(m.conn, m.source.Reply, message)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := m.source.RespondMsg(respMsg.source); err != nil {
-		return respMsg, err
-	}
-
-	return respMsg, nil
-}
-
 // Source returns the underlying nats message.
 func (m *NATSMessage[T]) Source() any {
 	return m.source
@@ -193,6 +178,58 @@ func (m *NATSMessage[T]) request(ctx context.Context) (Message[AuthRelationshipR
 	}
 
 	respMsg := natsDecodeMessage[AuthRelationshipResponse](m.conn, nMsg)
+
+	return respMsg, nil
+}
+
+var _ Request[AuthRelationshipRequest, AuthRelationshipResponse] = (*NATSAuthRelationshipRequest)(nil)
+
+// NATSAuthRelationshipRequest implements Request for AuthRelationshipRequest / AuthRelationshipResponse
+type NATSAuthRelationshipRequest struct {
+	*NATSMessage[AuthRelationshipRequest]
+}
+
+// Reply responds to an AuthRelationshipRequest with an AuthRelationshipResponse.
+func (r *NATSAuthRelationshipRequest) Reply(ctx context.Context, message AuthRelationshipResponse) (Message[AuthRelationshipResponse], error) {
+	ctx, span := r.conn.tracer.Start(ctx, "events.Reply")
+
+	defer span.End()
+
+	if r.source.Reply == "" {
+		span.RecordError(ErrNATSMessageNoReplySubject)
+		span.SetStatus(codes.Error, ErrNATSMessageNoReplySubject.Error())
+
+		return nil, ErrNATSMessageNoReplySubject
+	}
+
+	if err := message.Validate(); err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+
+		return nil, err
+	}
+
+	// Propagate trace context into the message for the subscriber
+	var mapCarrier propagation.MapCarrier = make(map[string]string)
+
+	otel.GetTextMapPropagator().Inject(ctx, mapCarrier)
+
+	message.TraceContext = mapCarrier
+
+	respMsg, err := newNATSMessage(r.conn, r.source.Reply, message)
+	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+
+		return nil, err
+	}
+
+	if err := r.source.RespondMsg(respMsg.source); err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+
+		return respMsg, err
+	}
 
 	return respMsg, nil
 }

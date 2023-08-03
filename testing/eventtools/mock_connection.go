@@ -51,10 +51,10 @@ func (c *MockConnection) Source() any {
 }
 
 // SubscribeAuthRelationshipRequests implements events.Connection
-func (c *MockConnection) SubscribeAuthRelationshipRequests(_ context.Context, topic string) (<-chan events.Message[events.AuthRelationshipRequest], error) {
+func (c *MockConnection) SubscribeAuthRelationshipRequests(_ context.Context, topic string) (<-chan events.Request[events.AuthRelationshipRequest, events.AuthRelationshipResponse], error) {
 	args := c.Called(topic)
 
-	return args.Get(0).(<-chan events.Message[events.AuthRelationshipRequest]), args.Error(1)
+	return args.Get(0).(<-chan events.Request[events.AuthRelationshipRequest, events.AuthRelationshipResponse]), args.Error(1)
 }
 
 // SubscribeChanges implements events.Connection

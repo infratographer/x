@@ -130,7 +130,7 @@ func TestNATSRequestReply(t *testing.T) {
 
 			reqGot <- reqMsg
 
-			respMsg, err := reqMsg.ReplyAuthRelationshipRequest(ctx, authResponse)
+			respMsg, err := reqMsg.Reply(ctx, authResponse)
 			assert.NoError(t, err)
 			assert.NotNil(t, respMsg)
 		case <-time.After(time.Second * 2):

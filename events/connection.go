@@ -40,7 +40,7 @@ type Publisher interface {
 // AuthRelationshipSubscriber specifies the auth relationship subscriber methods.
 type AuthRelationshipSubscriber interface {
 	// SubscribeAuthRelationshipRequests subscribes to the provided topic responding with an AuthRelationshipRequest message.
-	SubscribeAuthRelationshipRequests(ctx context.Context, topic string) (<-chan Message[AuthRelationshipRequest], error)
+	SubscribeAuthRelationshipRequests(ctx context.Context, topic string) (<-chan Request[AuthRelationshipRequest, AuthRelationshipResponse], error)
 }
 
 // AuthRelationshipPublisher specifies the auth relationship publisher methods.

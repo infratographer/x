@@ -138,7 +138,7 @@ func (c *NATSConnection) nextMessage(ctx context.Context, sub *nats.Subscription
 }
 
 // SubscribeAuthRelationshipRequests creates a new pull subscription parsing incoming messages as AuthRelationshipRequest messages and returning a new Message channel.
-func (c *NATSConnection) SubscribeAuthRelationshipRequests(ctx context.Context, topic string) (<-chan Message[AuthRelationshipRequest], error) {
+func (c *NATSConnection) SubscribeAuthRelationshipRequests(ctx context.Context, topic string) (<-chan Request[AuthRelationshipRequest, AuthRelationshipResponse], error) {
 	topic = c.buildSubscribeSubject("auth", "relationships", topic)
 
 	natsCh, err := c.coreSubscribe(ctx, topic)
@@ -148,7 +148,7 @@ func (c *NATSConnection) SubscribeAuthRelationshipRequests(ctx context.Context, 
 
 	c.logger.Debugf("subscribing to auth relation request message on topic %s", topic)
 
-	return natsSubscriptionMessageChan[AuthRelationshipRequest](ctx, c, c.cfg.SubscriberFetchBatchSize, natsCh), nil
+	return natsSubscriptionAuthRelationshipRequestChan(ctx, c, c.cfg.SubscriberFetchBatchSize, natsCh), nil
 }
 
 // SubscribeChanges creates a new pull subscription parsing incoming messages as ChangeMessage messages and returning a new Message channel.

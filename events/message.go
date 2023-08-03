@@ -53,12 +53,16 @@ type Message[T any] interface {
 	// Error returns any error encountered while decoding the message
 	Error() error
 
-	// ReplyAuthRelationshipRequest publishes an AuthRelationshipResponse message.
-	// An error is returned if the message is not an AuthRelationshipRequest.
-	ReplyAuthRelationshipRequest(ctx context.Context, message AuthRelationshipResponse) (Message[AuthRelationshipResponse], error)
-
 	// Source returns the underlying message object.
 	Source() any
+}
+
+// Request extends Message by allowing replies to be sent for the received message.
+type Request[TRequest, TResponse any] interface {
+	Message[TRequest]
+
+	// Reply publishes a response to the received message.
+	Reply(ctx context.Context, message TResponse) (Message[TResponse], error)
 }
 
 // ChangeType represents the possible event types for a ChangeMessage
