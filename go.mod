@@ -7,13 +7,10 @@ require (
 	entgo.io/ent v0.12.3
 	github.com/99designs/gqlgen v0.17.34
 	github.com/MicahParks/keyfunc/v2 v2.0.3
-	github.com/ThreeDotsLabs/watermill v1.2.0
-	github.com/ThreeDotsLabs/watermill-nats/v2 v2.0.0
 	github.com/XSAM/otelsql v0.23.0
 	github.com/brianvoe/gofakeit/v6 v6.23.0
 	github.com/cockroachdb/cockroach-go/v2 v2.3.5
 	github.com/docker/go-connections v0.4.0
-	github.com/garsue/watermillzap v1.2.0
 	github.com/gin-contrib/requestid v0.0.6
 	github.com/gin-contrib/zap v0.1.0
 	github.com/gin-gonic/gin v1.9.1
@@ -76,7 +73,6 @@ require (
 	github.com/imdario/mergo v0.3.16 // indirect
 	github.com/klauspost/compress v1.16.7 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.4 // indirect
-	github.com/lithammer/shortuuid/v3 v3.0.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/minio/highwayhash v1.0.2 // indirect
 	github.com/mitchellh/go-wordwrap v0.0.0-20150314170334-ad45545899c7 // indirect
@@ -87,12 +83,12 @@ require (
 	github.com/nats-io/jwt/v2 v2.4.1 // indirect
 	github.com/nats-io/nkeys v0.4.4 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
-	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0-rc4 // indirect
 	github.com/opencontainers/runc v1.1.7 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/stretchr/objx v0.5.0 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
@@ -158,7 +154,7 @@ require (
 	go.opentelemetry.io/proto/otlp v0.19.0 // indirect
 	go.step.sm/crypto v0.31.2
 	go.uber.org/atomic v1.10.0 // indirect
-	go.uber.org/multierr v1.9.0 // indirect
+	go.uber.org/multierr v1.9.0
 	golang.org/x/crypto v0.11.0 // indirect
 	golang.org/x/net v0.12.0 // indirect
 	golang.org/x/sys v0.10.0 // indirect

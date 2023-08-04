@@ -16,11 +16,54 @@
 package events
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"time"
+
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
+	"go.uber.org/multierr"
 
 	"go.infratographer.com/x/gidx"
 )
+
+// Message contains a message which has been published or received from a subscription.
+type Message[T any] interface {
+	// Connection returns the underlying connection the message was received on.
+	Connection() Connection
+
+	// ID returns the unique message id.
+	ID() string
+	// Topic returns the topic the message was sent to.
+	Topic() string
+	// Message returns the decoded message object.
+	Message() T
+	// Ack acks the message.
+	Ack() error
+	// Nak nacks the message.
+	Nak(delay time.Duration) error
+	// Term terminates the message.
+	Term() error
+	// Timestamp returns the time the message was submitted.
+	Timestamp() time.Time
+	// Deliveries returns the number of times the message was delivered.
+	Deliveries() uint64
+
+	// Error returns any error encountered while decoding the message
+	Error() error
+
+	// Source returns the underlying message object.
+	Source() any
+}
+
+// Request extends Message by allowing replies to be sent for the received message.
+type Request[TRequest, TResponse any] interface {
+	Message[TRequest]
+
+	// Reply publishes a response to the received message.
+	Reply(ctx context.Context, message TResponse) (Message[TResponse], error)
+}
 
 // ChangeType represents the possible event types for a ChangeMessage
 type ChangeType string
@@ -82,6 +125,28 @@ type ChangeMessage struct {
 	AdditionalData map[string]interface{} `json:"additionalData"`
 }
 
+// GetTraceContext creates a new OpenTelementry context for the message.
+func (m ChangeMessage) GetTraceContext(ctx context.Context) context.Context {
+	tp := otel.GetTextMapPropagator()
+
+	return tp.Extract(ctx, propagation.MapCarrier(m.TraceContext))
+}
+
+// Validate ensures the message has all the required fields.
+func (m ChangeMessage) Validate() error {
+	var err error
+
+	if m.SubjectID == "" {
+		err = multierr.Append(err, ErrMissingChangeMessageSubjectID)
+	}
+
+	if m.EventType == "" {
+		err = multierr.Append(err, ErrMissingChangeMessageEventType)
+	}
+
+	return err
+}
+
 // EventMessage contains the data structure expected to be received when picking
 // an event from an events message queue
 type EventMessage struct {
@@ -107,6 +172,28 @@ type EventMessage struct {
 	Data map[string]interface{} `json:"data"`
 }
 
+// GetTraceContext creates a new OpenTelementry context for the message.
+func (m EventMessage) GetTraceContext(ctx context.Context) context.Context {
+	tp := otel.GetTextMapPropagator()
+
+	return tp.Extract(ctx, propagation.MapCarrier(m.TraceContext))
+}
+
+// Validate ensures the message has all the required fields.
+func (m EventMessage) Validate() error {
+	var err error
+
+	if m.SubjectID == "" {
+		err = multierr.Append(err, ErrMissingEventMessageSubjectID)
+	}
+
+	if m.EventType == "" {
+		err = multierr.Append(err, ErrMissingEventMessageEventType)
+	}
+
+	return err
+}
+
 // AuthRelationshipRequest contains the data structure expected to be used to write or delete
 // an auth relationship from PermissionsAPI
 type AuthRelationshipRequest struct {
@@ -114,10 +201,8 @@ type AuthRelationshipRequest struct {
 	Action AuthRelationshipAction `json:"action"`
 	// ObjectID is the PrefixedID of the object the permissions will be granted on
 	ObjectID gidx.PrefixedID `json:"objectID"`
-	// RelationshipName is the relationship being created on the object for the subject
-	RelationshipName string `json:"relationshipName"`
-	// SubjectID is the PrefixedID of the object the permissions apply to
-	SubjectID gidx.PrefixedID `json:"subjectID"`
+	// Relations defines all relations which should be written or deleted for this object.
+	Relations []AuthRelationshipRelation `json:"relations"`
 	// ConditionName represents the name of a conditional check that will be applied to this relationship. (Optional)
 	// In SpiceDB this would be a caveat name
 	ConditionName string `json:"conditionName"`
@@ -133,6 +218,61 @@ type AuthRelationshipRequest struct {
 	SpanID string `json:"spanID"`
 }
 
+// GetTraceContext creates a new OpenTelementry context for the message.
+func (m AuthRelationshipRequest) GetTraceContext(ctx context.Context) context.Context {
+	tp := otel.GetTextMapPropagator()
+
+	return tp.Extract(ctx, propagation.MapCarrier(m.TraceContext))
+}
+
+// Validate ensures the message has all the required fields.
+func (m AuthRelationshipRequest) Validate() error {
+	var err error
+
+	if m.Action == "" || m.Action != WriteAuthRelationshipAction && m.Action != DeleteAuthRelationshipAction {
+		err = multierr.Append(err, ErrInvalidAuthRelationshipRequestAction)
+	}
+
+	if m.ObjectID == "" {
+		err = multierr.Append(err, ErrMissingAuthRelationshipRequestObjectID)
+	}
+
+	if len(m.Relations) == 0 {
+		err = multierr.Append(err, ErrMissingAuthRelationshipRequestRelation)
+	}
+
+	for i, rel := range m.Relations {
+		if rErr := rel.Validate(); rErr != nil {
+			err = multierr.Append(err, fmt.Errorf("%w: relation %d", rErr, i))
+		}
+	}
+
+	return err
+}
+
+// AuthRelationshipRelation defines the relation an object from an AuthRelationshipRequest has to a subject.
+type AuthRelationshipRelation struct {
+	// Relation is the name of the relation the object from AuthRelationshipRequest has to the subject.
+	Relation string `json:"relation"`
+	// The subject the relation is to.
+	SubjectID gidx.PrefixedID `json:"subjectID"`
+}
+
+// Validate ensures the message has all the required fields.
+func (r AuthRelationshipRelation) Validate() error {
+	var err error
+
+	if r.Relation == "" {
+		err = multierr.Append(err, ErrMissingAuthRelationshipRequestRelationRelation)
+	}
+
+	if r.SubjectID == "" {
+		err = multierr.Append(err, ErrMissingAuthRelationshipRequestRelationSubjectID)
+	}
+
+	return err
+}
+
 // AuthRelationshipResponse contains the data structure expected to be received from an AuthRelationshipRequest
 // message to write or delete an auth relationship from PermissionsAPI
 type AuthRelationshipResponse struct {
@@ -146,6 +286,18 @@ type AuthRelationshipResponse struct {
 	// SpanID is the ID of the span that additional traces should based off of
 	// Deprecated: Use TraceContext with OpenTelemetry context propagation instead.
 	SpanID string `json:"spanID"`
+}
+
+// GetTraceContext creates a new OpenTelementry context for the message.
+func (m AuthRelationshipResponse) GetTraceContext(ctx context.Context) context.Context {
+	tp := otel.GetTextMapPropagator()
+
+	return tp.Extract(ctx, propagation.MapCarrier(m.TraceContext))
+}
+
+// Validate ensures the message has all the required fields.
+func (m AuthRelationshipResponse) Validate() error {
+	return nil
 }
 
 // UnmarshalChangeMessage returns a ChangeMessage from a json []byte.

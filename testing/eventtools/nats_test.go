@@ -6,9 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ThreeDotsLabs/watermill/message"
 	"github.com/brianvoe/gofakeit/v6"
-	nc "github.com/nats-io/nats.go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -22,64 +20,59 @@ var errTimeout = errors.New("timeout waiting for event")
 func TestNats(t *testing.T) {
 	ctx := context.Background()
 
+	consumerName := events.NATSConsumerDurableName("", eventtools.Prefix+".changes.>")
+
 	nats, err := eventtools.NewNatsServer()
 	require.NoError(t, err)
 
 	defer nats.Close()
 
-	publisher, err := events.NewPublisher(nats.PublisherConfig)
+	conn, err := events.NewNATSConnection(nats.Config.NATS)
 	require.NoError(t, err)
 
 	change1 := testCreateChange()
 
-	err = publisher.PublishChange(ctx, "test", change1)
+	chgMsg, err := conn.PublishChange(ctx, "test", change1)
 	require.NoError(t, err)
+	require.NoError(t, chgMsg.Error())
+	require.Equal(t, change1, chgMsg.Message())
 
 	change2 := testCreateChange()
 
-	err = publisher.PublishChange(ctx, "test", change2)
+	chgMsg, err = conn.PublishChange(ctx, "test", change2)
+	require.NoError(t, err)
+	require.NoError(t, chgMsg.Error())
+	require.Equal(t, change2, chgMsg.Message())
+
+	messages, err := conn.SubscribeChanges(context.Background(), ">")
 	require.NoError(t, err)
 
-	sub, err := events.NewSubscriber(nats.SubscriberConfig,
-		nc.ManualAck(),
-		nc.AckExplicit(),
-		nc.Durable("test-consumer"),
-	)
-	require.NoError(t, err)
-
-	messages, err := sub.SubscribeChanges(context.Background(), ">")
-	require.NoError(t, err)
-
-	err = nats.SetConsumerSampleFrequency("test-consumer", "100")
+	err = nats.SetConsumerSampleFrequency(consumerName, "100")
 	require.NoError(t, err)
 
 	receivedMsg, err := getSingleMessage(messages, time.Second*1)
 	require.NoError(t, err)
+	require.NoError(t, receivedMsg.Error())
+	assert.EqualValues(t, change1, receivedMsg.Message())
+	assert.NoError(t, receivedMsg.Ack())
 
-	chgMsg, err := events.UnmarshalChangeMessage(receivedMsg.Payload)
-	require.NoError(t, err)
-	assert.EqualValues(t, change1, chgMsg)
-	assert.True(t, receivedMsg.Ack())
-
-	err = nats.WaitForAck("test-consumer", time.Second)
+	err = nats.WaitForAck(consumerName, time.Second*2)
 	require.NoError(t, err)
 
 	receivedMsg, err = getSingleMessage(messages, time.Second*1)
 	require.NoError(t, err)
+	require.NoError(t, receivedMsg.Error())
+	assert.EqualValues(t, change2, receivedMsg.Message())
+	assert.NoError(t, receivedMsg.Nak(0))
 
-	chgMsg, err = events.UnmarshalChangeMessage(receivedMsg.Payload)
-	require.NoError(t, err)
-	assert.EqualValues(t, change2, chgMsg)
-	assert.True(t, receivedMsg.Nack())
-
-	err = nats.WaitForAck("test-consumer", time.Second)
+	err = nats.WaitForAck(consumerName, time.Second*2)
 	require.ErrorIs(t, err, eventtools.ErrNack)
 
-	err = nats.WaitForAck("test-consumer", time.Second)
+	err = nats.WaitForAck(consumerName, time.Second*2)
 	require.ErrorIs(t, err, eventtools.ErrNoAck)
 }
 
-func getSingleMessage(messages <-chan *message.Message, timeout time.Duration) (*message.Message, error) {
+func getSingleMessage[T any](messages <-chan events.Message[T], timeout time.Duration) (events.Message[T], error) {
 	select {
 	case message := <-messages:
 		return message, nil

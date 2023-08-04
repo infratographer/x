@@ -19,62 +19,46 @@ import (
 
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-
-	"go.infratographer.com/x/viperx"
+	"go.uber.org/multierr"
+	"go.uber.org/zap"
 )
 
-var defaultTimeout = time.Second * 10
+const (
+	defaultTimeout = time.Second * 10
+	tracerName     = "go.infratographer.com/x/events"
+)
 
-// PublisherConfig handles reading in all the config values available for setting up a pubsub publisher
-type PublisherConfig struct {
-	URL        string        `mapstructure:"url"`
-	Timeout    time.Duration `mapstructure:"timeout"`
-	Prefix     string        `mapstructure:"prefix"`
-	Source     string        `mapstructure:"source"`
-	NATSConfig NATSConfig    `mapstructure:"nats"`
+// Config contains event provider configs.
+type Config struct {
+	NATS NATSConfig `mapstructure:"nats"`
 }
 
-// SubscriberConfig handles reading in all the config values available for setting up a pubsub publisher
-type SubscriberConfig struct {
-	URL        string        `mapstructure:"url"`
-	Timeout    time.Duration `mapstructure:"timeout"`
-	Prefix     string        `mapstructure:"prefix"`
-	QueueGroup string        `mapstructure:"queueGroup"`
-	NATSConfig NATSConfig    `mapstructure:"nats"`
+// MustViperFlags returns the cobra flags and viper config for events.
+func MustViperFlags(v *viper.Viper, flags *pflag.FlagSet, appName string) {
+	MustViperFlagsForNATS(v, flags, appName)
 }
 
-// NATSConfig handles reading in all pubsub values specific to NATS
-type NATSConfig struct {
-	Token     string `mapstructure:"token"`
-	CredsFile string `mapstructure:"credsFile"`
+// Option configures a connection option.
+type Option func(config *Config) error
+
+// WithLogger sets the logger for the connection.
+func WithLogger(logger *zap.SugaredLogger) Option {
+	return func(config *Config) error {
+		config.NATS.logger = logger
+
+		return nil
+	}
 }
 
-// MustViperFlagsForPublisher returns the cobra flags and viper config for an event publisher
-func MustViperFlagsForPublisher(v *viper.Viper, flags *pflag.FlagSet, appName string) {
-	flags.String("events-publisher-url", "nats://nats:4222", "nats server connection url")
-	viperx.MustBindFlag(v, "events.publisher.url", flags.Lookup("events-publisher-url"))
+// WithNATSOptions configures nats options.
+func WithNATSOptions(options ...NATSOption) Option {
+	return func(config *Config) error {
+		var err error
 
-	v.MustBindEnv("events.publisher.timeout")
-	v.MustBindEnv("events.publisher.prefix")
-	v.MustBindEnv("events.publisher.source")
-	v.MustBindEnv("events.publisher.nats.token")
-	v.MustBindEnv("events.publisher.nats.credsFile")
+		for _, opt := range options {
+			err = multierr.Append(err, opt(&config.NATS))
+		}
 
-	v.SetDefault("events.publisher.timeout", defaultTimeout)
-	v.SetDefault("events.publisher.source", appName)
-}
-
-// MustViperFlagsForSubscriber returns the cobra flags and viper config for an event subscriber
-func MustViperFlagsForSubscriber(v *viper.Viper, flags *pflag.FlagSet) {
-	flags.String("events-subscriber-url", "nats://nats:4222", "nats server connection url")
-	viperx.MustBindFlag(v, "events.subscriber.url", flags.Lookup("events-subscriber-url"))
-	flags.String("events-subscriber-queuegroup", "", "subscriber queue group")
-	viperx.MustBindFlag(v, "events.subscriber.queueGroup", flags.Lookup("events-subscriber-queuegroup"))
-
-	v.MustBindEnv("events.subscriber.timeout")
-	v.MustBindEnv("events.subscriber.prefix")
-	v.MustBindEnv("events.subscriber.nats.token")
-	v.MustBindEnv("events.subscriber.nats.credsFile")
-
-	v.SetDefault("events.subscriber.timeout", defaultTimeout)
+		return err
+	}
 }

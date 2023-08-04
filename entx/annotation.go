@@ -19,8 +19,8 @@ var EventsHookAnnotationName = "INFRA9_EVENTHOOKS"
 
 // EventsHookAnnotation provides a ent.Annotation spec. These shouldn't be set directly, you should use EventsHookAdditionalSubject() and EventsHookSubjectName instead
 type EventsHookAnnotation struct {
-	SubjectName              string
-	IsAdditionalSubjectField bool
+	SubjectName               string
+	AdditionalSubjectRelation string
 }
 
 // Name implements the ent Annotation interface.
@@ -29,9 +29,9 @@ func (a EventsHookAnnotation) Name() string {
 }
 
 // EventsHookAdditionalSubject marks this field as a field to return as an additional subject
-func EventsHookAdditionalSubject() *EventsHookAnnotation {
+func EventsHookAdditionalSubject(relation string) *EventsHookAnnotation {
 	return &EventsHookAnnotation{
-		IsAdditionalSubjectField: true,
+		AdditionalSubjectRelation: relation,
 	}
 }
 

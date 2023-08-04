@@ -46,11 +46,10 @@ var (
 
 // TestNats maintains the nats environment
 type TestNats struct {
-	Server           *server.Server
-	Conn             *nats.Conn
-	JetStream        nats.JetStreamContext
-	PublisherConfig  events.PublisherConfig
-	SubscriberConfig events.SubscriberConfig
+	Server    *server.Server
+	Conn      *nats.Conn
+	JetStream nats.JetStreamContext
+	Config    events.Config
 }
 
 // Close closes the connection
@@ -178,13 +177,12 @@ func NewNatsServer() (*TestNats, error) {
 		Server:    s,
 		Conn:      nc,
 		JetStream: js,
-		PublisherConfig: events.PublisherConfig{
-			URL:    s.ClientURL(),
-			Prefix: Prefix,
-		},
-		SubscriberConfig: events.SubscriberConfig{
-			URL:    s.ClientURL(),
-			Prefix: Prefix,
+		Config: events.Config{
+			NATS: events.NATSConfig{
+				URL:             s.ClientURL(),
+				SubscribePrefix: Prefix,
+				PublishPrefix:   Prefix,
+			},
 		},
 	}, nil
 }
