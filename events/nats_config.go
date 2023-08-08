@@ -45,6 +45,7 @@ type NATSConfig struct {
 
 	SubscriberDeliveryPolicy string
 	SubscriberStartSequence  uint64
+	SubscriberStartTime      time.Time
 
 	logger           *zap.SugaredLogger
 	connectOptions   []nats.Option
@@ -66,7 +67,7 @@ func (c NATSConfig) Validate() error {
 	}
 
 	switch c.SubscriberDeliveryPolicy {
-	case "", "all", "start-sequence":
+	case "", "all", "last", "last-per-subject", "new", "start-sequence", "start-time":
 	default:
 		err = multierr.Append(err, ErrNATSInvalidDeliveryPolicy)
 	}
@@ -101,10 +102,18 @@ func (c NATSConfig) WithDefaults() NATSConfig {
 	}
 
 	switch c.SubscriberDeliveryPolicy {
+	case "all":
+		c.subscribeOptions = append(c.subscribeOptions, nats.DeliverAll())
+	case "last":
+		c.subscribeOptions = append(c.subscribeOptions, nats.DeliverLast())
+	case "last-per-subject":
+		c.subscribeOptions = append(c.subscribeOptions, nats.DeliverLastPerSubject())
+	case "new":
+		c.subscribeOptions = append(c.subscribeOptions, nats.DeliverNew())
 	case "start-sequence":
 		c.subscribeOptions = append(c.subscribeOptions, nats.StartSequence(c.SubscriberStartSequence))
-	default:
-		c.subscribeOptions = append(c.subscribeOptions, nats.DeliverAll())
+	case "start-time":
+		c.subscribeOptions = append(c.subscribeOptions, nats.StartTime(c.SubscriberStartTime))
 	}
 
 	if c.ShutdownTimeout == 0 {
@@ -187,6 +196,7 @@ func MustViperFlagsForNATS(v *viper.Viper, flags *pflag.FlagSet, appName string)
 	v.MustBindEnv("events.nats.subscriberNoManualAck")
 	v.MustBindEnv("events.nats.subscriberDeliveryPolicy")
 	v.MustBindEnv("events.nats.subscriberStartSequence")
+	v.MustBindEnv("events.nats.subscriberStartTime")
 
 	v.SetDefault("events.nats.connectTimeout", defaultTimeout)
 	v.SetDefault("events.nats.source", appName)
