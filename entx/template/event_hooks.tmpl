@@ -112,12 +112,6 @@
 									}
 								{{ end }}
 							{{ end }}
-						
-						if len(relationships) != 0 {
-							if err := permissions.CreateAuthRelationships(ctx, "{{ $nodeAnnotation.SubjectName }}", objID, relationships...); err != nil {
-								return nil, fmt.Errorf("relationship request failed with error: %w", err)
-							}
-						}
 
 						msg := events.ChangeMessage{
 							EventType:            eventType(m.Op()),
@@ -132,6 +126,12 @@
 							if err != nil {
 								return retValue, err
 							}
+
+						if len(relationships) != 0 {
+							if err := permissions.CreateAuthRelationships(ctx, "{{ $nodeAnnotation.SubjectName }}", objID, relationships...); err != nil {
+								return nil, fmt.Errorf("relationship request failed with error: %w", err)
+							}
+						}
 
 						if _, err := m.EventsPublisher.PublishChange(ctx, "{{ $nodeAnnotation.SubjectName }}", msg); err != nil {
 							return nil, fmt.Errorf("failed to publish change: %w", err)
@@ -184,17 +184,17 @@
 								{{ end }}
 							{{ end }}
 
-						if len(relationships) != 0 {
-							if err := permissions.DeleteAuthRelationships(ctx, "{{ $nodeAnnotation.SubjectName }}", objID, relationships...); err != nil {
-								return nil, fmt.Errorf("relationship request failed with error: %w", err)
-							}
-						}
-
 						// we have all the info we need, now complete the mutation before we process the event
 							retValue, err := next.Mutate(ctx, m)
 							if err != nil {
 								return retValue, err
 							}
+
+						if len(relationships) != 0 {
+							if err := permissions.DeleteAuthRelationships(ctx, "{{ $nodeAnnotation.SubjectName }}", objID, relationships...); err != nil {
+								return nil, fmt.Errorf("relationship request failed with error: %w", err)
+							}
+						}
 
 						msg := events.ChangeMessage{
 							EventType:            eventType(m.Op()),
