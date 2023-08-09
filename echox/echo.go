@@ -59,6 +59,7 @@ type Server struct {
 	logger          *zap.Logger
 	handlers        []handler
 	middleware      []echo.MiddlewareFunc
+	echozapOpts     []echozap.MiddlewareOption
 	readinessChecks map[string]CheckFunc
 	shutdownTimeout time.Duration
 	trustedProxies  []*net.IPNet
@@ -66,7 +67,7 @@ type Server struct {
 }
 
 // NewServer will return an opinionated echo server for processing API requests.
-func NewServer(logger *zap.Logger, cfg Config, version *versionx.Details) (*Server, error) {
+func NewServer(logger *zap.Logger, cfg Config, version *versionx.Details, options ...Option) (*Server, error) {
 	cfg = cfg.withDefaults()
 
 	trustedProxies, err := parseIPNets(cfg.TrustedProxies)
@@ -74,7 +75,7 @@ func NewServer(logger *zap.Logger, cfg Config, version *versionx.Details) (*Serv
 		return nil, err
 	}
 
-	return &Server{
+	s := &Server{
 		debug:           cfg.Debug,
 		listen:          cfg.Listen,
 		logger:          logger.Named("echox"),
@@ -83,7 +84,13 @@ func NewServer(logger *zap.Logger, cfg Config, version *versionx.Details) (*Serv
 		shutdownTimeout: cfg.ShutdownGracePeriod,
 		trustedProxies:  trustedProxies,
 		version:         version,
-	}, nil
+	}
+
+	for _, opt := range options {
+		opt(s)
+	}
+
+	return s, nil
 }
 
 func parseIPNets(sNets []string) ([]*net.IPNet, error) {
@@ -158,7 +165,7 @@ func (s *Server) Handler() http.Handler {
 	engine := echo.New()
 
 	engine.Use(middleware.RequestID())
-	engine.Use(echozap.Middleware(s.logger))
+	engine.Use(echozap.Middleware(s.logger, s.echozapOpts...))
 	engine.Use(middleware.Recover())
 	engine.Use(otelecho.Middleware(hostname, otelecho.WithSkipper(SkipDefaultEndpoints)))
 
