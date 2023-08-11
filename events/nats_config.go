@@ -134,6 +134,10 @@ func (c NATSConfig) WithDefaults() NATSConfig {
 		c.connectOptions = append(c.connectOptions, nats.UserCredentials(c.CredsFile))
 	}
 
+	if c.Source != "" {
+		c.connectOptions = append(c.connectOptions, nats.Name(c.Source))
+	}
+
 	return c
 }
 
