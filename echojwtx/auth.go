@@ -26,7 +26,15 @@ import (
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.uber.org/zap"
+)
+
+var (
+	jwksClient = &http.Client{
+		Timeout:   5 * time.Second, // nolint:gomnd // clear and unexported
+		Transport: otelhttp.NewTransport(http.DefaultTransport),
+	}
 )
 
 type actorContext struct{}
@@ -128,6 +136,10 @@ func (a *Auth) setup(ctx context.Context, config AuthConfig, options ...Opts) er
 			return err
 		}
 
+		if a.KeyFuncOptions.Client == nil {
+			a.KeyFuncOptions.Client = otelhttp.DefaultClient
+		}
+
 		if a.KeyFuncOptions.Ctx == nil {
 			a.KeyFuncOptions.Ctx = ctx
 		}
@@ -223,7 +235,7 @@ func jwksURI(ctx context.Context, issuer string) (string, error) {
 		return "", err
 	}
 
-	res, err := http.DefaultClient.Do(req)
+	res, err := jwksClient.Do(req)
 	if err != nil {
 		return "", err
 	}

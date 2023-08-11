@@ -11,6 +11,7 @@ import (
 
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 
 	"go.infratographer.com/x/viperx"
 
@@ -20,7 +21,8 @@ import (
 
 var (
 	tokenEndpointClient = &http.Client{
-		Timeout: 5 * time.Second, // nolint:gomnd // clear and unexported
+		Timeout:   5 * time.Second, // nolint:gomnd // clear and unexported
+		Transport: otelhttp.NewTransport(http.DefaultTransport),
 	}
 
 	// ErrTokenEndpointMissing is returned when the issuers .well-known/openid-configuration is missing the token_endpoint key.
@@ -44,8 +46,13 @@ func NewClientCredentialsTokenSrc(ctx context.Context, cfg Config) (oauth2.Token
 }
 
 // NewClient returns a http client using requested token source
-func NewClient(ctx context.Context, tokenSrc oauth2.TokenSource) *http.Client {
-	return oauth2.NewClient(ctx, tokenSrc)
+func NewClient(_ context.Context, tokenSrc oauth2.TokenSource) *http.Client {
+	return &http.Client{
+		Transport: &oauth2.Transport{
+			Base:   otelhttp.NewTransport(http.DefaultTransport),
+			Source: oauth2.ReuseTokenSource(nil, tokenSrc),
+		},
+	}
 }
 
 // Config handles reading in all the config values available
