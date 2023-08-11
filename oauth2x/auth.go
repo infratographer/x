@@ -36,6 +36,11 @@ func NewClientCredentialsTokenSrc(ctx context.Context, cfg Config) (oauth2.Token
 		return nil, err
 	}
 
+	// If no client has already been defined, set the http client to the default otelhttp client.
+	if _, ok := ctx.Value(oauth2.HTTPClient).(*http.Client); !ok {
+		ctx = context.WithValue(ctx, oauth2.HTTPClient, otelhttp.DefaultClient)
+	}
+
 	ccCfg := clientcredentials.Config{
 		ClientID:     cfg.ID,
 		ClientSecret: cfg.Secret,
