@@ -6,7 +6,7 @@ require (
 	entgo.io/contrib v0.4.5
 	entgo.io/ent v0.12.3
 	github.com/99designs/gqlgen v0.17.36
-	github.com/MicahParks/keyfunc/v2 v2.0.3
+	github.com/MicahParks/keyfunc/v2 v2.1.0
 	github.com/XSAM/otelsql v0.23.0
 	github.com/brianvoe/gofakeit/v6 v6.23.0
 	github.com/cockroachdb/cockroach-go/v2 v2.3.5
