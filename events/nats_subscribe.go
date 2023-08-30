@@ -24,9 +24,11 @@ func (c *NATSConnection) coreSubscribe(ctx context.Context, subject string) (<-c
 	go func() {
 		for {
 			if err := c.nextMessage(ctx, sub, msgCh); err != nil {
-				if !errors.Is(err, context.DeadlineExceeded) {
-					logger.Errorw("error fetching messages", "error", err)
+				if errors.Is(err, context.DeadlineExceeded) {
+					continue
 				}
+
+				logger.Errorw("error fetching messages", "error", err)
 
 				select {
 				case <-ctx.Done():
@@ -70,9 +72,11 @@ func (c *NATSConnection) jsSubscribe(ctx context.Context, subject string) (<-cha
 	go func() {
 		for {
 			if err := c.fetchMessages(ctx, sub, msgCh); err != nil {
-				if !errors.Is(err, context.DeadlineExceeded) {
-					logger.Errorw("error fetching messages", "error", err)
+				if errors.Is(err, context.DeadlineExceeded) {
+					continue
 				}
+
+				logger.Errorw("error fetching messages", "error", err)
 
 				select {
 				case <-ctx.Done():
