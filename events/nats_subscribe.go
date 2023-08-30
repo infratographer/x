@@ -14,7 +14,7 @@ func (c *NATSConnection) coreSubscribe(ctx context.Context, subject string) (<-c
 		"nats.subject", subject,
 	)
 
-	sub, err := c.conn.QueueSubscribeSync(subject, c.cfg.QueueGroup)
+	sub, err := c.conn.QueueSubscribeSync(subject, NATSConsumerDurableName(c.cfg.QueueGroup, subject))
 	if err != nil {
 		return nil, err
 	}
