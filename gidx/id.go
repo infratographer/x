@@ -72,7 +72,7 @@ func MustNewID(prefix string) PrefixedID {
 	return id
 }
 
-func validPrefix(s string) error {
+func ValidPrefix(s string) error {
 	if len(s) != PrefixPartLength {
 		return newErrInvalidID(fmt.Sprintf("expected prefix length is %d, '%s' is %d", PrefixPartLength, s, len(s)))
 	}
@@ -88,7 +88,7 @@ func validPrefix(s string) error {
 // The ID value will be a 21 character nanoID value.
 func NewID(prefix string) (PrefixedID, error) {
 	prefix = strings.ToLower(prefix)
-	if err := validPrefix(prefix); err != nil {
+	if err := ValidPrefix(prefix); err != nil {
 		return "", err
 	}
 
@@ -134,7 +134,7 @@ func Parse(str string) (PrefixedID, error) {
 		return "", newErrInvalidID(fmt.Sprintf("expected id format is prefix-id, but received %s", str))
 	}
 
-	if err := validPrefix(prefix); err != nil {
+	if err := ValidPrefix(prefix); err != nil {
 		return "", err
 	}
 
