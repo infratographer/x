@@ -31,6 +31,10 @@ func TestUnmarshalRawMessage(t *testing.T) {
 		arg:  map[string]any{"a": true},
 		want: json.RawMessage(`{"a":true}`),
 	}, {
+		name: "array",
+		arg:  []int{1, 2},
+		want: json.RawMessage(`[1,2]`),
+	}, {
 		name: "bytes",
 		arg:  []byte{'"', 'a', '"'},
 		want: json.RawMessage(`"a"`),
