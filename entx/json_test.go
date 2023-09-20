@@ -35,9 +35,10 @@ func TestUnmarshalRawMessage(t *testing.T) {
 		arg:  []byte{'"', 'a', '"'},
 		want: json.RawMessage(`"a"`),
 	}, {
+		// In practice, this is the way graphql Unmarshal is processing input like {json: "a"}:
 		name: "string",
 		arg:  "a",
-		want: json.RawMessage(`a`),
+		want: json.RawMessage(`"a"`),
 	}}
 
 	for _, tt := range tests {
