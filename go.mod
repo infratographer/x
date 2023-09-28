@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	entgo.io/contrib v0.4.5
-	entgo.io/ent v0.12.3
+	entgo.io/ent v0.12.4
 	github.com/99designs/gqlgen v0.17.38
 	github.com/MicahParks/keyfunc/v2 v2.1.0
 	github.com/XSAM/otelsql v0.23.0
@@ -50,7 +50,7 @@ require (
 )
 
 require (
-	ariga.io/atlas v0.10.2-0.20230427182402-87a07dfb83bf // indirect
+	ariga.io/atlas v0.14.1-0.20230918065911-83ad451a4935 // indirect
 	dario.cat/mergo v1.0.0 // indirect
 	filippo.io/edwards25519 v1.0.0 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 // indirect
