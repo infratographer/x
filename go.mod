@@ -45,7 +45,7 @@ require (
 	go.uber.org/goleak v1.2.1
 	go.uber.org/zap v1.25.0
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9
-	golang.org/x/oauth2 v0.10.0
+	golang.org/x/oauth2 v0.12.0
 	gopkg.in/square/go-jose.v2 v2.6.0
 )
 
