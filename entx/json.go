@@ -32,8 +32,6 @@ func MarshalRawMessage(t json.RawMessage) graphql.Marshaler {
 // UnmarshalRawMessage provides a graphql.Unmarshaler for json.RawMessage
 func UnmarshalRawMessage(v interface{}) (json.RawMessage, error) {
 	switch j := v.(type) {
-	case string:
-		return UnmarshalRawMessage([]byte(j))
 	case []byte:
 		return json.RawMessage(j), nil
 	case map[string]interface{}:
