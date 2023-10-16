@@ -32,7 +32,7 @@ require (
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.23.0
 	github.com/vektah/gqlparser/v2 v2.5.10
 	github.com/zsais/go-gin-prometheus v0.1.0
-	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.42.0
+	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.44.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho v0.42.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.42.0
 	go.opentelemetry.io/otel v1.16.0
