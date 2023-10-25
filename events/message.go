@@ -152,6 +152,16 @@ func (m EventMessage) GetAddSubjects() []gidx.PrefixedID {
 	return m.AdditionalSubjectIDs
 }
 
+// GetEventType returns the event type of the message
+func (m ChangeMessage) GetEventType() string {
+	return m.EventType
+}
+
+// GetEventType returns the event type of the message
+func (m EventMessage) GetEventType() string {
+	return m.EventType
+}
+
 // Validate ensures the message has all the required fields.
 func (m ChangeMessage) Validate() error {
 	var err error
