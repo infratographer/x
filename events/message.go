@@ -132,6 +132,36 @@ func (m ChangeMessage) GetTraceContext(ctx context.Context) context.Context {
 	return tp.Extract(ctx, propagation.MapCarrier(m.TraceContext))
 }
 
+// GetSubject returns the subject of the message
+func (m ChangeMessage) GetSubject() gidx.PrefixedID {
+	return m.SubjectID
+}
+
+// GetSubject returns the subject of the message
+func (m EventMessage) GetSubject() gidx.PrefixedID {
+	return m.SubjectID
+}
+
+// GetAddSubjects returns the additional subjects of the message
+func (m ChangeMessage) GetAddSubjects() []gidx.PrefixedID {
+	return m.AdditionalSubjectIDs
+}
+
+// GetAddSubjects returns the additional subjects of the message
+func (m EventMessage) GetAddSubjects() []gidx.PrefixedID {
+	return m.AdditionalSubjectIDs
+}
+
+// GetEventType returns the event type of the message
+func (m ChangeMessage) GetEventType() string {
+	return m.EventType
+}
+
+// GetEventType returns the event type of the message
+func (m EventMessage) GetEventType() string {
+	return m.EventType
+}
+
 // Validate ensures the message has all the required fields.
 func (m ChangeMessage) Validate() error {
 	var err error
