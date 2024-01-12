@@ -143,7 +143,12 @@ func NewNATSConnection(config NATSConfig, options ...NATSOption) (*NATSConnectio
 }
 
 // NATSConsumerDurableName is the generator function to create a new durable consumer name.
+// If queueGroup is empty, an empty durable name is returned to support ephemeral consumers.
 func NATSConsumerDurableName(queueGroup, subject string) string {
+	if queueGroup == "" {
+		return ""
+	}
+
 	hash := md5.Sum([]byte(subject))
 
 	return queueGroup + hex.EncodeToString(hash[:])

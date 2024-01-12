@@ -20,14 +20,17 @@ var errTimeout = errors.New("timeout waiting for event")
 func TestNats(t *testing.T) {
 	ctx := context.Background()
 
-	consumerName := events.NATSConsumerDurableName("", eventtools.Prefix+".changes.>")
+	consumerName := events.NATSConsumerDurableName("nats-testing", eventtools.Prefix+".changes.>")
 
 	nats, err := eventtools.NewNatsServer()
 	require.NoError(t, err)
 
 	defer nats.Close()
 
-	conn, err := events.NewNATSConnection(nats.Config.NATS)
+	natsCfg := nats.Config.NATS
+	natsCfg.QueueGroup = "nats-testing"
+
+	conn, err := events.NewNATSConnection(natsCfg)
 	require.NoError(t, err)
 
 	change1 := testCreateChange()
