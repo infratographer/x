@@ -55,10 +55,6 @@ type NATSConfig struct {
 
 // Configured checks whether the provider has been configured.
 func (c NATSConfig) Configured() bool {
-	if c.QueueGroup == "" {
-		c.logger.Warn("NATS QueueGroup is not set. Subscriptions will not be durable.")
-	}
-
 	return c.URL != ""
 }
 

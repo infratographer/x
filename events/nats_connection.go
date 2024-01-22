@@ -121,6 +121,10 @@ func NewNATSConnection(config NATSConfig, options ...NATSOption) (*NATSConnectio
 		}
 	}
 
+	if config.QueueGroup == "" {
+		nc.logger.Warn("NATS QueueGroup is not set. Subscriptions will not be durable.")
+	}
+
 	conn, err := nats.Connect(config.URL, nc.connectOptions...)
 	if err != nil {
 		return nil, err
