@@ -20,55 +20,76 @@ var errTimeout = errors.New("timeout waiting for event")
 
 func TestNATSPublishAndSubscribe(t *testing.T) {
 	ctx := context.Background()
-	nats, err := eventtools.NewNatsServer()
-	require.NoError(t, err)
 
-	defer nats.Close()
+	testCases := []struct {
+		name       string
+		queueGroup string
+	}{
+		{
+			name:       "with ephemeral consumer",
+			queueGroup: "",
+		},
+		{
+			name:       "with durable consumer",
+			queueGroup: "testing-durable",
+		},
+	}
 
-	conn, err := events.NewNATSConnection(nats.Config.NATS)
-	require.NoError(t, err)
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			nats, err := eventtools.NewNatsServer()
+			require.NoError(t, err)
 
-	defer conn.Shutdown(ctx) //nolint:errcheck // within test
+			defer nats.Close()
 
-	change := testCreateChange()
+			natsCfg := nats.Config.NATS
+			natsCfg.QueueGroup = tc.queueGroup
+			conn, err := events.NewNATSConnection(natsCfg)
+			require.NoError(t, err)
 
-	msg, err := conn.PublishChange(ctx, "test", change)
-	require.NoError(t, err)
-	require.Equal(t, change, msg.Message())
+			defer conn.Shutdown(ctx) //nolint:errcheck // within test
 
-	change2 := testCreateChange()
+			change := testCreateChange()
 
-	msg, err = conn.PublishChange(ctx, "test", change2)
-	require.NoError(t, err)
-	require.Equal(t, change2, msg.Message())
+			msg, err := conn.PublishChange(ctx, "test", change)
+			require.NoError(t, err)
+			require.Equal(t, change, msg.Message())
 
-	change3 := testCreateChange()
-	change3.ActorID = ""
+			change2 := testCreateChange()
 
-	msg, err = conn.PublishChange(ctx, "test", change3)
-	require.NoError(t, err)
-	require.NotEqual(t, change3, msg.Message())
+			msg, err = conn.PublishChange(ctx, "test", change2)
+			require.NoError(t, err)
+			require.Equal(t, change2, msg.Message())
 
-	messages, err := conn.SubscribeChanges(ctx, ">")
-	require.NoError(t, err)
+			change3 := testCreateChange()
+			change3.ActorID = ""
 
-	receivedMsg, err := getSingleMessage(messages, time.Second*1)
-	require.NoError(t, err)
-	require.NoError(t, receivedMsg.Error())
-	assert.EqualValues(t, change, receivedMsg.Message())
+			msg, err = conn.PublishChange(ctx, "test", change3)
+			require.NoError(t, err)
+			require.NotEqual(t, change3, msg.Message())
 
-	receivedMsg, err = getSingleMessage(messages, time.Second*1)
-	require.NoError(t, err)
-	require.NoError(t, receivedMsg.Error())
-	assert.EqualValues(t, change2, receivedMsg.Message())
-	assert.NoError(t, receivedMsg.Ack())
+			messages, err := conn.SubscribeChanges(ctx, ">")
+			require.NoError(t, err)
 
-	receivedMsg, err = getSingleMessage(messages, time.Second*1)
-	require.NoError(t, err)
-	require.NoError(t, receivedMsg.Error())
-	assert.NotEqualValues(t, change3, receivedMsg.Message())
-	assert.Equal(t, "unknown-actor", receivedMsg.Message().ActorID.String())
-	assert.NoError(t, receivedMsg.Ack())
+			receivedMsg, err := getSingleMessage(messages, time.Second*1)
+			require.NoError(t, err)
+			require.NoError(t, receivedMsg.Error())
+			assert.EqualValues(t, change, receivedMsg.Message())
+
+			receivedMsg, err = getSingleMessage(messages, time.Second*1)
+			require.NoError(t, err)
+			require.NoError(t, receivedMsg.Error())
+			assert.EqualValues(t, change2, receivedMsg.Message())
+			assert.NoError(t, receivedMsg.Ack())
+
+			receivedMsg, err = getSingleMessage(messages, time.Second*1)
+			require.NoError(t, err)
+			require.NoError(t, receivedMsg.Error())
+			assert.NotEqualValues(t, change3, receivedMsg.Message())
+			assert.Equal(t, "unknown-actor", receivedMsg.Message().ActorID.String())
+			assert.NoError(t, receivedMsg.Ack())
+		})
+	}
 }
 
 func TestNATSRequestReply(t *testing.T) {

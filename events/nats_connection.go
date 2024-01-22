@@ -121,6 +121,10 @@ func NewNATSConnection(config NATSConfig, options ...NATSOption) (*NATSConnectio
 		}
 	}
 
+	if config.QueueGroup == "" {
+		nc.logger.Warn("NATS QueueGroup is not set. Subscriptions will not be durable.")
+	}
+
 	conn, err := nats.Connect(config.URL, nc.connectOptions...)
 	if err != nil {
 		return nil, err
@@ -143,7 +147,12 @@ func NewNATSConnection(config NATSConfig, options ...NATSOption) (*NATSConnectio
 }
 
 // NATSConsumerDurableName is the generator function to create a new durable consumer name.
+// If queueGroup is empty, an empty durable name is returned to support ephemeral consumers.
 func NATSConsumerDurableName(queueGroup, subject string) string {
+	if queueGroup == "" {
+		return ""
+	}
+
 	hash := md5.Sum([]byte(subject))
 
 	return queueGroup + hex.EncodeToString(hash[:])
