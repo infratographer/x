@@ -43,7 +43,7 @@
 									{{ $currentValue }} := ""
 									{{ $f.Name }}, ok := m.{{ $f.MutationGet }}()
 									{{- $annotation := $f.Annotations.INFRA9_EVENTHOOKS }}
-									{{- if $annotation.AdditionalSubjectRelation }}
+									{{- if or $annotation.AdditionalSubjectRelation $annotation.IsAdditionalSubjectField }}
 										if !ok && !m.Op().Is(ent.OpCreate) {
 											// since we are doing an update or delete and these fields didn't change, load the "old" value
 											{{ $f.Name }}, err = m.{{ $f.MutationGetOld }}(ctx)
@@ -55,18 +55,22 @@
 											if {{ $f.Name }} != gidx.NullPrefixedID {
 												additionalSubjects = append(additionalSubjects, {{ $f.Name }})
 
+												{{- if $annotation.AdditionalSubjectRelation }}
 												relationships = append(relationships, events.AuthRelationshipRelation{
 													Relation:  "{{ $annotation.AdditionalSubjectRelation }}",
 													SubjectID: {{ $f.Name }},
 												})
+												{{- end }}
 											}
 										{{- else }}
 											additionalSubjects = append(additionalSubjects, {{ $f.Name }})
 
+											{{- if $annotation.AdditionalSubjectRelation }}
 											relationships = append(relationships, events.AuthRelationshipRelation{
 												Relation:  "{{ $annotation.AdditionalSubjectRelation }}",
 												SubjectID: {{ $f.Name }},
 											})
+											{{- end }}
 										{{- end }}
 									{{ end }}
 
@@ -127,7 +131,7 @@
 								return retValue, err
 							}
 
-						if len(relationships) != 0 {
+						if len(relationships) != 0 && m.Op().Is(ent.OpCreate) {
 							if err := permissions.CreateAuthRelationships(ctx, "{{ $nodeAnnotation.SubjectName }}", objID, relationships...); err != nil {
 								return nil, fmt.Errorf("relationship request failed with error: %w", err)
 							}
@@ -162,23 +166,27 @@
 							{{- range $f := $node.Fields }}
 								{{- if not $f.Sensitive }}
 									{{- $annotation := $f.Annotations.INFRA9_EVENTHOOKS }}
-									{{- if $annotation.AdditionalSubjectRelation }}
+									{{- if or $annotation.AdditionalSubjectRelation $annotation.IsAdditionalSubjectField }}
 										{{- if $f.Optional }}
 											if dbObj.{{ $f.MutationGet }} != gidx.NullPrefixedID {
 												additionalSubjects = append(additionalSubjects, dbObj.{{ $f.MutationGet }})
 
+												{{- if $annotation.AdditionalSubjectRelation }}
 												relationships = append(relationships, events.AuthRelationshipRelation{
 													Relation:  "{{ $annotation.AdditionalSubjectRelation }}",
 													SubjectID: dbObj.{{ $f.MutationGet }},
 												})
+												{{- end }}
 											}
 										{{- else }}
 											additionalSubjects = append(additionalSubjects, dbObj.{{ $f.MutationGet }})
 
+											{{- if $annotation.AdditionalSubjectRelation }}
 											relationships = append(relationships, events.AuthRelationshipRelation{
 												Relation:  "{{ $annotation.AdditionalSubjectRelation }}",
 												SubjectID: dbObj.{{ $f.MutationGet }},
 											})
+											{{- end }}
 										{{- end }}
 									{{ end }}
 								{{ end }}
