@@ -17,10 +17,12 @@ package entx
 // EventsHookAnnotationName is the value of the annotation when read during ent compilation
 var EventsHookAnnotationName = "INFRA9_EVENTHOOKS"
 
-// EventsHookAnnotation provides a ent.Annotation spec. These shouldn't be set directly, you should use EventsHookAdditionalSubject() and EventsHookSubjectName instead
+// EventsHookAnnotation provides a ent.Annotation spec.
+// These shouldn't be set directly, you should use EventsHookAdditionalSubject(), EventsHookAdditionalSubjectField() and EventsHookSubjectName() instead
 type EventsHookAnnotation struct {
 	SubjectName               string
 	AdditionalSubjectRelation string
+	IsAdditionalSubjectField  bool
 }
 
 // Name implements the ent Annotation interface.
@@ -28,10 +30,17 @@ func (a EventsHookAnnotation) Name() string {
 	return EventsHookAnnotationName
 }
 
-// EventsHookAdditionalSubject marks this field as a field to return as an additional subject
+// EventsHookAdditionalSubject marks this ent field as a field to return as an additional subject relationship
 func EventsHookAdditionalSubject(relation string) *EventsHookAnnotation {
 	return &EventsHookAnnotation{
 		AdditionalSubjectRelation: relation,
+	}
+}
+
+// EventsHookAdditionalSubjectField marks this ent field as a field to return an additional subject in the change event
+func EventsHookAdditionalSubjectField() *EventsHookAnnotation {
+	return &EventsHookAnnotation{
+		IsAdditionalSubjectField: true,
 	}
 }
 
