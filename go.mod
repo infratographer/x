@@ -22,8 +22,8 @@ require (
 	github.com/labstack/echo/v4 v4.11.2
 	github.com/labstack/gommon v0.4.0
 	github.com/lib/pq v1.10.9
-	github.com/nats-io/nats-server/v2 v2.10.1
-	github.com/nats-io/nats.go v1.30.2
+	github.com/nats-io/nats-server/v2 v2.10.4
+	github.com/nats-io/nats.go v1.31.0
 	github.com/pressly/goose/v3 v3.15.0
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/pflag v1.0.5
@@ -74,7 +74,7 @@ require (
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/hashicorp/hcl/v2 v2.13.0 // indirect
-	github.com/klauspost/compress v1.17.0 // indirect
+	github.com/klauspost/compress v1.17.2 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.5 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/minio/highwayhash v1.0.2 // indirect
@@ -84,7 +84,7 @@ require (
 	github.com/moby/term v0.5.0 // indirect
 	github.com/morikuni/aec v1.0.0 // indirect
 	github.com/nats-io/jwt/v2 v2.5.2 // indirect
-	github.com/nats-io/nkeys v0.4.5 // indirect
+	github.com/nats-io/nkeys v0.4.6 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
 	github.com/opencontainers/image-spec v1.1.0-rc4 // indirect
