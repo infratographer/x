@@ -9,7 +9,7 @@ require (
 	github.com/MicahParks/keyfunc/v2 v2.1.0
 	github.com/XSAM/otelsql v0.23.0
 	github.com/brianvoe/gofakeit/v6 v6.23.2
-	github.com/cockroachdb/cockroach-go/v2 v2.3.5
+	github.com/cockroachdb/cockroach-go/v2 v2.3.7
 	github.com/docker/go-connections v0.4.0
 	github.com/gin-contrib/requestid v0.0.6
 	github.com/gin-contrib/zap v0.1.0
