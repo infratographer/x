@@ -16,6 +16,7 @@ require (
 	github.com/gin-contrib/requestid v1.0.0
 	github.com/gin-contrib/zap v1.1.1
 	github.com/gin-gonic/gin v1.9.1
+	github.com/go-jose/go-jose/v3 v3.0.3
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/jaevor/go-nanoid v1.3.0
 	github.com/jmoiron/sqlx v1.3.5
@@ -48,7 +49,6 @@ require (
 	go.uber.org/zap v1.27.0
 	golang.org/x/exp v0.0.0-20240325151524-a685a6edb6d8
 	golang.org/x/oauth2 v0.18.0
-	gopkg.in/square/go-jose.v2 v2.6.0
 )
 
 require (
@@ -122,8 +122,8 @@ require (
 	golang.org/x/time v0.5.0 // indirect
 	golang.org/x/tools v0.19.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20240123012728-ef4313101c80 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240123012728-ef4313101c80 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20240311132316-a219d84964c2 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240314234333-6e1732d8331c // indirect
 )
 
 require (
@@ -173,7 +173,7 @@ require (
 	go.opentelemetry.io/otel/metric v1.24.0 // indirect
 	go.opentelemetry.io/otel/trace v1.24.0
 	go.opentelemetry.io/proto/otlp v1.1.0 // indirect
-	go.step.sm/crypto v0.35.1
+	go.step.sm/crypto v0.44.2
 	go.uber.org/multierr v1.11.0
 	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/net v0.22.0 // indirect
