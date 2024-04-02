@@ -33,6 +33,10 @@ func InitLogger(appName string, cfg Config) *zap.SugaredLogger {
 		lgrCfg.Level = zap.NewAtomicLevelAt(zap.InfoLevel)
 	}
 
+	if cfg.DisableStacktrace {
+		lgrCfg.DisableStacktrace = true
+	}
+
 	l, err := lgrCfg.Build()
 	if err != nil {
 		panic(err)
