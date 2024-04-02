@@ -1,3 +1,6 @@
+lint:
+	golangci-lint run -v
+
 test:
 	@echo Running unit tests...
 	@go test ./...

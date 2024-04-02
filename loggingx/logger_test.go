@@ -3,8 +3,9 @@ package loggingx_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/require"
 	"go.infratographer.com/x/loggingx"
+
+	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"go.uber.org/zap/zaptest/observer"
