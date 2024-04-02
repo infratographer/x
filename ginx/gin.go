@@ -30,6 +30,7 @@ import (
 	ginprometheus "github.com/zsais/go-gin-prometheus"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 
@@ -88,6 +89,12 @@ func DefaultEngine(lgr *zap.Logger, f LogFunc) *gin.Engine {
 		fields := []zapcore.Field{
 			zap.String("request_id", requestid.Get(c)),
 		}
+
+		if trace.SpanFromContext(c.Request.Context()).SpanContext().IsValid() {
+			fields = append(fields, zap.String("trace_id", trace.SpanFromContext(c.Request.Context()).SpanContext().TraceID().String()))
+			fields = append(fields, zap.String("span_id", trace.SpanFromContext(c.Request.Context()).SpanContext().SpanID().String()))
+		}
+
 		fields = append(fields, f(c)...)
 
 		return fields
@@ -99,7 +106,6 @@ func DefaultEngine(lgr *zap.Logger, f LogFunc) *gin.Engine {
 		ginzap.GinzapWithConfig(lgr, &ginzap.Config{
 			TimeFormat: time.RFC3339,
 			UTC:        true,
-			TraceID:    true,
 			Context:    logF,
 		}),
 		ginzap.RecoveryWithZap(lgr, true),
