@@ -44,7 +44,7 @@ type LogFunc func(c *gin.Context) []zapcore.Field
 type CheckFunc func(ctx context.Context) error
 
 var (
-	emptyLogFn = func(c *gin.Context) []zapcore.Field { return []zapcore.Field{} }
+	emptyLogFn = func(_ *gin.Context) []zapcore.Field { return []zapcore.Field{} }
 
 	// DefaultServerShutdownTimeout sets the default for how long we give the sever
 	// to shutdown before forcefully stopping the server.

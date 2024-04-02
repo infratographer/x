@@ -70,7 +70,7 @@ func RegisterCobraCommand(cmd *cobra.Command, printFunc func()) {
 	var versionCmd = &cobra.Command{
 		Use:   "version",
 		Short: "returns the application version information",
-		Run: func(cmd *cobra.Command, args []string) {
+		Run: func(_ *cobra.Command, _ []string) {
 			printFunc()
 		},
 	}
