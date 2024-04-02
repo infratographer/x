@@ -25,7 +25,7 @@ import (
 type Config struct {
 	Debug             bool `mapstructure:"debug"`
 	Pretty            bool `mapstructure:"pretty"`
-	DisableStacktrace bool `mapstructure:"disablestacktrace"`
+	DisableStacktrace bool `mapstructure:"disable_stacktrace"`
 }
 
 // MustViperFlags returns the cobra flags and viper config to prevent code duplication
@@ -35,6 +35,6 @@ func MustViperFlags(v *viper.Viper, flags *pflag.FlagSet) {
 	viperx.MustBindFlag(v, "logging.debug", flags.Lookup("debug"))
 	flags.Bool("pretty", false, "enable pretty (human readable) logging output")
 	viperx.MustBindFlag(v, "logging.pretty", flags.Lookup("pretty"))
-	flags.Bool("disablestacktrace", false, "logging errorf/fatalf will not include stacktraces")
-	viperx.MustBindFlag(v, "logging.disablestacktrace", flags.Lookup("disablestacktrace"))
+	flags.Bool("disable-stacktrace", false, "logging errorf/fatalf will not include stacktraces")
+	viperx.MustBindFlag(v, "logging.disable_stacktrace", flags.Lookup("disable-stacktrace"))
 }
