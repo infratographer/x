@@ -20,17 +20,17 @@ func TestInitLogger(t *testing.T) {
 	}{
 		{
 			name:       "With all disabled",
-			cfg:        loggingx.Config{Debug: false, Pretty: false, Stacktrace: false},
+			cfg:        loggingx.Config{Debug: false, Pretty: false, DisableStacktrace: true},
 			expectedST: false,
 		},
 		{
-			name:       "With stacktrace enabled",
-			cfg:        loggingx.Config{Debug: false, Pretty: false, Stacktrace: true},
-			expectedST: true,
+			name:       "With stacktrace disabled",
+			cfg:        loggingx.Config{Debug: false, Pretty: false, DisableStacktrace: true},
+			expectedST: false,
 		},
 		{
 			name:       "With all enabled",
-			cfg:        loggingx.Config{Debug: true, Pretty: true, Stacktrace: true},
+			cfg:        loggingx.Config{Debug: true, Pretty: true, DisableStacktrace: false},
 			expectedST: true,
 		},
 	}
