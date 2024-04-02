@@ -81,7 +81,7 @@ func (s *TestNats) SetConsumerSampleFrequency(consumer, frequency string) error 
 func (s *TestNats) WaitForAck(consumer string, timeout time.Duration) error {
 	// We should only ever receive one Ack, so we close the channel directly if we get one.
 	ackCh := make(chan struct{})
-	ackSub, err := s.Conn.Subscribe("$JS.EVENT.METRIC.CONSUMER.ACK.*."+consumer, func(m *nats.Msg) {
+	ackSub, err := s.Conn.Subscribe("$JS.EVENT.METRIC.CONSUMER.ACK.*."+consumer, func(_ *nats.Msg) {
 		close(ackCh)
 	})
 
@@ -96,7 +96,7 @@ func (s *TestNats) WaitForAck(consumer string, timeout time.Duration) error {
 
 	var nakOnce sync.Once
 
-	nakSub, err := s.Conn.Subscribe("$JS.EVENT.ADVISORY.CONSUMER.MSG_NAKED.*."+consumer, func(m *nats.Msg) {
+	nakSub, err := s.Conn.Subscribe("$JS.EVENT.ADVISORY.CONSUMER.MSG_NAKED.*."+consumer, func(_ *nats.Msg) {
 		nakOnce.Do(func() {
 			close(nakCh)
 		})

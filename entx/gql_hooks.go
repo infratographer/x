@@ -26,7 +26,7 @@ import (
 //
 //nolint:goerr113
 var (
-	removeNodeGoModel = func(g *gen.Graph, s *ast.Schema) error {
+	removeNodeGoModel = func(_ *gen.Graph, s *ast.Schema) error {
 		n, ok := s.Types["Node"]
 		if !ok {
 			return errors.New("failed to find node interface in schema")
@@ -47,7 +47,7 @@ var (
 		return nil
 	}
 
-	removeNodeQueries = func(g *gen.Graph, s *ast.Schema) error {
+	removeNodeQueries = func(_ *gen.Graph, s *ast.Schema) error {
 		q, ok := s.Types["Query"]
 		if !ok {
 			return errors.New("failed to find query definition in schema")
@@ -69,7 +69,7 @@ var (
 		return nil
 	}
 
-	setPageInfoShareable = func(g *gen.Graph, s *ast.Schema) error {
+	setPageInfoShareable = func(_ *gen.Graph, s *ast.Schema) error {
 		q, ok := s.Types["PageInfo"]
 		if !ok {
 			return nil
@@ -80,7 +80,7 @@ var (
 		return nil
 	}
 
-	addJSONScalar = func(g *gen.Graph, s *ast.Schema) error {
+	addJSONScalar = func(_ *gen.Graph, s *ast.Schema) error {
 		s.Types["JSON"] = &ast.Definition{
 			Kind:        ast.Scalar,
 			Description: "A valid JSON string.",

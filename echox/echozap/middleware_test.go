@@ -29,7 +29,7 @@ func TestToMiddleware(t *testing.T) {
 		}
 	}
 	returnError := func(iErr any) echo.HandlerFunc {
-		return func(c echo.Context) error {
+		return func(_ echo.Context) error {
 			if err, ok := iErr.(error); ok {
 				return err
 			}
@@ -268,6 +268,7 @@ func TestToMiddleware(t *testing.T) {
 			if tc.config.Logger != nil {
 				tc.config.Logger = zap.New(obsZapCore)
 			}
+
 			mdw, err := tc.config.ToMiddleware()
 
 			if tc.expectConfigError != nil {

@@ -623,6 +623,7 @@ func TestServe(t *testing.T) {
 
 					return
 				}
+
 				reqResp = resp
 
 				_, _ = io.Copy(io.Discard, resp.Body)
@@ -702,7 +703,7 @@ func TestAddReadinessCheck(t *testing.T) {
 		{
 			"single check, ok",
 			map[string]CheckFunc{
-				"test": func(ctx context.Context) error {
+				"test": func(_ context.Context) error {
 					return nil
 				},
 			},
@@ -712,7 +713,7 @@ func TestAddReadinessCheck(t *testing.T) {
 		{
 			"single check, fail",
 			map[string]CheckFunc{
-				"test": func(ctx context.Context) error {
+				"test": func(_ context.Context) error {
 					return errored
 				},
 			},
@@ -722,10 +723,10 @@ func TestAddReadinessCheck(t *testing.T) {
 		{
 			"multiple checks, ok",
 			map[string]CheckFunc{
-				"test1": func(ctx context.Context) error {
+				"test1": func(_ context.Context) error {
 					return nil
 				},
-				"test2": func(ctx context.Context) error {
+				"test2": func(_ context.Context) error {
 					return nil
 				},
 			},
@@ -735,10 +736,10 @@ func TestAddReadinessCheck(t *testing.T) {
 		{
 			"multiple checks, first fail",
 			map[string]CheckFunc{
-				"test1": func(ctx context.Context) error {
+				"test1": func(_ context.Context) error {
 					return errored
 				},
-				"test2": func(ctx context.Context) error {
+				"test2": func(_ context.Context) error {
 					return nil
 				},
 			},
@@ -748,10 +749,10 @@ func TestAddReadinessCheck(t *testing.T) {
 		{
 			"multiple checks, last fail",
 			map[string]CheckFunc{
-				"test1": func(ctx context.Context) error {
+				"test1": func(_ context.Context) error {
 					return nil
 				},
-				"test2": func(ctx context.Context) error {
+				"test2": func(_ context.Context) error {
 					return errored
 				},
 			},
@@ -761,10 +762,10 @@ func TestAddReadinessCheck(t *testing.T) {
 		{
 			"multiple checks, all fail",
 			map[string]CheckFunc{
-				"test1": func(ctx context.Context) error {
+				"test1": func(_ context.Context) error {
 					return errored
 				},
-				"test2": func(ctx context.Context) error {
+				"test2": func(_ context.Context) error {
 					return errored
 				},
 			},
