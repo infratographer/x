@@ -23,8 +23,9 @@ import (
 
 // Config handles reading in all the config values available for setting up a logger
 type Config struct {
-	Debug  bool `mapstructure:"debug"`
-	Pretty bool `mapstructure:"pretty"`
+	Debug      bool `mapstructure:"debug"`
+	Pretty     bool `mapstructure:"pretty"`
+	Stacktrace bool `mapstructure:"stacktrace"`
 }
 
 // MustViperFlags returns the cobra flags and viper config to prevent code duplication
@@ -34,4 +35,6 @@ func MustViperFlags(v *viper.Viper, flags *pflag.FlagSet) {
 	viperx.MustBindFlag(v, "logging.debug", flags.Lookup("debug"))
 	flags.Bool("pretty", false, "enable pretty (human readable) logging output")
 	viperx.MustBindFlag(v, "logging.pretty", flags.Lookup("pretty"))
+	flags.Bool("stacktrace", true, "logging errorf/fatalf will include stacktraces")
+	viperx.MustBindFlag(v, "logging.stacktrace", flags.Lookup("stacktrace"))
 }
