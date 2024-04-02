@@ -1,8 +1,8 @@
 module go.infratographer.com/x
 
-go 1.21
+go 1.22
 
-toolchain go1.21.8
+toolchain go1.22.1
 
 require (
 	entgo.io/contrib v0.4.5
@@ -10,7 +10,7 @@ require (
 	github.com/99designs/gqlgen v0.17.45
 	github.com/MicahParks/keyfunc/v2 v2.1.0
 	github.com/XSAM/otelsql v0.29.0
-	github.com/brianvoe/gofakeit/v6 v6.28.0
+	github.com/brianvoe/gofakeit/v7 v7.0.2
 	github.com/cockroachdb/cockroach-go/v2 v2.3.7
 	github.com/docker/go-connections v0.5.0
 	github.com/gin-contrib/requestid v1.0.0
