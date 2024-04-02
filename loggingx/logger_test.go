@@ -24,9 +24,9 @@ func TestInitLogger(t *testing.T) {
 			expectedST: false,
 		},
 		{
-			name:       "With stacktrace disabled",
-			cfg:        loggingx.Config{Debug: false, Pretty: false, DisableStacktrace: true},
-			expectedST: false,
+			name:       "With stacktrace enabled",
+			cfg:        loggingx.Config{Debug: false, Pretty: false, DisableStacktrace: false},
+			expectedST: true,
 		},
 		{
 			name:       "With all enabled",
