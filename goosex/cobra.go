@@ -15,6 +15,7 @@
 package goosex
 
 import (
+	"context"
 	"io/fs"
 
 	_ "github.com/cockroachdb/cockroach-go/v2/crdb/crdbpgx" // crdb retries and postgres interface
@@ -53,14 +54,14 @@ create NAME [sql|go] Creates new migration file with the current timestamp
 fix                  Apply sequential ordering to migrations
 	`,
 		Args: cobra.MinimumNArgs(1),
-		Run: func(_ *cobra.Command, args []string) {
+		Run: func(cmd *cobra.Command, args []string) {
 			setupFunc()
-			migrate(args[0], args[1:])
+			migrate(cmd.Context(), args[0], args[1:])
 		},
 	})
 }
 
-func migrate(command string, args []string) {
+func migrate(ctx context.Context, command string, args []string) {
 	db, err := goose.OpenDBWithDriver("postgres", dbURI)
 	if err != nil {
 		logger.Fatalw("failed to open DB", "error", err)
@@ -72,17 +73,24 @@ func migrate(command string, args []string) {
 		}
 	}()
 
-	if err := goose.Run(command, db, "migrations", args...); err != nil {
+	if err := goose.RunContext(ctx, command, db, "migrations", args...); err != nil {
 		logger.Fatalw("migrate command failed", "command", command, "error", err)
 	}
 }
 
 // MigrateUp will run migrations and is provided as an easy way to ensure migrations are ran in test suites
+//
+// Deprecated: use MigrateUpContext
 func MigrateUp(uri string, fsys fs.FS) {
+	MigrateUpContext(context.Background(), uri, fsys)
+}
+
+// MigrateUpContext will run migrations and is provided as an easy way to ensure migrations are ran in test suites
+func MigrateUpContext(ctx context.Context, uri string, fsys fs.FS) {
 	dbURI = uri
 
 	goose.SetBaseFS(fsys)
-	migrate("up", nil)
+	migrate(ctx, "up", nil)
 }
 
 // SetBaseFS accepts an embedded golang filesystem and sets that as the location
