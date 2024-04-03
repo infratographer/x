@@ -22,7 +22,8 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/MicahParks/keyfunc/v2"
+	"github.com/MicahParks/jwkset"
+	"github.com/MicahParks/keyfunc/v3"
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -43,14 +44,14 @@ const (
 	// ActorKey defines the context key an actor is stored in for an echo context
 	ActorKey = "actor"
 
-	// DefaultKeyFuncOptionRefreshInterval defines the frequency at which the jwks file is refreshed.
-	DefaultKeyFuncOptionRefreshInterval = time.Hour
+	// DefaultHTTPClientStorageOptionRefreshInterval defines the frequency at which the jwks file is refreshed.
+	DefaultHTTPClientStorageOptionRefreshInterval = time.Hour
 
-	// DefaultKeyFuncOptionRefreshRateLimit limits how frequently jwks is reloaded when a provided KID is not found.
-	DefaultKeyFuncOptionRefreshRateLimit = 5 * time.Minute
+	// DefaultHTTPClientStorageOptionHTTPTimeout limits the runtime of a reload of jwks.
+	DefaultHTTPClientStorageOptionHTTPTimeout = 10 * time.Second
 
-	// DefaultKeyFuncOptionRefreshTimeout limits the runtime of a reload of jwks.
-	DefaultKeyFuncOptionRefreshTimeout = 10 * time.Second
+	// DefaultRateLimitWaitMax is the default timeout for waiting for rate limiting to end.
+	DefaultRateLimitWaitMax = time.Minute
 )
 
 var (
@@ -74,6 +75,9 @@ type AuthConfig struct {
 
 	// RefreshTimeout is the timeout for fetching the JWKS from the issuer.
 	RefreshTimeout time.Duration `mapstructure:"refresh_timeout"`
+
+	// RateLimitWaitMax is the timeout for waiting for rate limiting to end.
+	RateLimitWaitMax time.Duration `mapstructure:"rate_limit_wait_max"`
 }
 
 // Auth handles JWT Authentication as echo middleware.
@@ -85,8 +89,8 @@ type Auth struct {
 	// JWTConfig configuration for handling JWT validation.
 	JWTConfig echojwt.Config
 
-	// KeyFuncOptions configuration for fetching JWKS.
-	KeyFuncOptions keyfunc.Options
+	// HTTPClientStorageOptions configuration for fetching JWKS.
+	HTTPClientStorageOptions jwkset.HTTPClientStorageOptions
 
 	issuer   string
 	audience string
@@ -106,10 +110,10 @@ func WithJWTConfig(jwtConfig echojwt.Config) Opts {
 	}
 }
 
-// WithKeyFuncOptions sets the KeyFuncOptions for the auth middleware.
-func WithKeyFuncOptions(keyFuncOptions keyfunc.Options) Opts {
+// WithHTTPClientStorageOptions sets the HTTPClientStorageOptions for the auth middleware.
+func WithHTTPClientStorageOptions(options jwkset.HTTPClientStorageOptions) Opts {
 	return func(a *Auth) {
-		a.KeyFuncOptions = keyFuncOptions
+		a.HTTPClientStorageOptions = options
 	}
 }
 
@@ -124,7 +128,11 @@ func (a *Auth) setup(ctx context.Context, config AuthConfig, options ...Opts) er
 	}
 
 	if config.RefreshTimeout > 0 {
-		a.KeyFuncOptions.RefreshTimeout = config.RefreshTimeout
+		a.HTTPClientStorageOptions.HTTPTimeout = config.RefreshTimeout
+	}
+
+	if config.RateLimitWaitMax == 0 {
+		config.RateLimitWaitMax = DefaultRateLimitWaitMax
 	}
 
 	a.issuer = config.Issuer
@@ -136,35 +144,45 @@ func (a *Auth) setup(ctx context.Context, config AuthConfig, options ...Opts) er
 			return err
 		}
 
-		if a.KeyFuncOptions.Client == nil {
-			a.KeyFuncOptions.Client = otelhttp.DefaultClient
+		if a.HTTPClientStorageOptions.Ctx == nil {
+			a.HTTPClientStorageOptions.Ctx = ctx
 		}
 
-		if a.KeyFuncOptions.Ctx == nil {
-			a.KeyFuncOptions.Ctx = ctx
-		}
-
-		if a.KeyFuncOptions.RefreshErrorHandler == nil {
-			a.KeyFuncOptions.RefreshErrorHandler = func(err error) {
+		if a.HTTPClientStorageOptions.RefreshErrorHandler == nil {
+			a.HTTPClientStorageOptions.RefreshErrorHandler = func(_ context.Context, err error) {
 				a.logger.Error("error refreshing jwks", zap.Error(err))
 			}
 		}
 
-		if a.KeyFuncOptions.RefreshInterval == 0 {
-			a.KeyFuncOptions.RefreshInterval = DefaultKeyFuncOptionRefreshInterval
+		if a.HTTPClientStorageOptions.RefreshInterval == 0 {
+			a.HTTPClientStorageOptions.RefreshInterval = DefaultHTTPClientStorageOptionRefreshInterval
 		}
 
-		if a.KeyFuncOptions.RefreshRateLimit == 0 {
-			a.KeyFuncOptions.RefreshRateLimit = DefaultKeyFuncOptionRefreshRateLimit
+		if a.HTTPClientStorageOptions.HTTPTimeout == 0 {
+			a.HTTPClientStorageOptions.HTTPTimeout = DefaultHTTPClientStorageOptionHTTPTimeout
 		}
 
-		if a.KeyFuncOptions.RefreshTimeout == 0 {
-			a.KeyFuncOptions.RefreshTimeout = DefaultKeyFuncOptionRefreshTimeout
+		storage, err := jwkset.NewStorageFromHTTP(jwksURI, a.HTTPClientStorageOptions)
+		if err != nil {
+			return err
 		}
 
-		a.KeyFuncOptions.RefreshUnknownKID = true
+		clientOptions := jwkset.HTTPClientOptions{
+			Given:            storage,
+			RateLimitWaitMax: config.RateLimitWaitMax,
+		}
 
-		jwks, err := keyfunc.Get(jwksURI, a.KeyFuncOptions)
+		clientStorage, err := jwkset.NewHTTPClient(clientOptions)
+		if err != nil {
+			return err
+		}
+
+		keyfuncOptions := keyfunc.Options{
+			Ctx:     ctx,
+			Storage: clientStorage,
+		}
+
+		jwks, err := keyfunc.New(keyfuncOptions)
 		if err != nil {
 			return err
 		}
@@ -224,32 +242,32 @@ func NewAuth(ctx context.Context, config AuthConfig, options ...Opts) (*Auth, er
 	return auth, nil
 }
 
-func jwksURI(ctx context.Context, issuer string) (string, error) {
+func jwksURI(ctx context.Context, issuer string) (*url.URL, error) {
 	uri, err := url.JoinPath(issuer, ".well-known", "openid-configuration")
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	res, err := jwksClient.Do(req)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer res.Body.Close() //nolint:errcheck // no need to check
 
 	var m map[string]interface{}
 	if err := json.NewDecoder(res.Body).Decode(&m); err != nil {
-		return "", err
+		return nil, err
 	}
 
 	jwksURL, ok := m["jwks_uri"]
 	if !ok {
-		return "", ErrJWKSURIMissing
+		return nil, ErrJWKSURIMissing
 	}
 
-	return jwksURL.(string), nil
+	return url.Parse(jwksURL.(string))
 }
