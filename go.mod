@@ -27,7 +27,7 @@ require (
 	github.com/labstack/gommon v0.4.2
 	github.com/lib/pq v1.10.9
 	github.com/nats-io/nats-server/v2 v2.10.12
-	github.com/nats-io/nats.go v1.34.0
+	github.com/nats-io/nats.go v1.34.1
 	github.com/pressly/goose/v3 v3.19.2
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/pflag v1.0.5
