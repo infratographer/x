@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/MicahParks/keyfunc/v2"
+	"github.com/MicahParks/jwkset"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -128,8 +128,8 @@ func TestAudienceValidation(t *testing.T) {
 					Audience: tc.serverAudience,
 					Issuer:   issuer,
 				},
-				echojwtx.WithLogger(logger), echojwtx.WithKeyFuncOptions(keyfunc.Options{
-					RefreshTimeout: 5 * time.Second,
+				echojwtx.WithLogger(logger), echojwtx.WithHTTPClientStorageOptions(jwkset.HTTPClientStorageOptions{
+					HTTPTimeout: 5 * time.Second,
 				}),
 			)
 
