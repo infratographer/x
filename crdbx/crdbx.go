@@ -19,8 +19,9 @@ import (
 	"fmt"
 
 	"github.com/XSAM/otelsql"
-	_ "github.com/cockroachdb/cockroach-go/v2/crdb/crdbpgx" // crdb retries and postgres interface
-	_ "github.com/lib/pq"                                   // Register the Postgres driver.
+	_ "github.com/cockroachdb/cockroach-go/v2/crdb/crdbpgxv5" // crdb retries and postgres interface
+	_ "github.com/jackc/pgx/v5/stdlib"                        // Register pgx driver.
+	_ "github.com/lib/pq"                                     // Register the Postgres driver.
 	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 )
 
