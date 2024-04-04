@@ -19,6 +19,7 @@ import (
 	"io/fs"
 
 	_ "github.com/cockroachdb/cockroach-go/v2/crdb/crdbpgx" // crdb retries and postgres interface
+	_ "github.com/jackc/pgx/v4/stdlib"                      // Register pgx driver.
 	_ "github.com/lib/pq"                                   // Register the Postgres driver.
 	"github.com/pressly/goose/v3"
 	"github.com/spf13/cobra"
