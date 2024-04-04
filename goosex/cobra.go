@@ -18,8 +18,9 @@ import (
 	"context"
 	"io/fs"
 
-	_ "github.com/cockroachdb/cockroach-go/v2/crdb/crdbpgx" // crdb retries and postgres interface
-	_ "github.com/lib/pq"                                   // Register the Postgres driver.
+	_ "github.com/cockroachdb/cockroach-go/v2/crdb/crdbpgxv5" // crdb retries and postgres interface
+	_ "github.com/jackc/pgx/v5/stdlib"                        // Register pgx driver.
+	_ "github.com/lib/pq"                                     // Register the Postgres driver.
 	"github.com/pressly/goose/v3"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -28,8 +29,9 @@ import (
 )
 
 var (
-	dbURI  string
-	logger *zap.SugaredLogger
+	dbURI string
+
+	logger = zap.NewNop().Sugar()
 )
 
 // RegisterCobraCommand will add a migrate command to the cobra command provided
