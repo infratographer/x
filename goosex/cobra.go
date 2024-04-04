@@ -28,8 +28,9 @@ import (
 )
 
 var (
-	dbURI  string
-	logger *zap.SugaredLogger
+	dbURI string
+
+	logger = zap.NewNop().Sugar()
 )
 
 // RegisterCobraCommand will add a migrate command to the cobra command provided
