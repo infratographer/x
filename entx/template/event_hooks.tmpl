@@ -163,6 +163,9 @@
 								return nil, fmt.Errorf("failed to load object to get values for event, err %w", err)
 							}
 
+							// Satisfies the go error: dbObj declared and not used
+							if dbObj != nil { }
+
 							{{- range $f := $node.Fields }}
 								{{- if not $f.Sensitive }}
 									{{- $annotation := $f.Annotations.INFRA9_EVENTHOOKS }}
