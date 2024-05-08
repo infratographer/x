@@ -7,7 +7,11 @@
 
 	{{ $genPackage := base $.Config.Package }}
 
-	import "go.infratographer.com/permissions-api/pkg/permissions"
+	import (
+		"github.com/metal-toolbox/iam-runtime/pkg/iam/runtime/authorization"
+		"github.com/metal-toolbox/iam-runtime-contrib/iamruntime"
+		"go.infratographer.com/permissions-api/pkg/permissions"
+	)
 
 	{{- range $node := $.Nodes }}
 		{{- if $nodeAnnotation := $node.Annotations.INFRA9_EVENTHOOKS }}
@@ -19,7 +23,7 @@
 						return hook.{{ $node.Name }}Func(func(ctx context.Context, m *generated.{{ $node.Name }}Mutation) (ent.Value, error) {
 							var err error
 							additionalSubjects := []gidx.PrefixedID{}
-							relationships := []events.AuthRelationshipRelation{}
+							relationships := []*authorization.Relationship{}
 
 							objID, ok := m.{{ $node.ID.MutationGet }}()
 							if !ok {
@@ -56,9 +60,9 @@
 												additionalSubjects = append(additionalSubjects, {{ $f.Name }})
 
 												{{- if $annotation.AdditionalSubjectRelation }}
-												relationships = append(relationships, events.AuthRelationshipRelation{
+												relationships = append(relationships, &authorization.Relationship{
 													Relation:  "{{ $annotation.AdditionalSubjectRelation }}",
-													SubjectID: {{ $f.Name }},
+													SubjectId: {{ $f.Name }}.String(),
 												})
 												{{- end }}
 											}
@@ -66,9 +70,9 @@
 											additionalSubjects = append(additionalSubjects, {{ $f.Name }})
 
 											{{- if $annotation.AdditionalSubjectRelation }}
-											relationships = append(relationships, events.AuthRelationshipRelation{
+											relationships = append(relationships, &authorization.Relationship{
 												Relation:  "{{ $annotation.AdditionalSubjectRelation }}",
-												SubjectID: {{ $f.Name }},
+												SubjectId: {{ $f.Name }}.String(),
 											})
 											{{- end }}
 										{{- end }}
@@ -132,7 +136,7 @@
 							}
 
 						if len(relationships) != 0 && m.Op().Is(ent.OpCreate) {
-							if err := permissions.CreateAuthRelationships(ctx, "{{ $nodeAnnotation.SubjectName }}", objID, relationships...); err != nil {
+							if err := createAuthRelationships(ctx, "{{ $nodeAnnotation.SubjectName }}", objID, relationships...); err != nil {
 								return nil, fmt.Errorf("relationship request failed with error: %w", err)
 							}
 						}
@@ -151,7 +155,7 @@
 					func(next ent.Mutator) ent.Mutator {
 						return hook.{{ $node.Name }}Func(func(ctx context.Context, m *generated.{{ $node.Name }}Mutation) (ent.Value, error) {
 							additionalSubjects := []gidx.PrefixedID{}
-							relationships := []events.AuthRelationshipRelation{}
+							relationships := []*authorization.Relationship{}
 
 							objID, ok := m.{{ $node.ID.MutationGet }}()
 							if !ok {
@@ -172,9 +176,9 @@
 												additionalSubjects = append(additionalSubjects, dbObj.{{ $f.MutationGet }})
 
 												{{- if $annotation.AdditionalSubjectRelation }}
-												relationships = append(relationships, events.AuthRelationshipRelation{
+												relationships = append(relationships, &authorization.Relationship{
 													Relation:  "{{ $annotation.AdditionalSubjectRelation }}",
-													SubjectID: dbObj.{{ $f.MutationGet }},
+													SubjectId: dbObj.{{ $f.MutationGet }}.String(),
 												})
 												{{- end }}
 											}
@@ -182,9 +186,9 @@
 											additionalSubjects = append(additionalSubjects, dbObj.{{ $f.MutationGet }})
 
 											{{- if $annotation.AdditionalSubjectRelation }}
-											relationships = append(relationships, events.AuthRelationshipRelation{
+											relationships = append(relationships, &authorization.Relationship{
 												Relation:  "{{ $annotation.AdditionalSubjectRelation }}",
-												SubjectID: dbObj.{{ $f.MutationGet }},
+												SubjectId: dbObj.{{ $f.MutationGet }}.String(),
 											})
 											{{- end }}
 										{{- end }}
@@ -199,7 +203,7 @@
 							}
 
 						if len(relationships) != 0 {
-							if err := permissions.DeleteAuthRelationships(ctx, "{{ $nodeAnnotation.SubjectName }}", objID, relationships...); err != nil {
+							if err := deleteAuthRelationships(ctx, "{{ $nodeAnnotation.SubjectName }}", objID, relationships...); err != nil {
 								return nil, fmt.Errorf("relationship request failed with error: %w", err)
 							}
 						}
@@ -248,5 +252,48 @@
 		}
 	}
 
+	func createAuthRelationships(ctx context.Context, resourceType string, resourceID gidx.PrefixedID, relationships ...*authorization.Relationship) error {
+		request := &authorization.CreateRelationshipsRequest{
+			ResourceId: resourceID.String(),
+			Relationships: relationships,
+		}
+	
+		if _, err := iamruntime.ContextCreateRelationships(ctx, request); err == nil || !errors.Is(err, iamruntime.ErrRuntimeNotFound) {
+			return err
+		}
+	
+		eventRelationships := make([]events.AuthRelationshipRelation, len(request.Relationships))
+	
+		for i, rel := range request.Relationships {
+			eventRelationships[i] = events.AuthRelationshipRelation{
+				Relation:  rel.Relation,
+				SubjectID: gidx.PrefixedID(rel.SubjectId),
+			}
+		}
+	
+		return permissions.CreateAuthRelationships(ctx, resourceType, gidx.PrefixedID(request.ResourceId), eventRelationships...)
+	}
+	
+	func deleteAuthRelationships(ctx context.Context, resourceType string, resourceID gidx.PrefixedID, relationships ...*authorization.Relationship) error {
+		request := &authorization.DeleteRelationshipsRequest{
+			ResourceId: resourceID.String(),
+			Relationships: relationships,
+		}
+	
+		if _, err := iamruntime.ContextDeleteRelationships(ctx, request); err == nil || !errors.Is(err, iamruntime.ErrRuntimeNotFound) {
+			return err
+		}
+	
+		eventRelationships := make([]events.AuthRelationshipRelation, len(request.Relationships))
+	
+		for i, rel := range request.Relationships {
+			eventRelationships[i] = events.AuthRelationshipRelation{
+				Relation:  rel.Relation,
+				SubjectID: gidx.PrefixedID(rel.SubjectId),
+			}
+		}
+	
+		return permissions.DeleteAuthRelationships(ctx, resourceType, gidx.PrefixedID(request.ResourceId), eventRelationships...)
+	}
 
 {{ end }}
