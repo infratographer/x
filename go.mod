@@ -24,7 +24,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/labstack/echo-contrib v0.16.0
 	github.com/labstack/echo-jwt/v4 v4.2.0
-	github.com/labstack/echo/v4 v4.11.4
+	github.com/labstack/echo/v4 v4.12.0
 	github.com/labstack/gommon v0.4.2
 	github.com/lib/pq v1.10.9
 	github.com/nats-io/nats-server/v2 v2.10.12
@@ -172,9 +172,9 @@ require (
 	go.opentelemetry.io/proto/otlp v1.1.0 // indirect
 	go.step.sm/crypto v0.44.2
 	go.uber.org/multierr v1.11.0
-	golang.org/x/crypto v0.21.0 // indirect
-	golang.org/x/net v0.22.0 // indirect
-	golang.org/x/sys v0.18.0 // indirect
+	golang.org/x/crypto v0.22.0 // indirect
+	golang.org/x/net v0.24.0 // indirect
+	golang.org/x/sys v0.19.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	google.golang.org/grpc v1.62.1 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
