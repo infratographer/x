@@ -2,7 +2,9 @@ package events_test
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"os"
 	"testing"
 	"time"
 
@@ -192,6 +194,134 @@ func TestNATSRequestReply(t *testing.T) {
 	}
 
 	close(respGot)
+}
+func TestNATSRequestReplyMarshalling(t *testing.T) {
+	testCases := []struct {
+		name           string
+		input          events.AuthRelationshipResponse
+		expectDecoded  map[string]any
+		expectResponse events.AuthRelationshipResponse
+	}{
+		{
+			"no error",
+			events.AuthRelationshipResponse{
+				TraceID:      "some-id",
+				TraceContext: map[string]string{},
+			},
+			map[string]any{
+				"errors":       nil,
+				"spanID":       "",
+				"traceContext": map[string]any{},
+				"traceID":      "some-id",
+			},
+			events.AuthRelationshipResponse{
+				TraceID:      "some-id",
+				TraceContext: map[string]string{},
+			},
+		},
+		{
+			"with errors",
+			events.AuthRelationshipResponse{
+				TraceID:      "some-id",
+				TraceContext: map[string]string{},
+				Errors: []error{
+					os.ErrInvalid,
+				},
+			},
+			map[string]any{
+				"errors": []any{
+					os.ErrInvalid.Error(),
+				},
+				"spanID":       "",
+				"traceContext": map[string]any{},
+				"traceID":      "some-id",
+			},
+			events.AuthRelationshipResponse{
+				TraceID:      "some-id",
+				TraceContext: map[string]string{},
+				Errors: []error{
+					errors.New(os.ErrInvalid.Error()), //nolint:goerr113 // ensure equals same error with text
+				},
+			},
+		},
+		{
+			"nil errors skipped",
+			events.AuthRelationshipResponse{
+				TraceID:      "some-id",
+				TraceContext: map[string]string{},
+				Errors: []error{
+					os.ErrInvalid,
+					nil,
+					os.ErrExist,
+					nil,
+				},
+			},
+			map[string]any{
+				"errors": []any{
+					os.ErrInvalid.Error(),
+					os.ErrExist.Error(),
+				},
+				"spanID":       "",
+				"traceContext": map[string]any{},
+				"traceID":      "some-id",
+			},
+			events.AuthRelationshipResponse{
+				TraceID:      "some-id",
+				TraceContext: map[string]string{},
+				Errors: []error{
+					errors.New(os.ErrInvalid.Error()), //nolint:goerr113 // ensure equals same error with text
+					errors.New(os.ErrExist.Error()),   //nolint:goerr113 // ensure equals same error with text
+				},
+			},
+		},
+		{
+			"all nil errors skipped",
+			events.AuthRelationshipResponse{
+				TraceID:      "some-id",
+				TraceContext: map[string]string{},
+				Errors: []error{
+					nil,
+					nil,
+				},
+			},
+			map[string]any{
+				"errors":       nil,
+				"spanID":       "",
+				"traceContext": map[string]any{},
+				"traceID":      "some-id",
+			},
+			events.AuthRelationshipResponse{
+				TraceID:      "some-id",
+				TraceContext: map[string]string{},
+				Errors:       nil,
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+
+		t.Run(tc.name, func(t *testing.T) {
+			encoded, err := json.Marshal(tc.input)
+			require.NoError(t, err, "unexpected error marshalling input")
+
+			decoded := map[string]any{}
+
+			err = json.Unmarshal(encoded, &decoded)
+			require.NoError(t, err, "unexpected error unmarshalling encoded input into map")
+
+			assert.Equal(t, tc.expectDecoded, decoded, "unexpected encoded response")
+
+			var response events.AuthRelationshipResponse
+
+			err = json.Unmarshal(encoded, &response)
+			require.NoError(t, err, "unexpected error unmarshalling encoded input into response")
+
+			assert.Equal(t, tc.expectResponse, response, "unexpected response")
+
+			assert.Equal(t, len(tc.expectResponse.Errors), len(response.Errors), "unexpected response error count")
+		})
+	}
 }
 
 func getSingleMessage[T any](messages <-chan events.Message[T], timeout time.Duration) (events.Message[T], error) {

@@ -18,7 +18,9 @@ package events
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"go.opentelemetry.io/otel"
@@ -303,11 +305,73 @@ func (r AuthRelationshipRelation) Validate() error {
 	return err
 }
 
+// Errors contains one or more errors and handles marshalling the errors.
+// See [Errors.MarshalJSON] and [Errors.UnmarshalJSON] for details on how marshalling is done.
+type Errors []error
+
+// MarshalJSON encodes a string of arrays with each errors Error string.
+// Entries which are nil are skipped.
+// If no non nil errors are provided, null is returned.
+func (e Errors) MarshalJSON() ([]byte, error) {
+	errs := make([]string, 0, len(e))
+
+	for _, err := range e {
+		if err != nil {
+			errs = append(errs, err.Error())
+		}
+	}
+
+	if len(errs) == 0 {
+		return []byte("null"), nil
+	}
+
+	return json.Marshal(errs)
+}
+
+// UnmarshalJSON converts a list of string errors into new errors.
+// All errors unmarshalled are new errors and cannot be compared directly to another error.
+// Errors should be checked using string comparison.
+func (e *Errors) UnmarshalJSON(b []byte) error {
+	var errs []string
+
+	if err := json.Unmarshal(b, &errs); err != nil {
+		return err
+	}
+
+	if len(errs) == 0 {
+		*e = nil
+
+		return nil
+	}
+
+	*e = make(Errors, len(errs))
+
+	for i, err := range errs {
+		(*e)[i] = errors.New(err) //nolint:goerr113 // errors are dynamically returned
+	}
+
+	return nil
+}
+
+// Error returns each error on a new line.
+// Nil error are not included.
+func (e Errors) Error() string {
+	errs := make([]string, 0, len(e))
+
+	for _, err := range e {
+		if err != nil {
+			errs = append(errs, err.Error())
+		}
+	}
+
+	return strings.Join(errs, "\n")
+}
+
 // AuthRelationshipResponse contains the data structure expected to be received from an AuthRelationshipRequest
 // message to write or delete an auth relationship from PermissionsAPI
 type AuthRelationshipResponse struct {
 	// Errors contains any errors, if empty the request was successful
-	Errors []error `json:"errors"`
+	Errors Errors `json:"errors"`
 	// TraceContext is a map of values used for OpenTelemetry context propagation.
 	TraceContext map[string]string `json:"traceContext"`
 	// TraceID is the ID of the trace for this event
