@@ -27,3 +27,6 @@ versionx/ @infratographer/sig-bootstrap
 viperx/ @infratographer/sig-bootstrap
 zapx/ @infratographer/sig-bootstrap
 testing/containersx @infratographer/sig-bootstrap
+
+go.mod @infratographer/sig-bootstrap @infratographer/identity_maintainers @infratographer/sig-events
+go.sum @infratographer/sig-bootstrap @infratographer/identity_maintainers @infratographer/sig-events
