@@ -11,7 +11,7 @@ require (
 	github.com/MicahParks/jwkset v0.5.17
 	github.com/MicahParks/keyfunc/v3 v3.3.2
 	github.com/XSAM/otelsql v0.32.0
-	github.com/brianvoe/gofakeit/v7 v7.0.2
+	github.com/brianvoe/gofakeit/v7 v7.0.4
 	github.com/cockroachdb/cockroach-go/v2 v2.3.7
 	github.com/docker/go-connections v0.5.0
 	github.com/gin-contrib/requestid v1.0.0
