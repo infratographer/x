@@ -51,3 +51,7 @@ issues:
     - EXC0013
     - EXC0014
     - EXC0015
+  exclude:
+    # otelecho will be deprecated on August 21, 2024 unless an owner is found to maintain the package.
+    # https://github.com/open-telemetry/opentelemetry-go-contrib/issues/5550
+    - 'SA1019: "go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho" is deprecated.*'
