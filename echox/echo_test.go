@@ -282,8 +282,8 @@ func TestHandler(t *testing.T) {
 				routes = append(routes, route.Path)
 			}
 
-			assert.Contains(t, routes, "baseline", "expected baseline to exist in route list")
-			assert.Contains(t, routes, tc.path, "expected %s to exist in route list", tc.path)
+			assert.Contains(t, routes, "/baseline", "expected baseline to exist in route list")
+			assert.Contains(t, routes, "/"+strings.TrimLeft(tc.path, "/"), "expected /%s to exist in route list", tc.path)
 
 			w := httptest.NewRecorder()
 
