@@ -86,12 +86,11 @@ func NewPostgresDB(ctx context.Context, img string, opts ...testcontainers.Conta
 	}
 
 	opts = append(opts,
-		testcontainers.WithImage(fmt.Sprintf("%s:%s", image, imageTag)),
 		testcontainers.WithWaitStrategy(wait.ForSQL(nat.Port("5432"), "postgres", uriFunc)),
 		postgres.WithPassword("postgres"),
 	)
 
-	container, err := postgres.RunContainer(ctx, opts...)
+	container, err := postgres.Run(ctx, fmt.Sprintf("%s:%s", image, imageTag), opts...)
 	if err != nil {
 		return nil, err
 	}
