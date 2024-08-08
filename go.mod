@@ -6,7 +6,7 @@ toolchain go1.22.6
 
 require (
 	entgo.io/contrib v0.4.5
-	entgo.io/ent v0.13.1
+	entgo.io/ent v0.14.0
 	github.com/99designs/gqlgen v0.17.49
 	github.com/MicahParks/jwkset v0.5.18
 	github.com/MicahParks/keyfunc/v3 v3.3.3
