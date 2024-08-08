@@ -12,7 +12,7 @@ require (
 	github.com/MicahParks/keyfunc/v3 v3.3.2
 	github.com/XSAM/otelsql v0.32.0
 	github.com/brianvoe/gofakeit/v7 v7.0.4
-	github.com/cockroachdb/cockroach-go/v2 v2.3.7
+	github.com/cockroachdb/cockroach-go/v2 v2.3.8
 	github.com/docker/go-connections v0.5.0
 	github.com/gin-contrib/requestid v1.0.2
 	github.com/gin-contrib/zap v1.1.1
@@ -147,7 +147,7 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
-	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
+	github.com/jackc/pgservicefile v0.0.0-20231201235250-de7065d80cb9 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/leodido/go-urn v1.4.0 // indirect
