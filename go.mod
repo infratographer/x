@@ -50,7 +50,7 @@ require (
 	go.uber.org/goleak v1.3.0
 	go.uber.org/zap v1.27.0
 	golang.org/x/exp v0.0.0-20240808152545-0cdaa3abc0fa
-	golang.org/x/oauth2 v0.21.0
+	golang.org/x/oauth2 v0.22.0
 )
 
 require (
