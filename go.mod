@@ -1,12 +1,12 @@
 module go.infratographer.com/x
 
-go 1.22.5
+go 1.23.0
 
-toolchain go1.22.6
+toolchain go1.23.1
 
 require (
 	entgo.io/contrib v0.6.0
-	entgo.io/ent v0.14.0
+	entgo.io/ent v0.14.1
 	github.com/99designs/gqlgen v0.17.49
 	github.com/MicahParks/jwkset v0.5.18
 	github.com/MicahParks/keyfunc/v3 v3.3.3
