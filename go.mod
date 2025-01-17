@@ -12,7 +12,6 @@ require (
 	github.com/MicahParks/keyfunc/v3 v3.3.10
 	github.com/XSAM/otelsql v0.36.0
 	github.com/brianvoe/gofakeit/v7 v7.1.2
-	github.com/cenkalti/backoff/v4 v4.3.0
 	github.com/cockroachdb/cockroach-go/v2 v2.3.8
 	github.com/docker/go-connections v0.5.0
 	github.com/gin-contrib/requestid v1.0.4
@@ -66,6 +65,7 @@ require (
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/bytedance/sonic v1.12.6 // indirect
 	github.com/bytedance/sonic/loader v0.2.1 // indirect
+	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/containerd/containerd v1.7.18 // indirect
