@@ -162,7 +162,7 @@ func (a *Auth) setup(ctx context.Context, config AuthConfig, options ...Opts) er
 			a.HTTPClientStorageOptions.HTTPTimeout = DefaultHTTPClientStorageOptionHTTPTimeout
 		}
 
-		storage, err := jwkset.NewStorageFromHTTP(jwksURI, a.HTTPClientStorageOptions)
+		storage, err := jwkset.NewStorageFromHTTP(jwksURI.String(), a.HTTPClientStorageOptions)
 		if err != nil {
 			return err
 		}
