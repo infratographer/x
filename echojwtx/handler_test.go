@@ -62,7 +62,7 @@ func TestNoAuth(t *testing.T) {
 
 	require.NoError(t, err, "expected response without error")
 
-	assert.Equal(t, http.StatusUnauthorized, resp.StatusCode, "expected 401 response from test server")
+	assert.Equal(t, http.StatusBadRequest, resp.StatusCode, "expected 400 response from test server")
 }
 
 func TestAudienceValidation(t *testing.T) {
