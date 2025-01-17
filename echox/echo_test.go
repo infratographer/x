@@ -16,7 +16,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cenkalti/backoff/v4"
+	"github.com/cenkalti/backoff/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -28,8 +28,8 @@ import (
 )
 
 const (
-	maxRetries      = 10
-	backoffDuration = 5 * time.Millisecond
+	maxRetries      uint = 10
+	backoffDuration      = 5 * time.Millisecond
 )
 
 type testRoute struct {
@@ -82,27 +82,28 @@ func testServer(t *testing.T, config Config, preRun func(srv *Server)) (*Server,
 func waitForServer(t *testing.T, testURL string) {
 	t.Helper()
 
-	err := backoff.Retry(
-		func() error {
+	_, err := backoff.Retry(context.Background(),
+		func() (struct{}, error) {
 			req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, testURL, nil)
 			if err != nil {
-				return err
+				return struct{}{}, err
 			}
 
 			resp, err := http.DefaultClient.Do(req)
 			if err != nil {
-				return err
+				return struct{}{}, err
 			}
 
 			defer resp.Body.Close() //nolint:errcheck // no need to check error in test
 
 			if resp.StatusCode != http.StatusOK {
-				return fmt.Errorf("unexpected status code: %d", resp.StatusCode) //nolint:err113 // this is fine for a test
+				return struct{}{}, fmt.Errorf("unexpected status code: %d", resp.StatusCode) //nolint:err113 // this is fine for a test
 			}
 
-			return nil
+			return struct{}{}, nil
 		},
-		backoff.WithMaxRetries(backoff.NewConstantBackOff(backoffDuration), maxRetries),
+		backoff.WithBackOff(backoff.NewConstantBackOff(backoffDuration)),
+		backoff.WithMaxTries(maxRetries),
 	)
 
 	require.NoError(t, err, "error waiting for server to be ready")
