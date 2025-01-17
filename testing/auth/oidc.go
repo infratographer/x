@@ -90,7 +90,7 @@ func testHelperOIDCProvider(keyIDs ...string) (string, func()) {
 
 	e.GET("/.well-known/openid-configuration", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, echo.Map{
-			"jwks_uri": fmt.Sprintf(issuer + "/.well-known/jwks.json"),
+			"jwks_uri": issuer + "/.well-known/jwks.json",
 		})
 	})
 

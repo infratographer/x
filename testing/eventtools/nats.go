@@ -152,7 +152,7 @@ func NewNatsServer() (*TestNats, error) {
 	}
 
 	if !s.ReadyForConnections(natsTimeout) {
-		return nil, errors.New("starting nats server: timeout") //nolint:goerr113
+		return nil, errors.New("starting nats server: timeout") //nolint:err113
 	}
 
 	nc, err := nats.Connect(s.ClientURL())

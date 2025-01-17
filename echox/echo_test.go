@@ -97,7 +97,7 @@ func waitForServer(t *testing.T, testURL string) {
 			defer resp.Body.Close() //nolint:errcheck // no need to check error in test
 
 			if resp.StatusCode != http.StatusOK {
-				return fmt.Errorf("unexpected status code: %d", resp.StatusCode) //nolint:goerr113 // this is fine for a test
+				return fmt.Errorf("unexpected status code: %d", resp.StatusCode) //nolint:err113 // this is fine for a test
 			}
 
 			return nil

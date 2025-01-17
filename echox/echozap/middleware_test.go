@@ -34,7 +34,7 @@ func TestToMiddleware(t *testing.T) {
 				return err
 			}
 
-			return fmt.Errorf("%v", iErr) //nolint:goerr113 // fine for tests
+			return fmt.Errorf("%v", iErr) //nolint:err113 // fine for tests
 		}
 	}
 
@@ -108,7 +108,7 @@ func TestToMiddleware(t *testing.T) {
 			"/test",
 			false,
 			false,
-			returnError(errors.New("test error")), //nolint:goerr113 // fine for tests
+			returnError(errors.New("test error")), //nolint:err113 // fine for tests
 			map[string]interface{}{
 				"status":         int64(http.StatusInternalServerError),
 				"method":         http.MethodGet,
@@ -129,7 +129,7 @@ func TestToMiddleware(t *testing.T) {
 			"/test",
 			false,
 			false,
-			returnError(errors.New("test error")), //nolint:goerr113 // fine for tests
+			returnError(errors.New("test error")), //nolint:err113 // fine for tests
 			map[string]interface{}{
 				"status":         int64(http.StatusInternalServerError),
 				"method":         http.MethodGet,
@@ -175,7 +175,7 @@ func TestToMiddleware(t *testing.T) {
 				echo.NewHTTPError(
 					http.StatusForbidden,
 					"http error",
-				).WithInternal(errors.New("internal error")), //nolint:goerr113 // fine for tests
+				).WithInternal(errors.New("internal error")), //nolint:err113 // fine for tests
 			),
 			map[string]interface{}{
 				"status":         int64(http.StatusForbidden),

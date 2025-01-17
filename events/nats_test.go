@@ -240,7 +240,7 @@ func TestNATSRequestReplyMarshalling(t *testing.T) {
 				TraceID:      "some-id",
 				TraceContext: map[string]string{},
 				Errors: []error{
-					errors.New(os.ErrInvalid.Error()), //nolint:goerr113 // ensure equals same error with text
+					errors.New(os.ErrInvalid.Error()), //nolint:err113 // ensure equals same error with text
 				},
 			},
 		},
@@ -269,8 +269,8 @@ func TestNATSRequestReplyMarshalling(t *testing.T) {
 				TraceID:      "some-id",
 				TraceContext: map[string]string{},
 				Errors: []error{
-					errors.New(os.ErrInvalid.Error()), //nolint:goerr113 // ensure equals same error with text
-					errors.New(os.ErrExist.Error()),   //nolint:goerr113 // ensure equals same error with text
+					errors.New(os.ErrInvalid.Error()), //nolint:err113 // ensure equals same error with text
+					errors.New(os.ErrExist.Error()),   //nolint:err113 // ensure equals same error with text
 				},
 			},
 		},

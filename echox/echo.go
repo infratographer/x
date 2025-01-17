@@ -228,7 +228,7 @@ func (s *Server) ServeWithContext(ctx context.Context, listener net.Listener) er
 
 	var (
 		exit = make(chan error, 1)
-		quit = make(chan os.Signal, 2) //nolint:gomnd
+		quit = make(chan os.Signal, 2) //nolint:mnd
 	)
 
 	// Serve in a go routine.
