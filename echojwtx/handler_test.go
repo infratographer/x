@@ -32,20 +32,11 @@ func TestNoAuth(t *testing.T) {
 
 	require.NoError(t, err, "no error expected for NewAuth")
 
-	gotUserTokenCh := make(chan *jwt.Token, 1)
-	gotActorCh := make(chan string, 1)
-
 	e := echo.New()
 
 	e.Use(auth.Middleware())
 
-	e.GET("/test", func(c echo.Context) error {
-		token, _ := c.Get("user").(*jwt.Token)
-		actor, _ := c.Get(echojwtx.ActorKey).(string)
-
-		gotUserTokenCh <- token
-		gotActorCh <- actor
-
+	e.GET("/test", func(_ echo.Context) error {
 		return nil
 	})
 
