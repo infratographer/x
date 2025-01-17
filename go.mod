@@ -29,7 +29,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/nats-io/nats-server/v2 v2.10.24
 	github.com/nats-io/nats.go v1.38.0
-	github.com/pressly/goose/v3 v3.21.1
+	github.com/pressly/goose/v3 v3.24.1
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.19.0
@@ -109,7 +109,7 @@ require (
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
-	github.com/sethvargo/go-retry v0.2.4 // indirect
+	github.com/sethvargo/go-retry v0.3.0 // indirect
 	github.com/shirou/gopsutil/v3 v3.23.12 // indirect
 	github.com/shoenig/go-m1cpu v0.1.6 // indirect
 	github.com/sosodev/duration v1.3.1 // indirect
