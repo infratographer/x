@@ -1,6 +1,6 @@
 # These owners will be the default owners for everything in
 # the repo. Unless a later match takes precedence
-* @nicolerenee @sfunkhouser
+* @infratographer/the_committee
 
 # All events related packages will be owned by sig-events
 events/ @infratographer/sig-events
