@@ -347,7 +347,7 @@ func (e *Errors) UnmarshalJSON(b []byte) error {
 	*e = make(Errors, len(errs))
 
 	for i, err := range errs {
-		(*e)[i] = errors.New(err) //nolint:goerr113 // errors are dynamically returned
+		(*e)[i] = errors.New(err) //nolint:err113 // errors are dynamically returned
 	}
 
 	return nil

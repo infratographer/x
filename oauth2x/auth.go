@@ -21,7 +21,7 @@ import (
 
 var (
 	tokenEndpointClient = &http.Client{
-		Timeout:   5 * time.Second, // nolint:gomnd // clear and unexported
+		Timeout:   5 * time.Second, // nolint:mnd // clear and unexported
 		Transport: otelhttp.NewTransport(http.DefaultTransport),
 	}
 

@@ -24,7 +24,7 @@ import (
 
 // Skipping err113 linting since these errors are returned during generation and not runtime
 //
-//nolint:goerr113
+//nolint:err113
 var (
 	removeNodeGoModel = func(_ *gen.Graph, s *ast.Schema) error {
 		n, ok := s.Types["Node"]

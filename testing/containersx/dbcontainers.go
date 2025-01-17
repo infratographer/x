@@ -37,7 +37,7 @@ func NewCockroachDB(ctx context.Context, img string) (*DBContainer, error) {
 	imageTag := "latest"
 
 	if strings.Contains(img, ":") {
-		p := strings.SplitN(img, ":", 2) //nolint:gomnd
+		p := strings.SplitN(img, ":", 2) //nolint:mnd
 		imageTag = p[1]
 	}
 
@@ -77,7 +77,7 @@ func NewPostgresDB(ctx context.Context, img string, opts ...testcontainers.Conta
 	imageTag := "alpine"
 
 	if strings.Contains(img, ":") {
-		p := strings.SplitN(img, ":", 2) //nolint:gomnd
+		p := strings.SplitN(img, ":", 2) //nolint:mnd
 		imageTag = p[1]
 	}
 
