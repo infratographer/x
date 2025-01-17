@@ -8,8 +8,8 @@ require (
 	entgo.io/contrib v0.6.0
 	entgo.io/ent v0.14.0
 	github.com/99designs/gqlgen v0.17.63
-	github.com/MicahParks/jwkset v0.6.0
-	github.com/MicahParks/keyfunc/v3 v3.3.3
+	github.com/MicahParks/jwkset v0.8.0
+	github.com/MicahParks/keyfunc/v3 v3.3.10
 	github.com/XSAM/otelsql v0.36.0
 	github.com/brianvoe/gofakeit/v7 v7.0.4
 	github.com/cockroachdb/cockroach-go/v2 v2.3.8
