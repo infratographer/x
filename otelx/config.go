@@ -35,13 +35,6 @@ type Config struct {
 		PrettyPrint       bool `mapstructure:"pretty_print"`
 		DisableTimestamps bool `mapstructure:"disable_timestamps"`
 	}
-	Jaeger struct {
-		AgentHost string `mapstructure:"agent_host"`
-		AgentPort string `mapstructure:"agent_port"`
-		Endpoint  string `mapstructure:"endpoint"`
-		User      string `mapstructure:"user"`
-		Password  string `mapstructure:"password"`
-	}
 	OTLP struct {
 		Endpoint    string        `mapstructure:"endpoint"`
 		Insecure    bool          `mapstructure:"insecure"`
@@ -61,14 +54,11 @@ func MustViperFlags(v *viper.Viper, flags *pflag.FlagSet) {
 	viperx.MustBindFlag(v, "tracing.provider", flags.Lookup("tracing-provider"))
 	flags.String("tracing-environment", "production", "environment value in traces")
 	viperx.MustBindFlag(v, "tracing.environment", flags.Lookup("tracing-environment"))
+	flags.String("tracing-otlp-endpoint", "", "OTLP exporter endpoint")
+	viperx.MustBindFlag(v, "tracing.otlp.endpoint", flags.Lookup("tracing-otlp-endpoint"))
 
 	v.MustBindEnv("tracing.stdout.pretty_print")
 	v.MustBindEnv("tracing.stdout.disable_timestamps")
-	v.MustBindEnv("tracing.jaeger.agent_host")
-	v.MustBindEnv("tracing.jaeger.agent_port")
-	v.MustBindEnv("tracing.jaeger.endpoint")
-	v.MustBindEnv("tracing.jaeger.user")
-	v.MustBindEnv("tracing.jaeger.password")
 	v.MustBindEnv("tracing.otlp.endpoint")
 	v.MustBindEnv("tracing.otlp.insecure")
 	v.MustBindEnv("tracing.otlp.certificate")

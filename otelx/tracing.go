@@ -22,8 +22,6 @@ import (
 	"time"
 
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/exporters/jaeger" // nolint:staticcheck
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
@@ -31,7 +29,7 @@ import (
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.27.0"
 	"go.uber.org/zap"
 )
 
@@ -46,20 +44,6 @@ const (
 	//      tracing.stdout.pretty_print          TRACING_STDOUT_PRETTY_PRINT            enable pretty printing the trace output
 	//      tracing.stdout.disable_timestamps    TRACING_STDOUT_DISABLE_TIMESTAMPS      disable timestamps in the trace output
 	ExporterStdout TraceExporter = "stdout"
-
-	// ExporterJaeger is for a jaeger exporter capable of connecting to a trace api
-	// endpoint as well as using the jaeger agent. You MUST specific either an
-	// endpoint or an agent host and port. When connecting with an endpoint you
-	// may optionally provide a user and password.
-	//
-	//  Settings for agent connections:
-	//      tracing.jaeger.agent_host    TRACING_JAEGER_AGENT_HOST        host for jaeger agent connection
-	//      tracing.jaeger.agent_port    TRACING_JAEGER_AGENT_PORT        port for jaeger agent connection
-	//  Settings for endpoint connections:
-	//      tracing.jaeger.endpoint      TRACING_JAEGER_AGENT_ENDPOINT    url for jaeger endpoint
-	//      tracing.jaeger.user          TRACING_JAEGER_AGENT_USER        user for jaeger endpoint
-	//      tracing.jaeger.password      TRACING_JAEGER_AGENT_PASSWORD    password for jaeger endpoint
-	ExporterJaeger TraceExporter = "jaeger"
 
 	// ExporterOTLPHTTP is for a OTLP exporter capable of connecting over secure or
 	// insecure HTTP.
@@ -120,14 +104,25 @@ func InitTracer(tc Config, appName string, _ *zap.SugaredLogger) error {
 		return err
 	}
 
+	r, err := resource.Merge(
+		resource.Default(),
+		resource.NewSchemaless(
+			semconv.ServiceName(appName),
+			semconv.DeploymentEnvironmentName(tc.Environment),
+		),
+	)
+
+	if err != nil {
+		return &ConfigError{
+			Message: "could not construct otel resource",
+			Err:     err,
+		}
+	}
+
 	opts := []sdktrace.TracerProviderOption{
 		sdktrace.WithSampler(sdktrace.AlwaysSample()),
 		// Record information about this application in a resource.
-		sdktrace.WithResource(resource.NewWithAttributes(
-			semconv.SchemaURL,
-			semconv.ServiceNameKey.String(appName),
-			attribute.String("environment", tc.Environment),
-		)),
+		sdktrace.WithResource(r),
 	}
 
 	// exporter could be nil if we are in "passthrough" mode, but we still want
@@ -147,11 +142,9 @@ func newExporter(tc Config) (sdktrace.SpanExporter, error) {
 	switch tc.Provider {
 	case ExporterStdout:
 		return newStdoutExporter(tc)
-	case ExporterJaeger:
-		return newJaegerExporter(tc)
-	case ExporterOTLPHTTP:
-		return newOTLPGRPCExporter(tc)
 	case ExporterOTLPGRPC:
+		return newOTLPGRPCExporter(tc)
+	case ExporterOTLPHTTP:
 		return newOTLPHTTPExporter(tc)
 	case ExporterPassthrough:
 		// in the case of passthrough we don't want to configure an exporter but we still want all the rest of the setup
@@ -175,41 +168,14 @@ func newStdoutExporter(tc Config) (sdktrace.SpanExporter, error) {
 	return stdouttrace.New(opts...)
 }
 
-func newJaegerExporter(tc Config) (sdktrace.SpanExporter, error) {
-	switch {
-	case tc.Jaeger.AgentHost != "" && tc.Jaeger.AgentPort != "":
-		return jaeger.New(jaeger.WithAgentEndpoint(
-			jaeger.WithAgentHost(tc.Jaeger.AgentHost),
-			jaeger.WithAgentPort(tc.Jaeger.AgentPort),
-		))
-	case tc.Jaeger.Endpoint != "":
-		opts := []jaeger.CollectorEndpointOption{
-			jaeger.WithEndpoint(tc.Jaeger.Endpoint),
-		}
-
-		if tc.Jaeger.User != "" {
-			opts = append(opts, jaeger.WithUsername(tc.Jaeger.User))
-		}
-
-		if tc.Jaeger.Password != "" {
-			opts = append(opts, jaeger.WithPassword(tc.Jaeger.Password))
-		}
-
-		return jaeger.New(jaeger.WithCollectorEndpoint(opts...))
-	default:
-		return nil, &ConfigError{Message: "missing jaeger config options; you must pass an endpoint or agent host and port"}
-	}
-}
-
-func newOTLPGRPCExporter(tc Config) (sdktrace.SpanExporter, error) {
-	_, err := url.Parse(tc.OTLP.Endpoint)
-	if err != nil {
-		return nil, &ConfigError{Message: "missing OTLP config options; you must pass a valid endpoint", Err: err}
-	}
-
+func newOTLPHTTPExporter(tc Config) (sdktrace.SpanExporter, error) {
 	opts := []otlptracehttp.Option{
-		otlptracehttp.WithEndpoint(tc.OTLP.Endpoint),
 		otlptracehttp.WithTimeout(tc.OTLP.Timeout),
+	}
+
+	if _, err := url.Parse(tc.OTLP.Endpoint); err == nil && tc.OTLP.Endpoint != "" {
+		// NOTE: if a valid URL is not passed, it will fallback to the env vars defined by the otel SDK
+		opts = append(opts, otlptracehttp.WithEndpointURL(tc.OTLP.Endpoint))
 	}
 
 	if tc.OTLP.Insecure {
@@ -219,15 +185,14 @@ func newOTLPGRPCExporter(tc Config) (sdktrace.SpanExporter, error) {
 	return otlptrace.New(context.Background(), otlptracehttp.NewClient(opts...))
 }
 
-func newOTLPHTTPExporter(tc Config) (sdktrace.SpanExporter, error) {
-	_, err := url.Parse(tc.OTLP.Endpoint)
-	if err != nil {
-		return nil, &ConfigError{Message: "missing OTLP config options; you must pass a valid endpoint", Err: err}
+func newOTLPGRPCExporter(tc Config) (sdktrace.SpanExporter, error) {
+	opts := []otlptracegrpc.Option{
+		otlptracegrpc.WithTimeout(tc.OTLP.Timeout),
 	}
 
-	opts := []otlptracegrpc.Option{
-		otlptracegrpc.WithEndpoint(tc.OTLP.Endpoint),
-		otlptracegrpc.WithTimeout(tc.OTLP.Timeout),
+	if _, err := url.Parse(tc.OTLP.Endpoint); err == nil && tc.OTLP.Endpoint != "" {
+		// NOTE: if a valid URL is not passed, it will fallback to the env vars defined by the otel SDK
+		opts = append(opts, otlptracegrpc.WithEndpointURL(tc.OTLP.Endpoint))
 	}
 
 	if tc.OTLP.Insecure {
