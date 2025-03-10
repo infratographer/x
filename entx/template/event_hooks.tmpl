@@ -162,39 +162,41 @@
 								return nil, fmt.Errorf("object doesn't have an id %s", objID)
 							}
 
-							dbObj, err := m.Client().{{ $node.Name }}.Get(ctx, objID)
-							if err != nil {
-								return nil, fmt.Errorf("failed to load object to get values for event, err %w", err)
-							}
+                            {{- if hasNonSensitiveAdditionalSubjects $node }}
+    							dbObj, err := m.Client().{{ $node.Name }}.Get(ctx, objID)
+    							if err != nil {
+    								return nil, fmt.Errorf("failed to load object to get values for event, err %w", err)
+    							}
 
-							{{- range $f := $node.Fields }}
-								{{- if not $f.Sensitive }}
-									{{- $annotation := $f.Annotations.INFRA9_EVENTHOOKS }}
-									{{- if or $annotation.AdditionalSubjectRelation $annotation.IsAdditionalSubjectField }}
-										{{- if $f.Optional }}
-											if dbObj.{{ $f.MutationGet }} != gidx.NullPrefixedID {
-												additionalSubjects = append(additionalSubjects, dbObj.{{ $f.MutationGet }})
+    							{{- range $f := $node.Fields }}
+    								{{- if not $f.Sensitive }}
+    									{{- $annotation := $f.Annotations.INFRA9_EVENTHOOKS }}
+    									{{- if or $annotation.AdditionalSubjectRelation $annotation.IsAdditionalSubjectField }}
+    										{{- if $f.Optional }}
+    											if dbObj.{{ $f.MutationGet }} != gidx.NullPrefixedID {
+    												additionalSubjects = append(additionalSubjects, dbObj.{{ $f.MutationGet }})
 
-												{{- if $annotation.AdditionalSubjectRelation }}
-												relationships = append(relationships, &authorization.Relationship{
-													Relation:  "{{ $annotation.AdditionalSubjectRelation }}",
-													SubjectId: dbObj.{{ $f.MutationGet }}.String(),
-												})
-												{{- end }}
-											}
-										{{- else }}
-											additionalSubjects = append(additionalSubjects, dbObj.{{ $f.MutationGet }})
+    												{{- if $annotation.AdditionalSubjectRelation }}
+    												relationships = append(relationships, &authorization.Relationship{
+    													Relation:  "{{ $annotation.AdditionalSubjectRelation }}",
+    													SubjectId: dbObj.{{ $f.MutationGet }}.String(),
+    												})
+    												{{- end }}
+    											}
+    										{{- else }}
+    											additionalSubjects = append(additionalSubjects, dbObj.{{ $f.MutationGet }})
 
-											{{- if $annotation.AdditionalSubjectRelation }}
-											relationships = append(relationships, &authorization.Relationship{
-												Relation:  "{{ $annotation.AdditionalSubjectRelation }}",
-												SubjectId: dbObj.{{ $f.MutationGet }}.String(),
-											})
-											{{- end }}
-										{{- end }}
-									{{ end }}
-								{{ end }}
-							{{ end }}
+    											{{- if $annotation.AdditionalSubjectRelation }}
+    											relationships = append(relationships, &authorization.Relationship{
+    												Relation:  "{{ $annotation.AdditionalSubjectRelation }}",
+    												SubjectId: dbObj.{{ $f.MutationGet }}.String(),
+    											})
+    											{{- end }}
+    										{{- end }}
+    									{{ end }}
+    								{{ end }}
+    							{{ end }}
+                            {{ end }}
 
 						// we have all the info we need, now complete the mutation before we process the event
 							retValue, err := next.Mutate(ctx, m)
@@ -257,42 +259,42 @@
 			ResourceId: resourceID.String(),
 			Relationships: relationships,
 		}
-	
+
 		if _, err := iamruntime.ContextCreateRelationships(ctx, request); err == nil || !errors.Is(err, iamruntime.ErrRuntimeNotFound) {
 			return err
 		}
-	
+
 		eventRelationships := make([]events.AuthRelationshipRelation, len(request.Relationships))
-	
+
 		for i, rel := range request.Relationships {
 			eventRelationships[i] = events.AuthRelationshipRelation{
 				Relation:  rel.Relation,
 				SubjectID: gidx.PrefixedID(rel.SubjectId),
 			}
 		}
-	
+
 		return permissions.CreateAuthRelationships(ctx, resourceType, gidx.PrefixedID(request.ResourceId), eventRelationships...)
 	}
-	
+
 	func deleteAuthRelationships(ctx context.Context, resourceType string, resourceID gidx.PrefixedID, relationships ...*authorization.Relationship) error {
 		request := &authorization.DeleteRelationshipsRequest{
 			ResourceId: resourceID.String(),
 			Relationships: relationships,
 		}
-	
+
 		if _, err := iamruntime.ContextDeleteRelationships(ctx, request); err == nil || !errors.Is(err, iamruntime.ErrRuntimeNotFound) {
 			return err
 		}
-	
+
 		eventRelationships := make([]events.AuthRelationshipRelation, len(request.Relationships))
-	
+
 		for i, rel := range request.Relationships {
 			eventRelationships[i] = events.AuthRelationshipRelation{
 				Relation:  rel.Relation,
 				SubjectID: gidx.PrefixedID(rel.SubjectId),
 			}
 		}
-	
+
 		return permissions.DeleteAuthRelationships(ctx, resourceType, gidx.PrefixedID(request.ResourceId), eventRelationships...)
 	}
 

@@ -20,6 +20,7 @@ import (
 	"text/template"
 
 	"entgo.io/ent/entc/gen"
+	"github.com/mitchellh/mapstructure"
 )
 
 var (
@@ -31,7 +32,8 @@ var (
 
 	// TemplateFuncs contains the extra template functions used by entx.
 	TemplateFuncs = template.FuncMap{
-		"contains": strings.Contains,
+		"contains":                          strings.Contains,
+		"hasNonSensitiveAdditionalSubjects": hasNonSensitiveAdditionalSubjects,
 	}
 
 	//go:embed template/*
@@ -42,4 +44,21 @@ func parseT(path string) *gen.Template {
 	return gen.MustParse(gen.NewTemplate(path).
 		Funcs(TemplateFuncs).
 		ParseFS(_templates, path))
+}
+
+func hasNonSensitiveAdditionalSubjects(node *gen.Type) bool {
+	for _, f := range node.Fields {
+		if !f.Sensitive() {
+			if ann0, ok := f.Annotations[EventsHookAnnotationName]; ok {
+				ann := EventsHookAnnotation{}
+				if err := mapstructure.Decode(ann0, &ann); err == nil {
+					if ann.IsAdditionalSubjectField || ann.AdditionalSubjectRelation != "" {
+						return true
+					}
+				}
+			}
+		}
+	}
+
+	return false
 }
