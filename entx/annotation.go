@@ -14,6 +14,10 @@
 
 package entx
 
+import (
+	"entgo.io/ent/schema"
+)
+
 // EventsHookAnnotationName is the value of the annotation when read during ent compilation
 var EventsHookAnnotationName = "INFRA9_EVENTHOOKS"
 
@@ -50,3 +54,5 @@ func EventsHookSubjectName(s string) *EventsHookAnnotation {
 		SubjectName: s,
 	}
 }
+
+var _ schema.Annotation = EventsHookAnnotation{}
