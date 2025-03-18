@@ -50,7 +50,7 @@ var PrefixRegexp = regexp.MustCompile(`^[a-z0-9]{2,}$`)
 //
 // Prefixes can be of any length greater than 2 characters, Infratographer
 // projects use a prefix that follows the pattern of 4 characters representing
-// the application and 3 characters representing the obect type. For example,
+// the application and 3 characters representing the object type. For example,
 // instance-api uses the 4 character prefix of inst and has an object type of
 // instance. The 3 character code for instance is anc, so combined the prefix is
 // instanc, resulting an in instance having an id that looks like instanc-myrandomidvalue.
