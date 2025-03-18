@@ -27,33 +27,32 @@ import (
 )
 
 const (
-	// PrefixPartLength is the number of characters expected in a prefix
-	PrefixPartLength = 7
 	// IDPartLength is the number of characters passed to nanoid when generating an ID value
 	IDPartLength = 21
+	// PrefixPartMinLength is the minimum required number of characters required for a prefix
+	PrefixPartMinLength = 2
 	// Parts represents how many parts of an ID there are
 	Parts = 2
-	// TotalLength is the length of a idx generated PrefixID
-	TotalLength = PrefixPartLength + IDPartLength + Parts - 1
 	// NullPrefixedID represents a null value PrefixedID
 	NullPrefixedID = PrefixedID("")
 )
 
 // PrefixRegexp is the regular expression used to validate a prefix
-var PrefixRegexp = regexp.MustCompile(`^[a-z0-9]{7}$`)
+var PrefixRegexp = regexp.MustCompile(`^[a-z0-9]{2,}$`)
 
 // PrefixedID represents an ID that is formatted as prefix-id. PrefixedIDs are used
 // to implement the relay spec for graphql, which required all IDs to be globally
 // unique between objects and that you have the ability to resolve an object
-// with only the id. Prefixed IDs make it possible by using a 7 characters long
-// prefix with the first 4 characters representing the application the ID belongs
-// to and the next 3 characters representing the object. This makes it possible
-// to receive an ID and programatically tell you the object type the ID represents.
+// with only the id. Prefixed IDs make it possible by using a prefix representing
+// the object. This makes it possible to receive an ID and programatically tell
+// you the object type the ID represents.
 //
-// Examples scenario: instance-api uses the 4 character prefix of inst and has an
-// object type of instance. The 3 character code for instance is anc, so combined
-// the prefix is instanc, resulting an in instance having an id that looks like
-// instanc-myrandomidvalue.
+// Prefixes can be of any length greater than 2 characters, Infratographer
+// projects use a prefix that follows the pattern of 4 characters representing
+// the application and 3 characters representing the obect type. For example,
+// instance-api uses the 4 character prefix of inst and has an object type of
+// instance. The 3 character code for instance is anc, so combined the prefix is
+// instanc, resulting an in instance having an id that looks like instanc-myrandomidvalue.
 type PrefixedID string
 
 // Prefix will return the Prefix value of an ID
@@ -73,8 +72,8 @@ func MustNewID(prefix string) PrefixedID {
 }
 
 func validPrefix(s string) error {
-	if len(s) != PrefixPartLength {
-		return newErrInvalidID(fmt.Sprintf("expected prefix length is %d, '%s' is %d", PrefixPartLength, s, len(s)))
+	if len(s) <= PrefixPartMinLength {
+		return newErrInvalidID(fmt.Sprintf("expected prefix length is at least %d, '%s' is %d", PrefixPartMinLength, s, len(s)))
 	}
 
 	if !PrefixRegexp.MatchString(s) {
