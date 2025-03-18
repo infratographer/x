@@ -23,6 +23,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/jaevor/go-nanoid"
 )
 
@@ -135,6 +136,11 @@ func Parse(str string) (PrefixedID, error) {
 
 	if err := validPrefix(prefix); err != nil {
 		return "", err
+	}
+
+	// ensure the string isn't a UUID
+	if _, err := uuid.Parse(str); err == nil {
+		return "", newErrInvalidID("uuids are not valid prefix-ids")
 	}
 
 	return PrefixedID(str), nil

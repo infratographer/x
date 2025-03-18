@@ -86,6 +86,7 @@ func TestParsers(t *testing.T) {
 		{name: "valid prefix with any length", id: "myreallylongprefixhere-fm21VlAHHrGf6utn1JsKc"},
 		{name: "valid prefix with a uuid ", id: "testing-" + uuid.New().String()},
 		{name: "valid prefix with a additional separators ", id: "testing-------------------"},
+		{name: "invalid id; don't accept a uuid as a prefixed id", id: uuid.New().String(), errorMsg: "invalid id: uuids are not valid prefix-ids"},
 		{name: "invalid id; no separator", id: "somestringthatisalltogether", errorMsg: "invalid id: expected id format is prefix-id"},
 		{name: "invalid id; 1 trailing separator", id: "somestringthatisalltogether-", errorMsg: "invalid id: expected id format is prefix-id"},
 		{name: "invalid id; 1 leading separator", id: "-strings", errorMsg: "invalid id: expected id format is prefix-id"},
