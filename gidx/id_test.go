@@ -17,6 +17,7 @@ package gidx_test
 import (
 	"bytes"
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/google/uuid"
@@ -27,8 +28,8 @@ import (
 )
 
 func TestNewID(t *testing.T) {
-	// ensure the prefix length hasn't changed. if it does change these tests may need updated
-	require.Equal(t, 7, gidx.PrefixPartLength)
+	// ensure the minimum prefix length hasn't changed. if it does change these tests may need updated
+	require.Equal(t, 2, gidx.PrefixPartMinLength)
 
 	cases := []struct {
 		name     string
@@ -36,10 +37,10 @@ func TestNewID(t *testing.T) {
 		want     string
 		errorMsg string
 	}{
-		{name: "corrent prefix length", prefix: "testpre", want: "testpre-"},
-		{name: "to lower happens", prefix: "ALLCAPS", want: "allcaps-"},
-		{name: "prefix length too short", prefix: "short", errorMsg: "invalid id: expected prefix length is 7"},
-		{name: "prefix length too long", prefix: "notthatshort", errorMsg: "invalid id: expected prefix length is 7"},
+		{name: "corrent prefix length", prefix: "testpre", want: "testpre"},
+		{name: "to lower happens", prefix: "ALLCAPS", want: "allcaps"},
+		{name: "prefix length can be any length", prefix: "myreallylongprefix", want: "myreallylongprefix"},
+		{name: "prefix length too short", prefix: "a", errorMsg: "invalid id: expected prefix length is at least 2"},
 		{name: "prefix with unicode", prefix: "👹bad", errorMsg: "invalid id: expected prefix must match"},
 	}
 
@@ -53,8 +54,9 @@ func TestNewID(t *testing.T) {
 				assert.NoError(t, err)
 				assert.NotNil(t, id)
 				assert.IsType(t, gidx.PrefixedID(""), id)
-				assert.Equal(t, tt.want, id.String()[0:8])
-				assert.Len(t, id.String(), gidx.PrefixPartLength+1+gidx.IDPartLength)
+				assert.Equal(t, tt.want, strings.Split(id.String(), "-")[0])
+				assert.GreaterOrEqual(t, len(id.String()), gidx.PrefixPartMinLength+1+gidx.IDPartLength)
+				assert.Len(t, id.String(), len(tt.prefix)+1+gidx.IDPartLength)
 			}
 		})
 	}
@@ -81,13 +83,14 @@ func TestParsers(t *testing.T) {
 		{name: "valid id: null id should be valid", id: ""},
 		{name: "valid id", id: string(gidx.MustNewID("testing"))},
 		{name: "valid prefix with any length id", id: "testing-any_random#string@i*want(to-put-in-here-of-any-length"},
+		{name: "valid prefix with any length", id: "myreallylongprefixhere-fm21VlAHHrGf6utn1JsKc"},
 		{name: "valid prefix with a uuid ", id: "testing-" + uuid.New().String()},
 		{name: "valid prefix with a additional separators ", id: "testing-------------------"},
+		{name: "invalid id; don't accept a uuid as a prefixed id", id: uuid.New().String(), errorMsg: "invalid id: uuids are not valid prefix-ids"},
 		{name: "invalid id; no separator", id: "somestringthatisalltogether", errorMsg: "invalid id: expected id format is prefix-id"},
 		{name: "invalid id; 1 trailing separator", id: "somestringthatisalltogether-", errorMsg: "invalid id: expected id format is prefix-id"},
 		{name: "invalid id; 1 leading separator", id: "-strings", errorMsg: "invalid id: expected id format is prefix-id"},
-		{name: "invalid id; prefix length too short", id: "short-fm21VlAHHrGf6utn1JsKc", errorMsg: "invalid id: expected prefix length is 7"},
-		{name: "invalid id; prefix length too long", id: "notthatshort-fm21VlAHHrGf6utn1JsKc", errorMsg: "invalid id: expected prefix length is 7"},
+		{name: "invalid id; prefix length too short", id: "a-fm21VlAHHrGf6utn1JsKc", errorMsg: "invalid id: expected prefix length is at least 2"},
 		{name: "invalid id; unicode prefix bad", id: "👹bad-fm21VlAHHrGf6utn1JsKc", errorMsg: "invalid id: expected prefix must match"},
 	}
 
