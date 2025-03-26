@@ -12,6 +12,7 @@ linters:
 
     # Additional
     - bodyclose
+    - err113
     - gocritic
     - gocyclo
     - misspell
