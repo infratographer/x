@@ -7,7 +7,7 @@ toolchain go1.23.5
 require (
 	entgo.io/contrib v0.6.0
 	entgo.io/ent v0.14.4
-	github.com/99designs/gqlgen v0.17.69
+	github.com/99designs/gqlgen v0.17.70
 	github.com/MicahParks/jwkset v0.8.0
 	github.com/MicahParks/keyfunc/v3 v3.3.10
 	github.com/XSAM/otelsql v0.37.0
