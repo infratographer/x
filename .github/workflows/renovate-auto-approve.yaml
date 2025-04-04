@@ -16,8 +16,8 @@ jobs:
 
     steps:
       - name: Approve Pre-Approved Renovate PRs as infratographer-robot
-        # Only approve if the previous approval was the renovate-approve[bot] user
-        if: github.event.review.user.login == 'renovate-approve[bot]'
+        # Only approve if the previous approval was the mergify[bot] user
+        if: github.event.review.user.login == 'mergify[bot]'
         uses: hmarr/auto-approve-action@v4
         with:
           github-token: ${{ secrets.INFRATOGRAPHER_ROBOT_PR_APPROVAL_TOKEN }}
