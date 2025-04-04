@@ -15,7 +15,7 @@ require (
 	github.com/cockroachdb/cockroach-go/v2 v2.4.0
 	github.com/docker/go-connections v0.5.0
 	github.com/gin-contrib/requestid v1.0.5
-	github.com/gin-contrib/zap v1.1.4
+	github.com/gin-contrib/zap v1.1.5
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-jose/go-jose/v3 v3.0.4
 	github.com/golang-jwt/jwt/v5 v5.2.2
