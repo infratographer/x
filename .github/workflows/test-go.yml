@@ -3,7 +3,6 @@ name: Test
 
 # Run for all pushes and pull requests
 on:
-  push:
   pull_request:
 
 jobs:
@@ -16,7 +15,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version-file: 'go.mod'
+          go-version-file: "go.mod"
       - name: Run go tests and generate coverage report
         run: go test -race -coverprofile=coverage.txt -covermode=atomic ./...
       - name: Upload coverage report
