@@ -57,8 +57,14 @@ func (s *TestNats) Close() {
 	s.Conn.Close() //nolint:errcheck
 }
 
-// SetConsumerSampleFrequency ensures the ack sample frequency is set to the provided frequency.
+// Deprecated: Use CaptureMsgAck instead.
+//
+//nolint:revive
 func (s *TestNats) SetConsumerSampleFrequency(consumer, frequency string) error {
+	return s.setConsumerSampleFrequency(consumer, frequency)
+}
+
+func (s *TestNats) setConsumerSampleFrequency(consumer, frequency string) error {
 	info, err := s.JetStream.ConsumerInfo("events-tests", consumer)
 	if err != nil {
 		return err
@@ -75,10 +81,14 @@ func (s *TestNats) SetConsumerSampleFrequency(consumer, frequency string) error 
 	return nil
 }
 
-// WaitForAck waits for an ack message to be received, returns error if Nack or timeout is hit.
-// To ensure Acks are received, ensure you have set ManualAck, AckExplicit and Durable subscriber options.
-// As well as SetConsumerSampleFrequency is set to 100.
-func (s *TestNats) WaitForAck(consumer string, timeout time.Duration) error {
+// Deprecated: Use CaptureMsgAck instead.
+//
+//nolint:revive
+func (s *TestNats) WaitForAck(consumer string, timeout time.Duration) error { //nolint:revive
+	return s.waitForAck(consumer, timeout)
+}
+
+func (s *TestNats) waitForAck(consumer string, timeout time.Duration) error {
 	// We should only ever receive one Ack, so we close the channel directly if we get one.
 	ackCh := make(chan struct{})
 	ackSub, err := s.Conn.Subscribe("$JS.EVENT.METRIC.CONSUMER.ACK.*."+consumer, func(_ *nats.Msg) {
@@ -119,6 +129,27 @@ func (s *TestNats) WaitForAck(consumer string, timeout time.Duration) error {
 	case <-timer.C:
 		return ErrNoAck
 	}
+}
+
+// CaptureMsgAck waits for an ack message to be received, returns error if Nack or timeout is hit.
+// To ensure Acks are received, ensure you have set ManualAck, AckExplicit and Durable subscriber options.
+// This call requires a function that reads the message from the queue that you are attempting to capture the ack from.
+func (s *TestNats) CaptureMsgAck(consumer string, timeout time.Duration, msgFunc func()) error {
+	err := s.setConsumerSampleFrequency(consumer, "100")
+	if err != nil {
+		return err
+	}
+
+	errCh := make(chan error, 1)
+	go func() {
+		errCh <- s.waitForAck(consumer, timeout)
+	}()
+
+	// without this there is still a small failure rate where we miss the ack message from nats
+	time.Sleep(200 * time.Microsecond) //nolint:mnd
+	msgFunc()
+
+	return <-errCh
 }
 
 // NewNatsServer returns a simple NATs server that starts and stores it's data in a tmp dir

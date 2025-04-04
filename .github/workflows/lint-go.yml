@@ -1,7 +1,10 @@
 name: Linters
 on:
   push:
+    branches:
+      - main
   pull_request:
+  merge_group:
 permissions:
   contents: read
   pull-requests: read
@@ -13,7 +16,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version-file: 'go.mod'
+          go-version-file: "go.mod"
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v7
         with:

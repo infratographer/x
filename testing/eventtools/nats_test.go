@@ -50,28 +50,25 @@ func TestNats(t *testing.T) {
 	messages, err := conn.SubscribeChanges(context.Background(), ">")
 	require.NoError(t, err)
 
-	err = nats.SetConsumerSampleFrequency(consumerName, "100")
+	err = nats.CaptureMsgAck(consumerName, time.Second*2, func() {
+		receivedMsg, err := getSingleMessage(messages, time.Second*1)
+		require.NoError(t, err)
+		require.NoError(t, receivedMsg.Error())
+		assert.EqualValues(t, change1, receivedMsg.Message())
+		assert.NoError(t, receivedMsg.Ack())
+	})
 	require.NoError(t, err)
 
-	receivedMsg, err := getSingleMessage(messages, time.Second*1)
-	require.NoError(t, err)
-	require.NoError(t, receivedMsg.Error())
-	assert.EqualValues(t, change1, receivedMsg.Message())
-	assert.NoError(t, receivedMsg.Ack())
-
-	err = nats.WaitForAck(consumerName, time.Second*2)
-	require.NoError(t, err)
-
-	receivedMsg, err = getSingleMessage(messages, time.Second*1)
-	require.NoError(t, err)
-	require.NoError(t, receivedMsg.Error())
-	assert.EqualValues(t, change2, receivedMsg.Message())
-	assert.NoError(t, receivedMsg.Nak(0))
-
-	err = nats.WaitForAck(consumerName, time.Second*2)
+	err = nats.CaptureMsgAck(consumerName, time.Second*2, func() {
+		receivedMsg, err := getSingleMessage(messages, time.Second*1)
+		require.NoError(t, err)
+		require.NoError(t, receivedMsg.Error())
+		assert.EqualValues(t, change2, receivedMsg.Message())
+		assert.NoError(t, receivedMsg.Nak(0))
+	})
 	require.ErrorIs(t, err, eventtools.ErrNack)
 
-	err = nats.WaitForAck(consumerName, time.Second*2)
+	err = nats.CaptureMsgAck(consumerName, time.Second*1, func() {})
 	require.ErrorIs(t, err, eventtools.ErrNoAck)
 }
 
