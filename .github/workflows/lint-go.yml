@@ -1,6 +1,10 @@
 name: Linters
 on:
+  push:
+    branches:
+      - main
   pull_request:
+  merge_group:
 permissions:
   contents: read
   pull-requests: read

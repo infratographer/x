@@ -1,9 +1,12 @@
 ---
 name: Test
 
-# Run for all pushes and pull requests
 on:
+  push:
+    branches:
+      - main
   pull_request:
+  merge_group:
 
 jobs:
   go:
