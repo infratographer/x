@@ -1,14 +1,9 @@
 ---
 pull_request_rules:
-  - name: Automatic merge on approval
+  - name: Automatically approve Renovate PRs
     conditions:
-      - "#approved-reviews-by>=1"
-      - "#changes-requested-reviews-by=0"
-      - "check-success=DCO"
-      - "check-success=CodeQL"
-      - "check-success=golang"
-      - "check-success=golangci-lint"
-      - "check-success=Analyze (go)"
+      - author = renovate[bot]
+      - check-success=test
     actions:
-      merge:
-        method: merge
+      review:
+        type: APPROVE
