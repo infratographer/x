@@ -2,7 +2,7 @@ module go.infratographer.com/x
 
 go 1.24.0
 
-toolchain go1.24.1
+toolchain go1.24.2
 
 require (
 	entgo.io/contrib v0.6.0
