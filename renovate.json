@@ -1,27 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended",
-    ":automergeStableNonMajor",
-    "helpers:pinGitHubActionDigests"
-  ],
-  "postUpdateOptions": [
-    "gomodTidy",
-    "gomodUpdateImportPaths"
-  ],
-  "packageRules": [
-    {
-      "groupName": "go opentelemetry packages and libraries",
-      "groupSlug": "opentelemetry-go and libraries",
-      "matchDatasources": [
-        "go"
-      ],
-      "matchPackagePrefixes": [
-        "go.opentelemetry.io/"
-      ],
-      "matchPackageNames": [
-        "github.com/XSAM/otelsql"
-      ]
-    }
+    "github>infratographer/.github"
   ]
 }
