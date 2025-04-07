@@ -21,6 +21,8 @@ import (
 	"net/url"
 	"time"
 
+	"go.infratographer.com/x/versionx"
+
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
@@ -117,10 +119,13 @@ func InitTracer(tc Config, appName string, _ *zap.SugaredLogger) error {
 
 // NewTracerProviderWithExporter creates a new tracer provider using the provided exporter instead of initializing one based on the provided config.
 func NewTracerProviderWithExporter(exporter sdktrace.SpanExporter, appName string, tc Config) (*sdktrace.TracerProvider, error) {
+	appDetails := versionx.BuildDetails()
+
 	r, err := resource.Merge(
 		resource.Default(),
 		resource.NewSchemaless(
 			semconv.ServiceName(appName),
+			semconv.ServiceVersion(appDetails.Version),
 			semconv.DeploymentEnvironmentName(tc.Environment),
 		),
 	)
