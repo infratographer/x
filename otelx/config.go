@@ -30,7 +30,7 @@ type Config struct {
 	Enabled     bool          `mapstructure:"enabled"`
 	Provider    TraceExporter `mapstructure:"provider"`
 	Environment string        `mapstructure:"environment"`
-	Random      string        `mapstructure:"random"`
+	SampleRatio float64       `mapstructure:"sample_ratio"`
 	Stdout      struct {
 		PrettyPrint       bool `mapstructure:"pretty_print"`
 		DisableTimestamps bool `mapstructure:"disable_timestamps"`
@@ -50,10 +50,12 @@ type Config struct {
 func MustViperFlags(v *viper.Viper, flags *pflag.FlagSet) {
 	flags.Bool("tracing", false, "enable tracing support")
 	viperx.MustBindFlag(v, "tracing.enabled", flags.Lookup("tracing"))
-	flags.String("tracing-provider", "", `tracing provider to use options: "stdout", "jaeger", "otlphttp", "otlpgrpc"`)
+	flags.String("tracing-provider", "", `tracing provider to use options: "stdout", "otlphttp", "otlpgrpc", "passthrough"`)
 	viperx.MustBindFlag(v, "tracing.provider", flags.Lookup("tracing-provider"))
 	flags.String("tracing-environment", "production", "environment value in traces")
 	viperx.MustBindFlag(v, "tracing.environment", flags.Lookup("tracing-environment"))
+	flags.Float64("tracing-sample-ratio", 1.0, "ratio of traces sampled (0.0 - 1.0)")
+	viperx.MustBindFlag(v, "tracing.sample_ratio", flags.Lookup("tracing-sample-ratio"))
 	flags.String("tracing-otlp-endpoint", "", "OTLP exporter endpoint")
 	viperx.MustBindFlag(v, "tracing.otlp.endpoint", flags.Lookup("tracing-otlp-endpoint"))
 
