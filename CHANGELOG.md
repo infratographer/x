@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.0](https://github.com/infratographer/x/compare/v0.8.0...v0.9.0) (2025-04-07)
+
+
+### Features
+
+* **otelx:** include service version ([#359](https://github.com/infratographer/x/issues/359)) ([186668a](https://github.com/infratographer/x/commit/186668acaa5a6100a95c19d5617a6ab9c253bf99))
+
 ## [0.8.0](https://github.com/infratographer/x/compare/v0.7.4...v0.8.0) (2025-04-07)
 
 
