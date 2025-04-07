@@ -1,5 +1,5 @@
 lint:
-	golangci-lint run -v
+	go run github.com/golangci/golangci-lint/v2/cmd/golangci-lint run -v
 
 test:
 	@echo Running unit tests...

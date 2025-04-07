@@ -104,6 +104,19 @@ func InitTracer(tc Config, appName string, _ *zap.SugaredLogger) error {
 		return err
 	}
 
+	tp, err := NewTracerProviderWithExporter(exp, appName, tc)
+	if err != nil {
+		return err
+	}
+
+	otel.SetTracerProvider(tp)
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+
+	return nil
+}
+
+// NewTracerProviderWithExporter creates a new tracer provider using the provided exporter instead of initializing one based on the provided config.
+func NewTracerProviderWithExporter(exporter sdktrace.SpanExporter, appName string, tc Config) (*sdktrace.TracerProvider, error) {
 	r, err := resource.Merge(
 		resource.Default(),
 		resource.NewSchemaless(
@@ -113,29 +126,29 @@ func InitTracer(tc Config, appName string, _ *zap.SugaredLogger) error {
 	)
 
 	if err != nil {
-		return &ConfigError{
+		return nil, &ConfigError{
 			Message: "could not construct otel resource",
 			Err:     err,
 		}
 	}
 
 	opts := []sdktrace.TracerProviderOption{
-		sdktrace.WithSampler(sdktrace.AlwaysSample()),
+		sdktrace.WithSampler(
+			sdktrace.ParentBased(
+				sdktrace.TraceIDRatioBased(tc.SampleRatio),
+			),
+		),
 		// Record information about this application in a resource.
 		sdktrace.WithResource(r),
 	}
 
 	// exporter could be nil if we are in "passthrough" mode, but we still want
 	// to set everything up to traces go work going through the application
-	if exp != nil {
-		opts = append(opts, sdktrace.WithBatcher(exp))
+	if exporter != nil {
+		opts = append(opts, sdktrace.WithBatcher(exporter))
 	}
 
-	tp := sdktrace.NewTracerProvider(opts...)
-	otel.SetTracerProvider(tp)
-	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
-
-	return nil
+	return sdktrace.NewTracerProvider(opts...), nil
 }
 
 func newExporter(tc Config) (sdktrace.SpanExporter, error) {
