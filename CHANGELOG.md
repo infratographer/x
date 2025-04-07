@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://github.com/infratographer/x/compare/v0.7.4...v0.8.0) (2025-04-07)
+
+
+### Features
+
+* support configuring a sampling ratio ([#357](https://github.com/infratographer/x/issues/357)) ([621f1e8](https://github.com/infratographer/x/commit/621f1e8c0ba0eb7c223d21a56cc542d25b0fab56))
+
 ## [0.7.4](https://github.com/infratographer/x/compare/v0.7.3...v0.7.4) (2025-04-07)
 
 
