@@ -20,8 +20,4 @@ jobs:
       - uses: googleapis/release-please-action@a02a34c4d625f9be7cb89156071d8567266a2445 # v4
         id: release
         with:
-          release-type: go
           token: ${{ secrets.INFRATOGRAPHER_ROBOT_TOKEN }}
-          # Setting target-branch allows us to track multiple release branches
-          # (should we need to maintain a 1.x or similar branch.)
-          target-branch: ${{ github.ref_name }}
