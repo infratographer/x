@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.9.1](https://github.com/infratographer/x/compare/v0.9.0...v0.9.1) (2025-04-08)
+
+
+### Bug Fixes
+
+* **otelx:** expose provider configs ([#361](https://github.com/infratographer/x/issues/361)) ([6959783](https://github.com/infratographer/x/commit/6959783b310f53ccaaba1a506fee172d4c93dd1b))
+
 ## [0.9.0](https://github.com/infratographer/x/compare/v0.8.0...v0.9.0) (2025-04-07)
 
 
