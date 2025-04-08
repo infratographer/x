@@ -31,18 +31,24 @@ type Config struct {
 	Provider    TraceExporter `mapstructure:"provider"`
 	Environment string        `mapstructure:"environment"`
 	SampleRatio float64       `mapstructure:"sample_ratio"`
-	Stdout      struct {
-		PrettyPrint       bool `mapstructure:"pretty_print"`
-		DisableTimestamps bool `mapstructure:"disable_timestamps"`
-	}
-	OTLP struct {
-		Endpoint    string        `mapstructure:"endpoint"`
-		Insecure    bool          `mapstructure:"insecure"`
-		Certificate string        `mapstructure:"certificate"`
-		Headers     []string      `mapstructure:"headers"`
-		Compression string        `mapstructure:"compression"`
-		Timeout     time.Duration `mapstructure:"timeout"`
-	}
+	Stdout      StdoutConfig
+	OTLP        OTLPConfig
+}
+
+// StdoutConfig defines additional options when using the stdout provider.
+type StdoutConfig struct {
+	PrettyPrint       bool `mapstructure:"pretty_print"`
+	DisableTimestamps bool `mapstructure:"disable_timestamps"`
+}
+
+// OTLPConfig defines additional options when using an OTLP provider.
+type OTLPConfig struct {
+	Endpoint    string        `mapstructure:"endpoint"`
+	Insecure    bool          `mapstructure:"insecure"`
+	Certificate string        `mapstructure:"certificate"`
+	Headers     []string      `mapstructure:"headers"`
+	Compression string        `mapstructure:"compression"`
+	Timeout     time.Duration `mapstructure:"timeout"`
 }
 
 // MustViperFlags returns the cobra flags and viper config to prevent code duplication

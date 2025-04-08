@@ -7,7 +7,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
@@ -67,18 +66,18 @@ func TestViperFlags(t *testing.T) {
 		name         string
 		env          map[string]string
 		flags        []string
-		expectConfig map[string]any
+		expectConfig otelx.Config
 		expectError  string
 	}{
 		{
 			"defaults",
 			nil,
 			nil,
-			map[string]any{
-				"environment":  "production",
-				"sample_ratio": 1.0,
-				"otlp": map[string]any{
-					"timeout": defaultOTLPTimeout,
+			otelx.Config{
+				Environment: "production",
+				SampleRatio: 1.0,
+				OTLP: otelx.OTLPConfig{
+					Timeout: defaultOTLPTimeout,
 				},
 			},
 			"",
@@ -95,17 +94,17 @@ func TestViperFlags(t *testing.T) {
 				"TRACING_OTLP_TIMEOUT":        "5s",
 			},
 			nil,
-			map[string]any{
-				"enabled":      true,
-				"provider":     "otlpgrpc",
-				"environment":  "test",
-				"sample_ratio": 0.5,
-				"stdout": map[string]any{
-					"pretty_print": true,
+			otelx.Config{
+				Enabled:     true,
+				Provider:    "otlpgrpc",
+				Environment: "test",
+				SampleRatio: 0.5,
+				Stdout: otelx.StdoutConfig{
+					PrettyPrint: true,
 				},
-				"otlp": map[string]any{
-					"endpoint": "grpc.example.com:1234",
-					"timeout":  5 * time.Second,
+				OTLP: otelx.OTLPConfig{
+					Endpoint: "grpc.example.com:1234",
+					Timeout:  5 * time.Second,
 				},
 			},
 			"",
@@ -119,13 +118,13 @@ func TestViperFlags(t *testing.T) {
 				"--tracing-environment", "test1",
 				"--tracing-sample-ratio", "0.7",
 			},
-			map[string]any{
-				"enabled":      true,
-				"provider":     "otlphttp",
-				"environment":  "test1",
-				"sample_ratio": 0.7,
-				"otlp": map[string]any{
-					"timeout": defaultOTLPTimeout,
+			otelx.Config{
+				Enabled:     true,
+				Provider:    "otlphttp",
+				Environment: "test1",
+				SampleRatio: 0.7,
+				OTLP: otelx.OTLPConfig{
+					Timeout: defaultOTLPTimeout,
 				},
 			},
 			"",
@@ -142,13 +141,13 @@ func TestViperFlags(t *testing.T) {
 				"--tracing-environment", "test1",
 				"--tracing-sample-ratio", "0.7",
 			},
-			map[string]any{
-				"enabled":      true,
-				"provider":     "otlphttp",
-				"environment":  "test1",
-				"sample_ratio": 0.7,
-				"otlp": map[string]any{
-					"timeout": defaultOTLPTimeout,
+			otelx.Config{
+				Enabled:     true,
+				Provider:    "otlphttp",
+				Environment: "test1",
+				SampleRatio: 0.7,
+				OTLP: otelx.OTLPConfig{
+					Timeout: defaultOTLPTimeout,
 				},
 			},
 			"",
@@ -161,7 +160,7 @@ func TestViperFlags(t *testing.T) {
 				"TRACING_SAMPLE_RATIO": "bad",
 			},
 			nil,
-			nil,
+			otelx.Config{},
 			"cannot parse",
 		},
 		{
@@ -174,7 +173,7 @@ func TestViperFlags(t *testing.T) {
 			[]string{
 				"--tracing-sample-ratio", "bad",
 			},
-			nil,
+			otelx.Config{},
 			"invalid argument",
 		},
 	}
@@ -182,12 +181,6 @@ func TestViperFlags(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-
-			var expectCfg otelx.Config
-
-			if tc.expectConfig != nil {
-				require.NoError(t, mapstructure.Decode(tc.expectConfig, &expectCfg), "unexpected error decoding expected config")
-			}
 
 			cfg, _, _, err := initConfig(t, tc.env, tc.flags)
 
@@ -201,7 +194,7 @@ func TestViperFlags(t *testing.T) {
 
 			require.NoError(t, err, "no error expected to be returned")
 
-			assert.Equal(t, expectCfg, cfg, "unexpected configuration")
+			assert.Equal(t, tc.expectConfig, cfg, "unexpected configuration")
 		})
 	}
 }
