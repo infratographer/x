@@ -19,6 +19,7 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"strings"
 	"time"
 
 	"go.infratographer.com/x/versionx"
@@ -191,9 +192,13 @@ func newOTLPHTTPExporter(tc Config) (sdktrace.SpanExporter, error) {
 		otlptracehttp.WithTimeout(tc.OTLP.Timeout),
 	}
 
-	if _, err := url.Parse(tc.OTLP.Endpoint); err == nil && tc.OTLP.Endpoint != "" {
-		// NOTE: if a valid URL is not passed, it will fallback to the env vars defined by the otel SDK
-		opts = append(opts, otlptracehttp.WithEndpointURL(tc.OTLP.Endpoint))
+	// If an endpoint is provided and it is valid, use the endpoint.
+	// If the endpoint is invalid return an error.
+	// If no endpoint is provided, fallback to otel sdk env vars.
+	if endpoint, err := buildOTLPEndpoint(tc.OTLP); endpoint != "" {
+		opts = append(opts, otlptracehttp.WithEndpointURL(endpoint))
+	} else if err != nil {
+		return nil, err
 	}
 
 	if tc.OTLP.Insecure {
@@ -208,9 +213,13 @@ func newOTLPGRPCExporter(tc Config) (sdktrace.SpanExporter, error) {
 		otlptracegrpc.WithTimeout(tc.OTLP.Timeout),
 	}
 
-	if _, err := url.Parse(tc.OTLP.Endpoint); err == nil && tc.OTLP.Endpoint != "" {
-		// NOTE: if a valid URL is not passed, it will fallback to the env vars defined by the otel SDK
-		opts = append(opts, otlptracegrpc.WithEndpointURL(tc.OTLP.Endpoint))
+	// If an endpoint is provided and it is valid, use the endpoint.
+	// If the endpoint is invalid return an error.
+	// If no endpoint is provided, fallback to otel sdk env vars.
+	if endpoint, err := buildOTLPEndpoint(tc.OTLP); endpoint != "" {
+		opts = append(opts, otlptracegrpc.WithEndpointURL(endpoint))
+	} else if err != nil {
+		return nil, err
 	}
 
 	if tc.OTLP.Insecure {
@@ -218,4 +227,29 @@ func newOTLPGRPCExporter(tc Config) (sdktrace.SpanExporter, error) {
 	}
 
 	return otlptrace.New(context.Background(), otlptracegrpc.NewClient(opts...))
+}
+
+// buildOTLPEndpoint formats and validates the otlp endpoint if one is provided.
+// If no endpoint is provided no error is returned.
+func buildOTLPEndpoint(config OTLPConfig) (string, error) {
+	if config.Endpoint == "" {
+		return "", nil
+	}
+
+	// If scheme is not found, add a scheme.
+	if !strings.Contains(config.Endpoint, "://") {
+		scheme := "http"
+
+		if !config.Insecure {
+			scheme = "https"
+		}
+
+		config.Endpoint = scheme + "://" + config.Endpoint
+	}
+
+	if _, err := url.Parse(config.Endpoint); err != nil {
+		return "", fmt.Errorf("invalid OTLP endpoint '%s': %w", config.Endpoint, err)
+	}
+
+	return config.Endpoint, nil
 }
