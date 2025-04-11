@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.9.2](https://github.com/infratographer/x/compare/v0.9.1...v0.9.2) (2025-04-11)
+
+
+### Bug Fixes
+
+* **deps:** update golang.org/x/exp digest to 7e4ce0a ([#364](https://github.com/infratographer/x/issues/364)) ([91dcb90](https://github.com/infratographer/x/commit/91dcb909f65616f5c09cbf56cc0650ef2cb9c61e))
+* **deps:** update module github.com/nats-io/nats-server/v2 to v2.11.1 ([#365](https://github.com/infratographer/x/issues/365)) ([668ab75](https://github.com/infratographer/x/commit/668ab754d72eaf4bd3287239f9a3946452ad7f4f))
+* **deps:** update module github.com/nats-io/nats.go to v1.41.1 ([#367](https://github.com/infratographer/x/issues/367)) ([dcc1338](https://github.com/infratographer/x/commit/dcc13386d2d08a1fc8e43e4e60ca955ff41f4d7d))
+* **deps:** update module github.com/vektah/gqlparser/v2 to v2.5.24 ([#368](https://github.com/infratographer/x/issues/368)) ([4a4c73a](https://github.com/infratographer/x/commit/4a4c73a7c81c8f27ad2fe8c70934970ff3813a4f))
+* **otelx:** fix validation and ensure backwards compatibility with pre v0.7.0 ([#369](https://github.com/infratographer/x/issues/369)) ([2b5069a](https://github.com/infratographer/x/commit/2b5069ade47ee36c153e2c485f97a5b01effa09c))
+
 ## [0.9.1](https://github.com/infratographer/x/compare/v0.9.0...v0.9.1) (2025-04-08)
 
 
