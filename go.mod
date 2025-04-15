@@ -9,7 +9,7 @@ require (
 	entgo.io/ent v0.14.4
 	github.com/99designs/gqlgen v0.17.70
 	github.com/MicahParks/jwkset v0.9.5
-	github.com/MicahParks/keyfunc/v3 v3.3.10
+	github.com/MicahParks/keyfunc/v3 v3.3.11
 	github.com/XSAM/otelsql v0.38.0
 	github.com/brianvoe/gofakeit/v7 v7.2.1
 	github.com/cockroachdb/cockroach-go/v2 v2.4.0
