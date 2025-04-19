@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.9.3](https://github.com/infratographer/x/compare/v0.9.2...v0.9.3) (2025-04-19)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/99designs/gqlgen to v0.17.71 ([#379](https://github.com/infratographer/x/issues/379)) ([69534ad](https://github.com/infratographer/x/commit/69534adf197ea819330fd73274f5d46b3439e53f))
+* **deps:** update module github.com/99designs/gqlgen to v0.17.72 ([#380](https://github.com/infratographer/x/issues/380)) ([30377f8](https://github.com/infratographer/x/commit/30377f8d3416ec89af9659370ef262291b93c09b))
+* **deps:** update module github.com/micahparks/keyfunc/v3 to v3.3.11 ([#374](https://github.com/infratographer/x/issues/374)) ([877ccfd](https://github.com/infratographer/x/commit/877ccfdea08a2d2d9e312ca92eac355134b614c2))
+* **deps:** update module github.com/nats-io/nats.go to v1.41.2 ([#378](https://github.com/infratographer/x/issues/378)) ([56f307a](https://github.com/infratographer/x/commit/56f307a199ddf8deabadbc86b6d9e79011ed6a11))
+* **deps:** update module github.com/vektah/gqlparser/v2 to v2.5.25 ([#377](https://github.com/infratographer/x/issues/377)) ([9bc1429](https://github.com/infratographer/x/commit/9bc1429e415d5f2d4edb85d3d0d068178da0a6fb))
+* **deps:** update module go.step.sm/crypto to v0.61.0 ([#376](https://github.com/infratographer/x/issues/376)) ([a4c9210](https://github.com/infratographer/x/commit/a4c9210a44775b1361c57f7836b9d78f3640d603))
+
 ## [0.9.2](https://github.com/infratographer/x/compare/v0.9.1...v0.9.2) (2025-04-11)
 
 
