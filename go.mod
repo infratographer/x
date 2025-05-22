@@ -24,7 +24,7 @@ require (
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/labstack/echo-contrib v0.17.4
 	github.com/labstack/echo-jwt/v4 v4.3.1
-	github.com/labstack/echo/v4 v4.13.3
+	github.com/labstack/echo/v4 v4.13.4
 	github.com/labstack/gommon v0.4.2
 	github.com/lib/pq v1.10.9
 	github.com/nats-io/nats-server/v2 v2.11.3
