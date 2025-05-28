@@ -45,6 +45,7 @@ func NewClientCredentialsTokenSrc(ctx context.Context, cfg Config) (oauth2.Token
 		ClientID:     cfg.ID,
 		ClientSecret: cfg.Secret,
 		TokenURL:     tokenEndpoint,
+		Scopes:       cfg.Scopes,
 	}
 
 	return ccCfg.TokenSource(ctx), nil
@@ -63,9 +64,10 @@ func NewClient(_ context.Context, tokenSrc oauth2.TokenSource) *http.Client {
 // Config handles reading in all the config values available
 // for setting up an oauth2 configuration
 type Config struct {
-	ID     string `mapstructure:"id"`
-	Secret string `mapstructure:"secret"`
-	Issuer string `mapstructure:"issuer"`
+	ID     string   `mapstructure:"id"`
+	Secret string   `mapstructure:"secret"`
+	Issuer string   `mapstructure:"issuer"`
+	Scopes []string `mapstructure:"scopes"`
 }
 
 // MustViperFlags adds oidc oauth2 client credentials config to the provided flagset and binds to viper
@@ -78,6 +80,9 @@ func MustViperFlags(v *viper.Viper, flags *pflag.FlagSet) {
 
 	flags.String("oidc-client-issuer", "", "oidc issuer")
 	viperx.MustBindFlag(v, "oidc.client.issuer", flags.Lookup("oidc-client-issuer"))
+
+	flags.StringArray("oidc-client-scopes", []string{}, "oidc client scopes to request")
+	viperx.MustBindFlag(v, "oidc.client.scopes", flags.Lookup("oidc-client-scopes"))
 }
 
 func fetchIssuerTokenEndpoint(ctx context.Context, issuer string) (string, error) {
