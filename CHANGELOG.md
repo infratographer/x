@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.10.1](https://github.com/infratographer/x/compare/v0.10.0...v0.10.1) (2025-06-06)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/99designs/gqlgen to v0.17.74 ([#420](https://github.com/infratographer/x/issues/420)) ([f540f4f](https://github.com/infratographer/x/commit/f540f4f38545b41c3523aae401cbde8fe1c7c7a8))
+* **deps:** update module github.com/nats-io/nats.go to v1.43.0 ([#421](https://github.com/infratographer/x/issues/421)) ([522ab56](https://github.com/infratographer/x/commit/522ab56577127655c47ba4f3aa75589ed45b74a0))
+* **deps:** update module github.com/xsam/otelsql to v0.39.0 ([#424](https://github.com/infratographer/x/issues/424)) ([475cc36](https://github.com/infratographer/x/commit/475cc364617472ba46c514d92b74e3de70ba1689))
+* **deps:** update module go.step.sm/crypto to v0.66.0 ([#417](https://github.com/infratographer/x/issues/417)) ([82ff7d6](https://github.com/infratographer/x/commit/82ff7d6dc28fbc3d452a2ecaf9ee7511e9424623))
+
 ## [0.10.0](https://github.com/infratographer/x/compare/v0.9.3...v0.10.0) (2025-05-28)
 
 
