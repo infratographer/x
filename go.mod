@@ -35,7 +35,7 @@ require (
 	github.com/spf13/viper v1.20.1
 	github.com/testcontainers/testcontainers-go v0.37.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.37.0
-	github.com/vektah/gqlparser/v2 v2.5.27
+	github.com/vektah/gqlparser/v2 v2.5.28
 	github.com/zsais/go-gin-prometheus v0.1.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.61.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho v0.61.0
