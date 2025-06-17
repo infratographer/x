@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.11.0](https://github.com/infratographer/x/compare/v0.10.0...v0.11.0) (2025-06-17)
+
+
+### Features
+
+* add better json support to change events and the ability to include a json diff ([#428](https://github.com/infratographer/x/issues/428)) ([1e2d648](https://github.com/infratographer/x/commit/1e2d648947fcd55cd1931867e3e17837f6a75462))
+
+
+### Bug Fixes
+
+* additional data field reference in jsonDiff hook ([#429](https://github.com/infratographer/x/issues/429)) ([1671bff](https://github.com/infratographer/x/commit/1671bff9c81d2cc37e0c5d65aee4bc7ee64633b4))
+* **deps:** update golang.org/x/exp digest to dcc06ee ([#419](https://github.com/infratographer/x/issues/419)) ([dce242d](https://github.com/infratographer/x/commit/dce242da3f3496af4cdffd3679731c1707018ae2))
+* **deps:** update module github.com/99designs/gqlgen to v0.17.74 ([#420](https://github.com/infratographer/x/issues/420)) ([f540f4f](https://github.com/infratographer/x/commit/f540f4f38545b41c3523aae401cbde8fe1c7c7a8))
+* **deps:** update module github.com/99designs/gqlgen to v0.17.75 ([#427](https://github.com/infratographer/x/issues/427)) ([3771e04](https://github.com/infratographer/x/commit/3771e0418f7199bc009e018225e99345be313ea5))
+* **deps:** update module github.com/nats-io/nats.go to v1.43.0 ([#421](https://github.com/infratographer/x/issues/421)) ([522ab56](https://github.com/infratographer/x/commit/522ab56577127655c47ba4f3aa75589ed45b74a0))
+* **deps:** update module github.com/vektah/gqlparser/v2 to v2.5.28 ([#426](https://github.com/infratographer/x/issues/426)) ([ff56802](https://github.com/infratographer/x/commit/ff56802f4cb8a81799608ae94fdb9da060359299))
+* **deps:** update module github.com/xsam/otelsql to v0.39.0 ([#424](https://github.com/infratographer/x/issues/424)) ([475cc36](https://github.com/infratographer/x/commit/475cc364617472ba46c514d92b74e3de70ba1689))
+* **deps:** update module go.step.sm/crypto to v0.66.0 ([#417](https://github.com/infratographer/x/issues/417)) ([82ff7d6](https://github.com/infratographer/x/commit/82ff7d6dc28fbc3d452a2ecaf9ee7511e9424623))
+
 ## [0.10.0](https://github.com/infratographer/x/compare/v0.9.3...v0.10.0) (2025-05-28)
 
 
