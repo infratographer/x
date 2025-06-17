@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.1](https://github.com/infratographer/x/compare/v0.11.0...v0.11.1) (2025-06-17)
+
+
+### Bug Fixes
+
+* event json diff should be sent as a json formatted value ([#430](https://github.com/infratographer/x/issues/430)) ([d150640](https://github.com/infratographer/x/commit/d15064039dbbfdf5dc33d19d93b7b54f14728995))
+
 ## [0.11.0](https://github.com/infratographer/x/compare/v0.10.0...v0.11.0) (2025-06-17)
 
 
