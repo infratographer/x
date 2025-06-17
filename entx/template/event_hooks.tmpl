@@ -10,6 +10,7 @@
 	import (
 		"github.com/metal-toolbox/iam-runtime/pkg/iam/runtime/authorization"
 		"github.com/metal-toolbox/iam-runtime-contrib/iamruntime"
+		"github.com/nsf/jsondiff"
 		"go.infratographer.com/permissions-api/pkg/permissions"
 	)
 
@@ -31,6 +32,7 @@
 							}
 
 							changeset := []events.FieldChange{}
+							additionalData := map[string]interface{}{}
 
 							{{- range $f := $node.Fields }}
 								{{- if $f.Sensitive }}
@@ -90,6 +92,8 @@
 												{{ $currentValue }} = {{ $f.Name }}.Format(time.RFC3339)
 											{{- else if $f.HasValueScanner }}
 												{{ $currentValue }} = {{ $f.Name }}.Value()
+											{{- else if $annotation.IsJSONField }}
+												{{ $currentValue }} = string({{ $f.Name }})
 											{{- else }}
 												{{ $currentValue }} = fmt.Sprintf("%s", fmt.Sprint({{ $f.Name }}))
 											{{- end }}
@@ -105,8 +109,18 @@
 													{{ $prevVar }} = ov.Format(time.RFC3339)
 													{{- else if $f.HasValueScanner }}
 													{{ $prevVar }} = ov.Value()
+													{{- else if $annotation.IsJSONField }}
+														{{ $prevVar }} = string(ov)
 													{{- else }}
 													{{ $prevVar }} = fmt.Sprintf("%s", fmt.Sprint(ov))
+													{{- end }}
+
+													{{- if $annotation.IncludeJSONDiff }}
+														opts := jsondiff.DefaultConsoleOptions()
+														opts.SkipMatches = true
+
+														_, diff := jsondiff.Compare(ov, {{ $f.Name }}, &opts)
+														additionalData["{{ $f.Name }}-json-diff"] = diff
 													{{- end }}
 												}
 											}
@@ -127,6 +141,10 @@
 							AdditionalSubjectIDs: additionalSubjects,
 							Timestamp:            time.Now().UTC(),
 							FieldChanges:         changeset,
+						}
+
+						if len(additionalData) != 0 {
+							msg.additionalData = additionalData
 						}
 
 						// complete the mutation before we process the event

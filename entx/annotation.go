@@ -27,6 +27,8 @@ type EventsHookAnnotation struct {
 	SubjectName               string
 	AdditionalSubjectRelation string
 	IsAdditionalSubjectField  bool
+	IsJSONField               bool
+	IncludeJSONDiff           bool
 }
 
 // Name implements the ent Annotation interface.
@@ -52,6 +54,28 @@ func EventsHookAdditionalSubjectField() *EventsHookAnnotation {
 func EventsHookSubjectName(s string) *EventsHookAnnotation {
 	return &EventsHookAnnotation{
 		SubjectName: s,
+	}
+}
+
+// EventsHookJSONField marks this ent field as a field containing JSON to convert the []byte json.RawMessage to a string in the change event
+func EventsHookJSONField() *EventsHookAnnotation {
+	return &EventsHookAnnotation{
+		IsJSONField: true,
+	}
+}
+
+// EventsHookIncludeJSONDiff marks this ent field as a field containing JSON and to calculate a json diff and add it to the additional data of the change event
+func EventsHookIncludeJSONDiff() *EventsHookAnnotation {
+	return &EventsHookAnnotation{
+		IncludeJSONDiff: true,
+	}
+}
+
+// EventsHookJSONFieldWithDiff enabled both JSONField and JSONDiff
+func EventsHookJSONFieldWithDiff() *EventsHookAnnotation {
+	return &EventsHookAnnotation{
+		IsJSONField:     true,
+		IncludeJSONDiff: true,
 	}
 }
 
