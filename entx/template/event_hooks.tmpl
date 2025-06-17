@@ -116,7 +116,7 @@
 													{{- end }}
 
 													{{- if $annotation.IncludeJSONDiff }}
-														opts := jsondiff.DefaultConsoleOptions()
+														opts := jsondiff.DefaultJSONOptions()
 														opts.SkipMatches = true
 
 														_, diff := jsondiff.Compare(ov, {{ $f.Name }}, &opts)
