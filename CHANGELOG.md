@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.11.2](https://github.com/infratographer/x/compare/v0.11.1...v0.11.2) (2025-06-20)
+
+
+### Bug Fixes
+
+* **deps:** update module go.step.sm/crypto to v0.67.0 ([#433](https://github.com/infratographer/x/issues/433)) ([b712323](https://github.com/infratographer/x/commit/b712323c5ee151068ddf74ac4ef9ea801b93f5b5))
+
 ## [0.11.1](https://github.com/infratographer/x/compare/v0.11.0...v0.11.1) (2025-06-17)
 
 
