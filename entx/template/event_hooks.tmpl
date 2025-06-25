@@ -159,6 +159,11 @@
 							}
 						}
 
+						// don't send a change message if the only thing that changed was the updated_at timestamp, that's not a real change
+						if len(msg.FieldChanges) == 1 && msg.FieldChanges[0].Field == "updated_at" {
+							return retValue, nil
+						}
+
 						if _, err := m.EventsPublisher.PublishChange(ctx, "{{ $nodeAnnotation.SubjectName }}", msg); err != nil {
 							return nil, fmt.Errorf("failed to publish change: %w", err)
 						}
