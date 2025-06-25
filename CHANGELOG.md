@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.11.2](https://github.com/infratographer/x/compare/v0.11.1...v0.11.2) (2025-06-25)
+
+
+### Bug Fixes
+
+* **deps:** update golang.org/x/exp digest to b7579e2 ([#432](https://github.com/infratographer/x/issues/432)) ([a31a261](https://github.com/infratographer/x/commit/a31a261afdd9a60b823f4221983b7a4434a64b73))
+* **deps:** update module go.step.sm/crypto to v0.67.0 ([#433](https://github.com/infratographer/x/issues/433)) ([b712323](https://github.com/infratographer/x/commit/b712323c5ee151068ddf74ac4ef9ea801b93f5b5))
+* don't send change messages when the old field that changed was the updated_at timestamp, that's not an actual change ([#436](https://github.com/infratographer/x/issues/436)) ([708298c](https://github.com/infratographer/x/commit/708298ccfb0c03beb4b762e54c5103d6b4dcf9a8))
+
 ## [0.11.1](https://github.com/infratographer/x/compare/v0.11.0...v0.11.1) (2025-06-17)
 
 
