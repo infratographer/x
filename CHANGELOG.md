@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.11.3](https://github.com/infratographer/x/compare/v0.11.2...v0.11.3) (2025-06-26)
+
+
+### Bug Fixes
+
+* **deps:** update go opentelemetry packages and libraries to v0.62.0 ([#437](https://github.com/infratographer/x/issues/437)) ([2c4eaaf](https://github.com/infratographer/x/commit/2c4eaaf64f2a8db119f51bca2bbfb378a20dc539))
+* **deps:** update module github.com/brianvoe/gofakeit/v7 to v7.3.0 ([#439](https://github.com/infratographer/x/issues/439)) ([f15ec9d](https://github.com/infratographer/x/commit/f15ec9d1a28d804ee2b3a8b1cbd7b8e36e8c2fb8))
+
 ## [0.11.2](https://github.com/infratographer/x/compare/v0.11.1...v0.11.2) (2025-06-25)
 
 
