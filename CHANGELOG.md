@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.11.4](https://github.com/infratographer/x/compare/v0.11.3...v0.11.4) (2025-06-27)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/go-viper/mapstructure/v2 to v2.3.0 ([b1a1e4a](https://github.com/infratographer/x/commit/b1a1e4abfe90541c21f1937461a1a90ac4975fe3))
+* **deps:** update module github.com/nats-io/nats-server/v2 to v2.11.5 ([#440](https://github.com/infratographer/x/issues/440)) ([8551960](https://github.com/infratographer/x/commit/855196076c84410aa40a0d358ff8c9c619ec1e40))
+* **deps:** update module github.com/zsais/go-gin-prometheus to v1 ([#442](https://github.com/infratographer/x/issues/442)) ([0cc7653](https://github.com/infratographer/x/commit/0cc7653bf6075234235a5e370a28267f113d6bb2))
+
 ## [0.11.3](https://github.com/infratographer/x/compare/v0.11.2...v0.11.3) (2025-06-26)
 
 
