@@ -1,6 +1,6 @@
 module go.infratographer.com/x
 
-go 1.24.0
+go 1.24.3
 
 toolchain go1.24.4
 
@@ -36,7 +36,7 @@ require (
 	github.com/testcontainers/testcontainers-go v0.37.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.37.0
 	github.com/vektah/gqlparser/v2 v2.5.28
-	github.com/zsais/go-gin-prometheus v0.1.0
+	github.com/zsais/go-gin-prometheus v1.0.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.62.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho v0.62.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.62.0
@@ -318,7 +318,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/prometheus/client_golang v1.22.0 // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect
-	github.com/prometheus/common v0.63.0 // indirect
+	github.com/prometheus/common v0.65.0 // indirect
 	github.com/prometheus/procfs v0.16.1 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/afero v1.14.0 // indirect
