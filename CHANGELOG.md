@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.11.5](https://github.com/infratographer/x/compare/v0.11.4...v0.11.5) (2025-06-29)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/99designs/gqlgen to v0.17.76 ([#448](https://github.com/infratographer/x/issues/448)) ([58b487b](https://github.com/infratographer/x/commit/58b487b58eaa4b8e34748c90f479c407d56fcfe9))
+* **deps:** update module github.com/vektah/gqlparser/v2 to v2.5.29 ([#445](https://github.com/infratographer/x/issues/445)) ([e64bdf0](https://github.com/infratographer/x/commit/e64bdf0cd524476faf3677ebc98231389288e5a1))
+* **deps:** update module github.com/vektah/gqlparser/v2 to v2.5.30 ([#449](https://github.com/infratographer/x/issues/449)) ([64352b1](https://github.com/infratographer/x/commit/64352b152fd69ab00dfeeb60961792697227b3ec))
+
 ## [0.11.4](https://github.com/infratographer/x/compare/v0.11.3...v0.11.4) (2025-06-27)
 
 
