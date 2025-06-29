@@ -33,19 +33,19 @@ var (
 // Config is used to configure a new ginx server
 type Config struct {
 	// Debug enables echo's Debug option.
-	Debug bool
+	Debug bool `mapstructure:"debug"`
 
 	// Listen sets the listen address to serve the echo server on.
-	Listen string
+	Listen string `mapstructure:"listen"`
 
 	// ShutdownGracePeriod sets the grace period for in flight requests before shutting down.
-	ShutdownGracePeriod time.Duration
+	ShutdownGracePeriod time.Duration `mapstructure:"shutdown-grace-period"`
 
 	// TrustedProxies defines the allowed ip / network ranges to trust a proxy from.
-	TrustedProxies []string
+	TrustedProxies []string `mapstructure:"trusted-proxies"`
 
 	// Middleware includes the provided middleware when echo is initialized.
-	Middleware []echo.MiddlewareFunc
+	Middleware []echo.MiddlewareFunc `mapstructure:"middleware"`
 }
 
 // withDefaults returns a new config with defaults set if not already defined.
