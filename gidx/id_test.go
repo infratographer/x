@@ -69,6 +69,12 @@ func TestPrefix(t *testing.T) {
 	assert.Equal(t, "testpre", id.Prefix())
 }
 
+func TestID(t *testing.T) {
+	id, err := gidx.Parse("testpre-suffix")
+	assert.NoError(t, err)
+	assert.Equal(t, "suffix", id.ID())
+}
+
 func TestNull(t *testing.T) {
 	assert.True(t, gidx.NullPrefixedID == gidx.PrefixedID(""))
 	assert.False(t, gidx.NullPrefixedID == gidx.PrefixedID("a-value"))

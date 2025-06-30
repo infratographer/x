@@ -62,6 +62,12 @@ func (p PrefixedID) Prefix() string {
 	return prefix
 }
 
+// ID will return the latter part of an ID, removing the prefix
+func (p PrefixedID) ID() string {
+	_, id := parts(string(p))
+	return id
+}
+
 // MustNewID wraps NewID and panics in the event of an error
 func MustNewID(prefix string) PrefixedID {
 	id, err := NewID(prefix)
