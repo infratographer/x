@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.11.5](https://github.com/infratographer/x/compare/v0.11.4...v0.11.5) (2025-07-18)
+
+
+### Bug Fixes
+
+* **deps:** update golang.org/x/exp digest to 645b1fa ([#456](https://github.com/infratographer/x/issues/456)) ([18da71b](https://github.com/infratographer/x/commit/18da71ba74f07e34bbb2ccc98cd858fe59798082))
+* **deps:** update module github.com/99designs/gqlgen to v0.17.76 ([#448](https://github.com/infratographer/x/issues/448)) ([58b487b](https://github.com/infratographer/x/commit/58b487b58eaa4b8e34748c90f479c407d56fcfe9))
+* **deps:** update module github.com/cockroachdb/cockroach-go/v2 to v2.4.1 ([#453](https://github.com/infratographer/x/issues/453)) ([fd8b6dd](https://github.com/infratographer/x/commit/fd8b6dd4ed751df08815ed9b53ec85bd02536a5e))
+* **deps:** update module github.com/golang-jwt/jwt/v5 to v5.2.3 ([#457](https://github.com/infratographer/x/issues/457)) ([4fa101d](https://github.com/infratographer/x/commit/4fa101db449b2112370a4f62603782727cfddd77))
+* **deps:** update module github.com/nats-io/nats-server/v2 to v2.11.6 ([#454](https://github.com/infratographer/x/issues/454)) ([c7e73d6](https://github.com/infratographer/x/commit/c7e73d6bd8bced23e66a4cbb54f3a29591597bac))
+* **deps:** update module github.com/spf13/pflag to v1.0.7 ([#459](https://github.com/infratographer/x/issues/459)) ([7b3009a](https://github.com/infratographer/x/commit/7b3009a9da10d2e59d6ffbf674725b37bb5be762))
+* **deps:** update module github.com/vektah/gqlparser/v2 to v2.5.29 ([#445](https://github.com/infratographer/x/issues/445)) ([e64bdf0](https://github.com/infratographer/x/commit/e64bdf0cd524476faf3677ebc98231389288e5a1))
+* **deps:** update module github.com/vektah/gqlparser/v2 to v2.5.30 ([#449](https://github.com/infratographer/x/issues/449)) ([64352b1](https://github.com/infratographer/x/commit/64352b152fd69ab00dfeeb60961792697227b3ec))
+* **deps:** update testcontainers-go monorepo to v0.38.0 ([#458](https://github.com/infratographer/x/issues/458)) ([de3dbed](https://github.com/infratographer/x/commit/de3dbed363cfa9aee1e5b127dd32eb58cd470485))
+
 ## [0.11.4](https://github.com/infratographer/x/compare/v0.11.3...v0.11.4) (2025-06-27)
 
 
