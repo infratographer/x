@@ -397,6 +397,7 @@ func (m AuthRelationshipResponse) Validate() error {
 // UnmarshalChangeMessage returns a ChangeMessage from a json []byte.
 func UnmarshalChangeMessage(b []byte) (ChangeMessage, error) {
 	var c ChangeMessage
+
 	err := json.Unmarshal(b, &c)
 
 	return c, err
@@ -405,6 +406,7 @@ func UnmarshalChangeMessage(b []byte) (ChangeMessage, error) {
 // UnmarshalEventMessage returns a EventMessage from a json []byte.
 func UnmarshalEventMessage(b []byte) (EventMessage, error) {
 	var m EventMessage
+
 	err := json.Unmarshal(b, &m)
 
 	return m, err
@@ -413,6 +415,7 @@ func UnmarshalEventMessage(b []byte) (EventMessage, error) {
 // UnmarshalAuthRelationshipRequest returns an AuthRelationshipRequest from a json []byte.
 func UnmarshalAuthRelationshipRequest(b []byte) (AuthRelationshipRequest, error) {
 	var m AuthRelationshipRequest
+
 	err := json.Unmarshal(b, &m)
 
 	return m, err
@@ -421,6 +424,7 @@ func UnmarshalAuthRelationshipRequest(b []byte) (AuthRelationshipRequest, error)
 // UnmarshalAuthRelationshipResponse returns an AuthRelationshipRsponse from a json []byte.
 func UnmarshalAuthRelationshipResponse(b []byte) (AuthRelationshipResponse, error) {
 	var m AuthRelationshipResponse
+
 	err := json.Unmarshal(b, &m)
 
 	return m, err

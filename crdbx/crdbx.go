@@ -15,6 +15,7 @@
 package crdbx
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 
@@ -45,7 +46,7 @@ func NewDB(cfg Config, tracing bool) (*sql.DB, error) {
 		return nil, fmt.Errorf("failed connecting to database: %w", err)
 	}
 
-	if err := db.Ping(); err != nil {
+	if err := db.PingContext(context.TODO()); err != nil {
 		return nil, fmt.Errorf("failed verifying database connection: %w", err)
 	}
 

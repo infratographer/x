@@ -644,6 +644,7 @@ func TestServe(t *testing.T) {
 			if cancel == nil {
 				// Ask for SIGTERM (ensures we don't exit when we trigger killing ourself)
 				c := make(chan os.Signal, 1)
+
 				signal.Notify(c, syscall.SIGTERM)
 				defer signal.Stop(c)
 
