@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.12.0](https://github.com/infratographer/x/compare/v0.11.5...v0.12.0) (2025-07-18)
+
+
+### Features
+
+* add ID method to gidx.PrefixedID ([#451](https://github.com/infratographer/x/issues/451)) ([3265810](https://github.com/infratographer/x/commit/3265810c92d55df15d8d23148999c13a056c606d))
+
 ## [0.11.5](https://github.com/infratographer/x/compare/v0.11.4...v0.11.5) (2025-07-18)
 
 
