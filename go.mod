@@ -31,7 +31,7 @@ require (
 	github.com/nats-io/nats.go v1.43.0
 	github.com/pressly/goose/v3 v3.24.3
 	github.com/spf13/cobra v1.9.1
-	github.com/spf13/pflag v1.0.6
+	github.com/spf13/pflag v1.0.7
 	github.com/spf13/viper v1.20.1
 	github.com/testcontainers/testcontainers-go v0.37.0
 	github.com/testcontainers/testcontainers-go/modules/postgres v0.37.0
