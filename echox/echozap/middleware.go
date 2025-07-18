@@ -116,7 +116,6 @@ func (config MiddlewareConfig) ToMiddleware() (echo.MiddlewareFunc, error) {
 
 			if err != nil {
 				fields = append(fields, zap.Error(err))
-
 				if httpErr, ok := err.(*echo.HTTPError); ok {
 					fields = append(fields,
 						zap.Int("error_code", httpErr.Code),

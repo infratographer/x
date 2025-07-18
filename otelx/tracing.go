@@ -130,7 +130,6 @@ func NewTracerProviderWithExporter(exporter sdktrace.SpanExporter, appName strin
 			semconv.DeploymentEnvironmentName(tc.Environment),
 		),
 	)
-
 	if err != nil {
 		return nil, &ConfigError{
 			Message: "could not construct otel resource",

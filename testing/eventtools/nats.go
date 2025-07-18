@@ -91,10 +91,10 @@ func (s *TestNats) WaitForAck(consumer string, timeout time.Duration) error { //
 func (s *TestNats) waitForAck(consumer string, timeout time.Duration) error {
 	// We should only ever receive one Ack, so we close the channel directly if we get one.
 	ackCh := make(chan struct{})
+
 	ackSub, err := s.Conn.Subscribe("$JS.EVENT.METRIC.CONSUMER.ACK.*."+consumer, func(_ *nats.Msg) {
 		close(ackCh)
 	})
-
 	if err != nil {
 		return err
 	}
@@ -111,7 +111,6 @@ func (s *TestNats) waitForAck(consumer string, timeout time.Duration) error {
 			close(nakCh)
 		})
 	})
-
 	if err != nil {
 		return err
 	}
@@ -141,6 +140,7 @@ func (s *TestNats) CaptureMsgAck(consumer string, timeout time.Duration, msgFunc
 	}
 
 	errCh := make(chan error, 1)
+
 	go func() {
 		errCh <- s.waitForAck(consumer, timeout)
 	}()

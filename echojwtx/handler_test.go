@@ -127,7 +127,9 @@ func TestAudienceValidation(t *testing.T) {
 			require.NoError(t, err, "no error expected for NewAuth")
 
 			gotUserTokenCh := make(chan *jwt.Token, 1)
+
 			gotActorCh := make(chan string, 1)
+
 			gotActorCtxCh := make(chan string, 1)
 
 			e := echo.New()
@@ -140,7 +142,9 @@ func TestAudienceValidation(t *testing.T) {
 				actorCtx, _ := c.Request().Context().Value(echojwtx.ActorCtxKey).(string)
 
 				gotUserTokenCh <- token
+
 				gotActorCh <- actor
+
 				gotActorCtxCh <- actorCtx
 
 				return nil

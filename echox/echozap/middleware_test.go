@@ -270,7 +270,6 @@ func TestToMiddleware(t *testing.T) {
 			}
 
 			mdw, err := tc.config.ToMiddleware()
-
 			if tc.expectConfigError != nil {
 				require.Error(t, err, "expected error to be returned")
 
