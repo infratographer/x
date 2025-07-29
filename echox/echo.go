@@ -283,7 +283,9 @@ func (s *Server) Run() error {
 // RunWithContext listens and serves the echo server on the configured address.
 // See ServeWithContext for more details.
 func (s *Server) RunWithContext(ctx context.Context) error {
-	listener, err := net.Listen("tcp", s.listen)
+	var lc net.ListenConfig
+
+	listener, err := lc.Listen(ctx, "tcp", s.listen)
 	if err != nil {
 		return err
 	}

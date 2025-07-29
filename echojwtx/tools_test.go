@@ -74,7 +74,9 @@ func testHelperJoseJWKSProvider(keyIDs ...string) jose.JSONWebKeySet {
 func testHelperOIDCProvider(keyIDs ...string) (string, func()) {
 	e := echo.New()
 
-	listener, err := net.Listen("tcp", ":0")
+	var lc net.ListenConfig
+
+	listener, err := lc.Listen(context.Background(), "tcp", ":0")
 	if err != nil {
 		panic(err)
 	}

@@ -51,12 +51,14 @@ func (h testHandler) Routes(group *echo.Group) {
 func testServer(t *testing.T, config Config, preRun func(srv *Server)) (*Server, string, func()) {
 	t.Helper()
 
+	var lc net.ListenConfig
+
 	listen := config.Listen
 	if listen == "" {
 		listen = "127.0.0.1:0"
 	}
 
-	listener, err := net.Listen("tcp", listen)
+	listener, err := lc.Listen(context.Background(), "tcp", listen)
 
 	require.NoError(t, err, "no error expected listening")
 
@@ -554,7 +556,9 @@ func TestServe(t *testing.T) {
 
 			srv.AddHandler(handler)
 
-			listener, err := net.Listen("tcp", "127.0.0.1:0")
+			var lc net.ListenConfig
+
+			listener, err := lc.Listen(context.Background(), "tcp", "127.0.0.1:0")
 
 			require.NoError(t, err, "net.Listen should not return an error")
 
