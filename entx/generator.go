@@ -44,6 +44,16 @@ func WithFederation() ExtensionOption {
 	}
 }
 
+// WithConnectionNodes adds the templates for adding nodes to relay connections
+func WithConnectionNodes() ExtensionOption {
+	return func(ex *Extension) error {
+		ex.templates = append(ex.templates, PaginationTemplate)
+		ex.gqlSchemaHooks = append(ex.gqlSchemaHooks, addNodesToConnections)
+
+		return nil
+	}
+}
+
 // WithJSONScalar adds the JSON scalar definition
 func WithJSONScalar() ExtensionOption {
 	return func(ex *Extension) error {

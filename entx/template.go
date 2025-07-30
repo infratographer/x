@@ -19,6 +19,7 @@ import (
 	"strings"
 	"text/template"
 
+	"entgo.io/contrib/entgql"
 	"entgo.io/ent/entc/gen"
 	"github.com/mitchellh/mapstructure"
 )
@@ -29,6 +30,9 @@ var (
 
 	// EventHooksTemplate adds support for generating event hooks
 	EventHooksTemplate = parseT("template/event_hooks.tmpl")
+
+	// PaginationTemplate adds support for adding the nodes field to relay connections
+	PaginationTemplate = parseT("template/pagination.tmpl")
 
 	// TemplateFuncs contains the extra template functions used by entx.
 	TemplateFuncs = template.FuncMap{
@@ -41,8 +45,14 @@ var (
 )
 
 func parseT(path string) *gen.Template {
+	funcMap := entgql.TemplateFuncs
+
+	for k, v := range TemplateFuncs {
+		funcMap[k] = v
+	}
+
 	return gen.MustParse(gen.NewTemplate(path).
-		Funcs(TemplateFuncs).
+		Funcs(funcMap).
 		ParseFS(_templates, path))
 }
 

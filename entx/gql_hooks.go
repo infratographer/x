@@ -16,6 +16,8 @@ package entx
 
 import (
 	"errors"
+	"slices"
+	"strings"
 
 	"entgo.io/ent/entc"
 	"entgo.io/ent/entc/gen"
@@ -86,6 +88,36 @@ var (
 			Description: "A valid JSON string.",
 			Name:        "JSON",
 		}
+		return nil
+	}
+
+	addNodesToConnections = func(_ *gen.Graph, s *ast.Schema) error {
+		for _, t := range s.Types {
+			if !strings.HasSuffix(t.Name, "Connection") {
+				continue
+			}
+
+			existingFields := []string{"edges", "pageInfo", "totalCount"}
+			missingField := false
+			for _, f := range t.Fields {
+				if !slices.Contains(existingFields, f.Name) {
+					missingField = true
+				}
+			}
+			if missingField {
+				continue
+			}
+
+			// If we are here then this type is a connection with only the fields we expect so add nodes
+			nodeType := strings.TrimSuffix(t.Name, "Connection")
+
+			t.Fields = append(t.Fields, &ast.FieldDefinition{
+				Name:        "nodes",
+				Type:        ast.ListType(ast.NamedType(nodeType, nil), nil),
+				Description: "A list of nodes.",
+			})
+		}
+
 		return nil
 	}
 )
