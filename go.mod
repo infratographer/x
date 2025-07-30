@@ -335,7 +335,7 @@ require (
 	go.opentelemetry.io/otel/metric v1.37.0 // indirect
 	go.opentelemetry.io/otel/trace v1.37.0
 	go.opentelemetry.io/proto/otlp v1.7.0 // indirect
-	go.step.sm/crypto v0.67.0
+	go.step.sm/crypto v0.68.0
 	go.uber.org/multierr v1.11.0
 	golang.org/x/crypto v0.40.0 // indirect
 	golang.org/x/net v0.42.0 // indirect
