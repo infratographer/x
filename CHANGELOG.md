@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.13.0](https://github.com/infratographer/x/compare/v0.12.0...v0.13.0) (2025-07-30)
+
+
+### Features
+
+* add nodes field to relay connections ([#471](https://github.com/infratographer/x/issues/471)) ([5fe44de](https://github.com/infratographer/x/commit/5fe44de47216139931780948c6fd2b2e4dedb330))
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/99designs/gqlgen to v0.17.78 ([#467](https://github.com/infratographer/x/issues/467)) ([efc9ba4](https://github.com/infratographer/x/commit/efc9ba4d145e9d38b23a0f1c7dfcc7bc03c9cb41))
+* **deps:** update module github.com/cenkalti/backoff/v5 to v5.0.3 ([#466](https://github.com/infratographer/x/issues/466)) ([4b26fc9](https://github.com/infratographer/x/commit/4b26fc99e8c98ee322977e46db29de32e17cbcf6))
+* **deps:** update module github.com/nats-io/nats.go to v1.44.0 ([#470](https://github.com/infratographer/x/issues/470)) ([d07d7e1](https://github.com/infratographer/x/commit/d07d7e1d579b62103dc90d1aa9ca355315f9a688))
+* **deps:** update module github.com/zsais/go-gin-prometheus to v1.0.1 ([#464](https://github.com/infratographer/x/issues/464)) ([763fa9a](https://github.com/infratographer/x/commit/763fa9ab1ac823f532148d36d2e3e0ee7dc0b783))
+
 ## [0.12.0](https://github.com/infratographer/x/compare/v0.11.5...v0.12.0) (2025-07-18)
 
 
