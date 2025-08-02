@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.13.1](https://github.com/infratographer/x/compare/v0.13.0...v0.13.1) (2025-08-02)
+
+
+### Bug Fixes
+
+* **deps:** update module entgo.io/contrib to v0.7.0 ([#478](https://github.com/infratographer/x/issues/478)) ([9c1ef02](https://github.com/infratographer/x/commit/9c1ef021b9053bc6c2361a7754a9de925e07c92b))
+* **deps:** update module entgo.io/ent to v0.14.5 ([#476](https://github.com/infratographer/x/issues/476)) ([9cb7a80](https://github.com/infratographer/x/commit/9cb7a80b191cccb2f81cc25df9a4cae296f3e7c0))
+* **deps:** update module github.com/golang-jwt/jwt/v5 to v5.3.0 ([#473](https://github.com/infratographer/x/issues/473)) ([ef4a0ee](https://github.com/infratographer/x/commit/ef4a0ee5267bdd367a8c8d3ea7682482ca7ae6f9))
+* **deps:** update module github.com/nats-io/nats-server/v2 to v2.11.7 ([#477](https://github.com/infratographer/x/issues/477)) ([d3411df](https://github.com/infratographer/x/commit/d3411df0ad962a715492578c106bf4fc3e213f0e))
+* **deps:** update module go.step.sm/crypto to v0.68.0 ([#475](https://github.com/infratographer/x/issues/475)) ([c6479f5](https://github.com/infratographer/x/commit/c6479f5293ca27b34da98f69c1537f284c52e47f))
+
 ## [0.13.0](https://github.com/infratographer/x/compare/v0.12.0...v0.13.0) (2025-07-30)
 
 
