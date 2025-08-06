@@ -34,6 +34,9 @@ var (
 	// PaginationTemplate adds support for adding the nodes field to relay connections
 	PaginationTemplate = parseT("template/pagination.tmpl")
 
+	// CollectionTemplate adds support for adding the nodes field to relay connections
+	CollectionTemplate = parseT("template/collection.tmpl")
+
 	// TemplateFuncs contains the extra template functions used by entx.
 	TemplateFuncs = template.FuncMap{
 		"contains":                          strings.Contains,
