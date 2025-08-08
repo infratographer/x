@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.2](https://github.com/infratographer/x/compare/v0.13.1...v0.13.2) (2025-08-08)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/docker/go-connections to v0.6.0 ([#486](https://github.com/infratographer/x/issues/486)) ([95cfc45](https://github.com/infratographer/x/commit/95cfc45b295c907dc2586cab8d734cedef686906))
+
 ## [0.13.1](https://github.com/infratographer/x/compare/v0.13.0...v0.13.1) (2025-08-06)
 
 
