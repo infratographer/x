@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.13.2](https://github.com/infratographer/x/compare/v0.13.1...v0.13.2) (2025-08-14)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/docker/go-connections to v0.6.0 ([#486](https://github.com/infratographer/x/issues/486)) ([95cfc45](https://github.com/infratographer/x/commit/95cfc45b295c907dc2586cab8d734cedef686906))
+* **deps:** update module github.com/nats-io/nats-server/v2 to v2.11.8 ([#496](https://github.com/infratographer/x/issues/496)) ([27b0f5e](https://github.com/infratographer/x/commit/27b0f5eaa788ecc743dd079597b2d4b19db98bb8))
+
 ## [0.13.1](https://github.com/infratographer/x/compare/v0.13.0...v0.13.1) (2025-08-06)
 
 
