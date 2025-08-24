@@ -29,7 +29,7 @@ require (
 	github.com/lib/pq v1.10.9
 	github.com/nats-io/nats-server/v2 v2.11.8
 	github.com/nats-io/nats.go v1.45.0
-	github.com/pressly/goose/v3 v3.24.3
+	github.com/pressly/goose/v3 v3.25.0
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/pflag v1.0.7
 	github.com/spf13/viper v1.20.1
@@ -330,7 +330,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/afero v1.14.0 // indirect
 	github.com/spf13/cast v1.7.1 // indirect
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.0
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/ugorji/go/codec v1.3.0 // indirect
 	go.opentelemetry.io/otel/metric v1.37.0 // indirect
