@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.13.2](https://github.com/infratographer/x/compare/v0.13.1...v0.13.2) (2025-09-05)
+
+
+### Bug Fixes
+
+* **deps:** update golang.org/x/exp digest to 8b4c13b ([#490](https://github.com/infratographer/x/issues/490)) ([0e0aabb](https://github.com/infratographer/x/commit/0e0aabb14d46370298cabe5cef1cdddddf206a7f))
+* **deps:** update module github.com/brianvoe/gofakeit/v7 to v7.4.0 ([#499](https://github.com/infratographer/x/issues/499)) ([ffa2baf](https://github.com/infratographer/x/commit/ffa2baf545cf4798f72c6e434839a8697f57622f))
+* **deps:** update module github.com/brianvoe/gofakeit/v7 to v7.5.1 ([#509](https://github.com/infratographer/x/issues/509)) ([f7a0513](https://github.com/infratographer/x/commit/f7a051341ec6ed4a4650c2a2137f20f27cb1964a))
+* **deps:** update module github.com/cockroachdb/cockroach-go/v2 to v2.4.2 ([#513](https://github.com/infratographer/x/issues/513)) ([5c4e848](https://github.com/infratographer/x/commit/5c4e84827d92984f0eb409f8205942344695fb7d))
+* **deps:** update module github.com/docker/go-connections to v0.6.0 ([#486](https://github.com/infratographer/x/issues/486)) ([95cfc45](https://github.com/infratographer/x/commit/95cfc45b295c907dc2586cab8d734cedef686906))
+* **deps:** update module github.com/nats-io/nats-server/v2 to v2.11.8 ([#496](https://github.com/infratographer/x/issues/496)) ([27b0f5e](https://github.com/infratographer/x/commit/27b0f5eaa788ecc743dd079597b2d4b19db98bb8))
+* **deps:** update module github.com/nats-io/nats.go to v1.45.0 ([#500](https://github.com/infratographer/x/issues/500)) ([85477b3](https://github.com/infratographer/x/commit/85477b3807fc8159184505270dcbd3dae7e751b0))
+* **deps:** update module github.com/pressly/goose/v3 to v3.25.0 ([#505](https://github.com/infratographer/x/issues/505)) ([99a114f](https://github.com/infratographer/x/commit/99a114fed76354f2d6c53f60322312a54e491a14))
+* **deps:** update module github.com/spf13/cobra to v1.10.1 ([#515](https://github.com/infratographer/x/issues/515)) ([b15c6f8](https://github.com/infratographer/x/commit/b15c6f8dcb64a55ebc959b9178d2263a9a5b7da0))
+* **deps:** update module github.com/spf13/pflag to v1.0.10 ([#510](https://github.com/infratographer/x/issues/510)) ([e6b189c](https://github.com/infratographer/x/commit/e6b189c40fe424d8ba9eeb6a83bb3f3e149eff67))
+* **deps:** update module github.com/stretchr/testify to v1.11.0 ([#506](https://github.com/infratographer/x/issues/506)) ([d198ab0](https://github.com/infratographer/x/commit/d198ab00a15024d29855009d647cfe504b3a8d8a))
+* **deps:** update module github.com/stretchr/testify to v1.11.1 ([#507](https://github.com/infratographer/x/issues/507)) ([dbc093f](https://github.com/infratographer/x/commit/dbc093fee3cc0ff25085a909783fc33a8621cef1))
+* **deps:** update module github.com/zsais/go-gin-prometheus to v1.0.2 ([#497](https://github.com/infratographer/x/issues/497)) ([00df63c](https://github.com/infratographer/x/commit/00df63c4b1e46a0a85fc3fe98ee57cf2aba56a95))
+* **deps:** update module go.step.sm/crypto to v0.70.0 ([#503](https://github.com/infratographer/x/issues/503)) ([a8e92f3](https://github.com/infratographer/x/commit/a8e92f3cb0c60b4fb720051f197b0b68fe8506a7))
+
 ## [0.13.1](https://github.com/infratographer/x/compare/v0.13.0...v0.13.1) (2025-08-06)
 
 
