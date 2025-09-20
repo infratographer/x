@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.13.3](https://github.com/infratographer/x/compare/v0.13.2...v0.13.3) (2025-09-20)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/99designs/gqlgen to v0.17.79 ([#527](https://github.com/infratographer/x/issues/527)) ([7182d59](https://github.com/infratographer/x/commit/7182d592f1409d2117698b8ee1d458e6d304e70f))
+* **deps:** update module github.com/brianvoe/gofakeit/v7 to v7.6.0 ([#522](https://github.com/infratographer/x/issues/522)) ([9f56310](https://github.com/infratographer/x/commit/9f563109c6a7f581893ec42b7197285fcca5518c))
+* **deps:** update module github.com/brianvoe/gofakeit/v7 to v7.7.0 ([#530](https://github.com/infratographer/x/issues/530)) ([9ba48d7](https://github.com/infratographer/x/commit/9ba48d7368d0b5f8c6ba1eaf0fa1a9c6693387aa))
+* **deps:** update module github.com/gin-gonic/gin to v1.11.0 ([#532](https://github.com/infratographer/x/issues/532)) ([143172a](https://github.com/infratographer/x/commit/143172a7d5fc7c65b885cd32566fbeb9521eae28))
+* **deps:** update module github.com/jackc/pgx/v5 to v5.7.6 ([#520](https://github.com/infratographer/x/issues/520)) ([a5b57e4](https://github.com/infratographer/x/commit/a5b57e46eb6a5494ebe86cd560acda6aac8a8144))
+* **deps:** update module github.com/micahparks/jwkset to v0.10.0 ([#528](https://github.com/infratographer/x/issues/528)) ([1f8e75c](https://github.com/infratographer/x/commit/1f8e75c8d77f4ef2ba2eff441c2c7b84cba7f677))
+* **deps:** update module github.com/nats-io/nats-server/v2 to v2.11.9 ([#524](https://github.com/infratographer/x/issues/524)) ([dae0cf5](https://github.com/infratographer/x/commit/dae0cf54836a339465d02ff6ed467e116156932c))
+* **deps:** update module github.com/spf13/viper to v1.21.0 ([#521](https://github.com/infratographer/x/issues/521)) ([185b7d3](https://github.com/infratographer/x/commit/185b7d39eaf2107d2774d7c406d476b8a955924e))
+* **deps:** update module github.com/xsam/otelsql to v0.40.0 ([#519](https://github.com/infratographer/x/issues/519)) ([90ad57b](https://github.com/infratographer/x/commit/90ad57bd0fe39f09bbbb5048a643c2fa69d60dda))
+* **deps:** update module golang.org/x/oauth2 to v0.31.0 ([#517](https://github.com/infratographer/x/issues/517)) ([0f339b2](https://github.com/infratographer/x/commit/0f339b219c3e33d6369f72ae1e761e2ec5128ae4))
+* **deps:** update testcontainers-go monorepo to v0.39.0 ([#531](https://github.com/infratographer/x/issues/531)) ([4defefb](https://github.com/infratographer/x/commit/4defefb7ad02792f3e0b36fb523bb393df9a54ea))
+
 ## [0.13.2](https://github.com/infratographer/x/compare/v0.13.1...v0.13.2) (2025-09-05)
 
 
