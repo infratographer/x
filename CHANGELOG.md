@@ -1,5 +1,40 @@
 # Changelog
 
+## [0.13.3](https://github.com/infratographer/x/compare/v0.13.2...v0.13.3) (2025-10-28)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/99designs/gqlgen to v0.17.79 ([#527](https://github.com/infratographer/x/issues/527)) ([7182d59](https://github.com/infratographer/x/commit/7182d592f1409d2117698b8ee1d458e6d304e70f))
+* **deps:** update module github.com/99designs/gqlgen to v0.17.80 ([#529](https://github.com/infratographer/x/issues/529)) ([c529389](https://github.com/infratographer/x/commit/c529389e7ae65f1d271db478a11e30945b25afde))
+* **deps:** update module github.com/99designs/gqlgen to v0.17.81 ([#541](https://github.com/infratographer/x/issues/541)) ([a5e44f5](https://github.com/infratographer/x/commit/a5e44f55948ff76f7da4b485032f86530101f403))
+* **deps:** update module github.com/brianvoe/gofakeit/v7 to v7.6.0 ([#522](https://github.com/infratographer/x/issues/522)) ([9f56310](https://github.com/infratographer/x/commit/9f563109c6a7f581893ec42b7197285fcca5518c))
+* **deps:** update module github.com/brianvoe/gofakeit/v7 to v7.7.0 ([#530](https://github.com/infratographer/x/issues/530)) ([9ba48d7](https://github.com/infratographer/x/commit/9ba48d7368d0b5f8c6ba1eaf0fa1a9c6693387aa))
+* **deps:** update module github.com/brianvoe/gofakeit/v7 to v7.7.1 ([#535](https://github.com/infratographer/x/issues/535)) ([13e5aca](https://github.com/infratographer/x/commit/13e5aca9ff946d204fc251f5cb19e8ef2906a094))
+* **deps:** update module github.com/brianvoe/gofakeit/v7 to v7.7.3 ([#539](https://github.com/infratographer/x/issues/539)) ([1a6e9a2](https://github.com/infratographer/x/commit/1a6e9a256a1736e8e778025537f619fb6d28c000))
+* **deps:** update module github.com/brianvoe/gofakeit/v7 to v7.8.0 ([#552](https://github.com/infratographer/x/issues/552)) ([cea2e6e](https://github.com/infratographer/x/commit/cea2e6ea775039beb7beba1104be493d95084809))
+* **deps:** update module github.com/brianvoe/gofakeit/v7 to v7.8.1 ([#559](https://github.com/infratographer/x/issues/559)) ([fc1e75c](https://github.com/infratographer/x/commit/fc1e75c211b2c3c5e4eee90a0c081aa1ae90898e))
+* **deps:** update module github.com/gin-gonic/gin to v1.11.0 ([#532](https://github.com/infratographer/x/issues/532)) ([143172a](https://github.com/infratographer/x/commit/143172a7d5fc7c65b885cd32566fbeb9521eae28))
+* **deps:** update module github.com/jackc/pgx/v5 to v5.7.6 ([#520](https://github.com/infratographer/x/issues/520)) ([a5b57e4](https://github.com/infratographer/x/commit/a5b57e46eb6a5494ebe86cd560acda6aac8a8144))
+* **deps:** update module github.com/micahparks/jwkset to v0.10.0 ([#528](https://github.com/infratographer/x/issues/528)) ([1f8e75c](https://github.com/infratographer/x/commit/1f8e75c8d77f4ef2ba2eff441c2c7b84cba7f677))
+* **deps:** update module github.com/micahparks/keyfunc/v3 to v3.6.2 ([#533](https://github.com/infratographer/x/issues/533)) ([ed65cbf](https://github.com/infratographer/x/commit/ed65cbfefa8611b8dbd17ed4ed0940f8eb69fa15))
+* **deps:** update module github.com/micahparks/keyfunc/v3 to v3.7.0 ([#548](https://github.com/infratographer/x/issues/548)) ([9714f4b](https://github.com/infratographer/x/commit/9714f4b88b690899db38e323eb2b0b0cbae6144c))
+* **deps:** update module github.com/nats-io/nats-server/v2 to v2.11.9 ([#524](https://github.com/infratographer/x/issues/524)) ([dae0cf5](https://github.com/infratographer/x/commit/dae0cf54836a339465d02ff6ed467e116156932c))
+* **deps:** update module github.com/nats-io/nats-server/v2 to v2.12.0 ([#537](https://github.com/infratographer/x/issues/537)) ([9516495](https://github.com/infratographer/x/commit/95164953239af8e57d8d2da1ec9ca67c1f80ce63))
+* **deps:** update module github.com/nats-io/nats-server/v2 to v2.12.1 ([#554](https://github.com/infratographer/x/issues/554)) ([d375525](https://github.com/infratographer/x/commit/d375525e6c992d1f6123511153c160eee098e142))
+* **deps:** update module github.com/nats-io/nats.go to v1.46.0 ([#538](https://github.com/infratographer/x/issues/538)) ([4d77887](https://github.com/infratographer/x/commit/4d77887cfb7411ae121dcfbcfa2d479af6a78a5b))
+* **deps:** update module github.com/nats-io/nats.go to v1.46.1 ([#543](https://github.com/infratographer/x/issues/543)) ([f237d7f](https://github.com/infratographer/x/commit/f237d7ff63d0c7527d67dfbcffb783701c16f262))
+* **deps:** update module github.com/nats-io/nats.go to v1.47.0 ([#555](https://github.com/infratographer/x/issues/555)) ([41f80a7](https://github.com/infratographer/x/commit/41f80a7599d7ebf9878d4dd2b4b32b44e8d7477a))
+* **deps:** update module github.com/pressly/goose/v3 to v3.26.0 ([#545](https://github.com/infratographer/x/issues/545)) ([ee2efe7](https://github.com/infratographer/x/commit/ee2efe721c54c7d660aafd55768c6903be51fdbf))
+* **deps:** update module github.com/spf13/viper to v1.21.0 ([#521](https://github.com/infratographer/x/issues/521)) ([185b7d3](https://github.com/infratographer/x/commit/185b7d39eaf2107d2774d7c406d476b8a955924e))
+* **deps:** update module github.com/xsam/otelsql to v0.40.0 ([#519](https://github.com/infratographer/x/issues/519)) ([90ad57b](https://github.com/infratographer/x/commit/90ad57bd0fe39f09bbbb5048a643c2fa69d60dda))
+* **deps:** update module go.step.sm/crypto to v0.71.0 ([#553](https://github.com/infratographer/x/issues/553)) ([1b39548](https://github.com/infratographer/x/commit/1b395485132c0a3f77caed037bd55e432818af1a))
+* **deps:** update module go.step.sm/crypto to v0.72.0 ([#556](https://github.com/infratographer/x/issues/556)) ([eb67b60](https://github.com/infratographer/x/commit/eb67b601713fcb7c7a6a4fe068dee6e4f16dad74))
+* **deps:** update module go.step.sm/crypto to v0.73.0 ([#560](https://github.com/infratographer/x/issues/560)) ([683a8a2](https://github.com/infratographer/x/commit/683a8a2aa55b121f2d458a223412597132883588))
+* **deps:** update module golang.org/x/oauth2 to v0.31.0 ([#517](https://github.com/infratographer/x/issues/517)) ([0f339b2](https://github.com/infratographer/x/commit/0f339b219c3e33d6369f72ae1e761e2ec5128ae4))
+* **deps:** update module golang.org/x/oauth2 to v0.32.0 ([#549](https://github.com/infratographer/x/issues/549)) ([3727a65](https://github.com/infratographer/x/commit/3727a65c0a7c429954ea466a1758bd1d9530c6a4))
+* **deps:** update testcontainers-go monorepo to v0.39.0 ([#531](https://github.com/infratographer/x/issues/531)) ([4defefb](https://github.com/infratographer/x/commit/4defefb7ad02792f3e0b36fb523bb393df9a54ea))
+
 ## [0.13.2](https://github.com/infratographer/x/compare/v0.13.1...v0.13.2) (2025-09-05)
 
 
