@@ -1,8 +1,6 @@
 module go.infratographer.com/x
 
-go 1.24.3
-
-toolchain go1.24.6
+go 1.25.0
 
 require (
 	entgo.io/contrib v0.7.0
@@ -19,7 +17,7 @@ require (
 	github.com/gin-gonic/gin v1.11.0
 	github.com/go-jose/go-jose/v3 v3.0.4
 	github.com/golang-jwt/jwt/v5 v5.3.0
-	github.com/jackc/pgx/v5 v5.7.6
+	github.com/jackc/pgx/v5 v5.9.2
 	github.com/jaevor/go-nanoid v1.4.0
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/labstack/echo-contrib v0.17.4
