@@ -608,7 +608,11 @@ func TestServe(t *testing.T) {
 			default:
 			}
 
-			client := &http.Client{}
+			// Use a dedicated transport so the request doesn't reuse the waitForServer
+			// connection, which would be retried on a new connection after shutdown.
+			client := &http.Client{
+				Transport: &http.Transport{},
+			}
 
 			req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
 
