@@ -347,7 +347,7 @@ require (
 	go.opentelemetry.io/proto/otlp v1.7.1 // indirect
 	go.step.sm/crypto v0.73.0
 	go.uber.org/multierr v1.11.0
-	golang.org/x/crypto v0.51.0 // indirect
+	golang.org/x/crypto v0.52.0 // indirect
 	golang.org/x/net v0.55.0 // indirect
 	golang.org/x/sys v0.47.0 // indirect
 	golang.org/x/text v0.37.0 // indirect
