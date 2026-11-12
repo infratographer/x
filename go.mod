@@ -12,7 +12,7 @@ require (
 	github.com/MicahParks/keyfunc/v3 v3.7.0
 	github.com/XSAM/otelsql v0.40.0
 	github.com/brianvoe/gofakeit/v7 v7.8.1
-	github.com/cockroachdb/cockroach-go/v2 v2.4.2
+	github.com/cockroachdb/cockroach-go/v2 v2.4.3
 	github.com/docker/go-connections v0.6.0
 	github.com/gin-contrib/requestid v1.0.5
 	github.com/gin-contrib/zap v1.1.5
