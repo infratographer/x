@@ -18,11 +18,11 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"slices"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"go.uber.org/zap"
-	"golang.org/x/exp/slices"
 )
 
 var (

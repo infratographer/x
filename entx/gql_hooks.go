@@ -44,6 +44,7 @@ var (
 				dirs = append(dirs, d)
 			}
 		}
+
 		n.Directives = dirs
 
 		return nil
@@ -66,6 +67,7 @@ var (
 				fields = append(fields, f)
 			}
 		}
+
 		q.Fields = fields
 
 		return nil
@@ -88,6 +90,7 @@ var (
 			Description: "A valid JSON string.",
 			Name:        "JSON",
 		}
+
 		return nil
 	}
 
@@ -99,11 +102,13 @@ var (
 
 			existingFields := []string{"edges", "pageInfo", "totalCount"}
 			missingField := false
+
 			for _, f := range t.Fields {
 				if !slices.Contains(existingFields, f.Name) {
 					missingField = true
 				}
 			}
+
 			if missingField {
 				continue
 			}

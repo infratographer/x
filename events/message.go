@@ -114,9 +114,11 @@ type ChangeMessage struct {
 	// TraceContext is a map of values used for OpenTelemetry context propagation.
 	TraceContext map[string]string `json:"traceContext"`
 	// TraceID is the ID of the trace for this event
+	//
 	// Deprecated: Use TraceContext with OpenTelemetry context propagation instead.
 	TraceID string `json:"traceID"`
 	// SpanID is the ID of the span that additional traces should based off of
+	//
 	// Deprecated: Use TraceContext with OpenTelemetry context propagation instead.
 	SpanID string `json:"spanID"`
 	// SubjectFields is a map of the fields on the subject
@@ -195,9 +197,11 @@ type EventMessage struct {
 	// TraceContext is a map of values used for OpenTelemetry context propagation.
 	TraceContext map[string]string `json:"traceContext"`
 	// TraceID is the ID of the trace for this event
+	//
 	// Deprecated: Use TraceContext with OpenTelemetry context propagation instead.
 	TraceID string `json:"traceID"`
 	// SpanID is the ID of the span that additional traces should based off of
+	//
 	// Deprecated: Use TraceContext with OpenTelemetry context propagation instead.
 	SpanID string `json:"spanID"`
 	// Data is a field to store any information that may be important to include about the event
@@ -243,9 +247,11 @@ type AuthRelationshipRequest struct {
 	// TraceContext is a map of values used for OpenTelemetry context propagation.
 	TraceContext map[string]string `json:"traceContext"`
 	// TraceID is the ID of the trace for this event
+	//
 	// Deprecated: Use TraceContext with OpenTelemetry context propagation instead.
 	TraceID string `json:"traceID"`
 	// SpanID is the ID of the span that additional traces should based off of
+	//
 	// Deprecated: Use TraceContext with OpenTelemetry context propagation instead.
 	SpanID string `json:"spanID"`
 }
@@ -375,9 +381,11 @@ type AuthRelationshipResponse struct {
 	// TraceContext is a map of values used for OpenTelemetry context propagation.
 	TraceContext map[string]string `json:"traceContext"`
 	// TraceID is the ID of the trace for this event
+	//
 	// Deprecated: Use TraceContext with OpenTelemetry context propagation instead.
 	TraceID string `json:"traceID"`
 	// SpanID is the ID of the span that additional traces should based off of
+	//
 	// Deprecated: Use TraceContext with OpenTelemetry context propagation instead.
 	SpanID string `json:"spanID"`
 }

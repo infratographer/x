@@ -540,12 +540,19 @@ func TestServe(t *testing.T) {
 
 			require.NoError(t, err, "unexpected error creating new server")
 
+			startedCh := make(chan struct{}, 1)
+
 			handler := testHandler{
 				routes: []testRoute{
 					{
 						Method: http.MethodGet,
 						Path:   "test",
 						Handler: func(c echo.Context) error {
+							select {
+							case startedCh <- struct{}{}:
+							default:
+							}
+
 							time.Sleep(tc.reqSleep)
 
 							return c.String(http.StatusOK, fmt.Sprintf("slept for %s", tc.reqSleep.String()))
@@ -595,23 +602,16 @@ func TestServe(t *testing.T) {
 
 			waitForServer(t, url)
 
-			establishedCh := make(chan bool, 1)
+			// Drain the start signal from the waitForServer request
+			select {
+			case <-startedCh:
+			default:
+			}
 
-			// Create a client which times out quick
-			// Once the connection is established, we write to a channel so we can kill the server
+			// Use a dedicated transport so the request doesn't reuse the waitForServer
+			// connection, which would be retried on a new connection after shutdown.
 			client := &http.Client{
-				Transport: &http.Transport{
-					DialContext: func(ctx context.Context, network, addr string) (net.Conn, error) {
-						conn, err := (&net.Dialer{
-							Timeout: 5 * time.Second,
-						}).DialContext(ctx, network, addr)
-						if err == nil && conn != nil {
-							establishedCh <- true
-						}
-
-						return conn, err
-					},
-				},
+				Transport: &http.Transport{},
 			}
 
 			req, err := http.NewRequestWithContext(context.Background(), http.MethodGet, url, nil)
@@ -635,12 +635,13 @@ func TestServe(t *testing.T) {
 				resp.Body.Close() //nolint:errcheck // not needed in test
 			}()
 
-			// Wait for client to establish a connection before triggering the kill
+			// Wait for the server to start handling the request before triggering the kill.
+			// A dialed connection may still be in the listener backlog and would be dropped
+			// on shutdown instead of being treated as an in-flight request.
 			select {
-			case established := <-establishedCh:
-				require.True(t, established, "expected connection to be established")
+			case <-startedCh:
 			case <-time.After(time.Second):
-				t.Error("failed to establish connection to server")
+				t.Error("server did not start handling the request")
 				t.FailNow()
 			}
 
