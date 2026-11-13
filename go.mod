@@ -19,7 +19,7 @@ require (
 	github.com/gin-gonic/gin v1.12.0
 	github.com/go-jose/go-jose/v3 v3.0.4
 	github.com/golang-jwt/jwt/v5 v5.3.1
-	github.com/jackc/pgx/v5 v5.9.2
+	github.com/jackc/pgx/v5 v5.13.0
 	github.com/jaevor/go-nanoid v1.4.0
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/labstack/echo-contrib v0.17.4
@@ -176,7 +176,7 @@ require (
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/hashicorp/hcl/v2 v2.18.1 // indirect
 	github.com/hexops/gotextdiff v1.0.3 // indirect
-	github.com/jackc/puddle/v2 v2.2.2 // indirect
+	github.com/jackc/puddle/v2 v2.2.3 // indirect
 	github.com/jgautheron/goconst v1.8.2 // indirect
 	github.com/jingyugao/rowserrcheck v1.1.1 // indirect
 	github.com/jjti/go-spancheck v0.6.5 // indirect
