@@ -218,8 +218,8 @@ github.com/gabriel-vasile/mimetype v1.4.13 h1:46nXokslUBsAJE/wMsp5gtO500a4F3Nkz9
 github.com/gabriel-vasile/mimetype v1.4.13/go.mod h1:d+9Oxyo1wTzWdyVUPMmXFvp4F9tea18J8ufA774AB3s=
 github.com/ghostiam/protogetter v0.3.16 h1:UkrisuJBYLnZW6FcYUNBDJOqY3X22RtoYMlCsiNlFFA=
 github.com/ghostiam/protogetter v0.3.16/go.mod h1:4SRRIv6PcjkIMpUkRUsP4TsUTqO/N3Fmvwivuc/sCHA=
-github.com/gin-contrib/requestid v1.0.5 h1:oye4jWPpTmJHLepQWzb36lFZkKzl+gf8R0K/ButxJUY=
-github.com/gin-contrib/requestid v1.0.5/go.mod h1:vkfMTJPx8IBXnavnuQSM9j5isaQfNja1f1hTB516ilU=
+github.com/gin-contrib/requestid v1.0.10 h1:hUdeEkQfczVxxgHNk3gQa84NuajbFAgqMgTvJhs4JP0=
+github.com/gin-contrib/requestid v1.0.10/go.mod h1:JbdgaCqXVhLKvbDtzQwj1nIT8C1QIj8AE0J4bzPrwZI=
 github.com/gin-contrib/sse v1.1.1 h1:uGYpNwTacv5R68bSGMapo62iLTRa9l5zxGCps4hK6ko=
 github.com/gin-contrib/sse v1.1.1/go.mod h1:QXzuVkA0YO7o/gun03UI1Q+FTI8ZV/n5t03kIQAI89s=
 github.com/gin-contrib/zap v1.1.11 h1:ux/Jlp+/crAaRttblGW/LuEQqU9v0m3xBxWeMvjbzOk=

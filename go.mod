@@ -14,7 +14,7 @@ require (
 	github.com/brianvoe/gofakeit/v7 v7.8.1
 	github.com/cockroachdb/cockroach-go/v2 v2.4.3
 	github.com/docker/go-connections v0.6.0
-	github.com/gin-contrib/requestid v1.0.5
+	github.com/gin-contrib/requestid v1.0.10
 	github.com/gin-contrib/zap v1.1.11
 	github.com/gin-gonic/gin v1.12.0
 	github.com/go-jose/go-jose/v3 v3.0.4
