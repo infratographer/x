@@ -17,7 +17,7 @@ require (
 	github.com/gin-contrib/requestid v1.0.10
 	github.com/gin-contrib/zap v1.1.11
 	github.com/gin-gonic/gin v1.12.0
-	github.com/go-jose/go-jose/v3 v3.0.4
+	github.com/go-jose/go-jose/v3 v3.0.5
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/jackc/pgx/v5 v5.13.0
 	github.com/jaevor/go-nanoid v1.4.0
