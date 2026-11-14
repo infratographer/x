@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.13.4](https://github.com/infratographer/x/compare/v0.13.3...v0.13.4) (2026-11-14)
+
+
+### Bug Fixes
+
+* **deps:** update module github.com/brianvoe/gofakeit/v7 to v7.18.2 ([#639](https://github.com/infratographer/x/issues/639)) ([6c1709c](https://github.com/infratographer/x/commit/6c1709c08ff4f4ea5c0d328a4ea4ac5be00ae852))
+* **deps:** update module github.com/brianvoe/gofakeit/v7 to v7.18.3 ([#642](https://github.com/infratographer/x/issues/642)) ([7d521be](https://github.com/infratographer/x/commit/7d521be11461020c30d132c338f8c0f5d8a8cf09))
+* **deps:** update module github.com/gin-contrib/requestid to v1.0.10 ([#625](https://github.com/infratographer/x/issues/625)) ([74c0c8c](https://github.com/infratographer/x/commit/74c0c8c4cc49ec14f6760c0ba5decffada93457a))
+* **deps:** update module github.com/gin-contrib/zap to v1.1.11 ([#629](https://github.com/infratographer/x/issues/629)) ([b6b80be](https://github.com/infratographer/x/commit/b6b80bee00ee3bc86291efde736d758fc0637a2d))
+* **deps:** update module github.com/golang-jwt/jwt/v5 to v5.3.1 ([#630](https://github.com/infratographer/x/issues/630)) ([d86558b](https://github.com/infratographer/x/commit/d86558bf40beec618f488e9df68080facccbf928))
+* **deps:** update module github.com/jackc/pgx/v5 to v5.13.0 ([#641](https://github.com/infratographer/x/issues/641)) ([ebc04b9](https://github.com/infratographer/x/commit/ebc04b922ddc75b57a2f42609162d7952bc72e01))
+* **deps:** update module github.com/labstack/echo-contrib to v0.50.1 ([#643](https://github.com/infratographer/x/issues/643)) ([2ff725f](https://github.com/infratographer/x/commit/2ff725f97fd6e771b7815e7d911317e2ac4bbb74))
+* **deps:** update module github.com/labstack/echo/v4 to v4.16.4 ([#632](https://github.com/infratographer/x/issues/632)) ([9f187b8](https://github.com/infratographer/x/commit/9f187b83e9f9f1190024d5ea416141d3a59f84e2))
+* **deps:** update module github.com/lib/pq to v1.12.3 ([#649](https://github.com/infratographer/x/issues/649)) ([9f00ca6](https://github.com/infratographer/x/commit/9f00ca6968b237dcbb58c87d9dcd763c71a6e577))
+* **deps:** update module github.com/micahparks/keyfunc/v3 to v3.9.2 ([#650](https://github.com/infratographer/x/issues/650)) ([b435dba](https://github.com/infratographer/x/commit/b435dba17f0a67c6093823f7c8bf92ab50e67126))
+* **deps:** update module github.com/nats-io/nats-server/v2 to v2.15.3 ([#651](https://github.com/infratographer/x/issues/651)) ([c3bd6ec](https://github.com/infratographer/x/commit/c3bd6ec04cc687e9f6428c0163bcad693390d014))
+* **deps:** update module github.com/spf13/cobra to v1.10.2 ([#634](https://github.com/infratographer/x/issues/634)) ([5eabb09](https://github.com/infratographer/x/commit/5eabb097d301cf511e754c3af37bf58aea4eb8db))
+* **deps:** update module github.com/spf13/pflag to v1.1.0 ([#653](https://github.com/infratographer/x/issues/653)) ([32e1e36](https://github.com/infratographer/x/commit/32e1e368139553283ef5934fcdc1253b20d84c14))
+* **deps:** update module go.opentelemetry.io/otel/sdk to v1.47.0 [security] ([#646](https://github.com/infratographer/x/issues/646)) ([97b8089](https://github.com/infratographer/x/commit/97b80892bb38ac3d4671ab344f30b6af593eab74))
+* **deps:** update module go.opentelemetry.io/otel/trace to v1.47.0 [security] ([#647](https://github.com/infratographer/x/issues/647)) ([3d124f0](https://github.com/infratographer/x/commit/3d124f09ab8d51c7652565861a36928b75ce29ec))
+* **deps:** update module golang.org/x/oauth2 to v0.38.0 ([#654](https://github.com/infratographer/x/issues/654)) ([872622b](https://github.com/infratographer/x/commit/872622b5231ba37ca3623c28942a868e17c19047))
+
 ## [0.13.3](https://github.com/infratographer/x/compare/v0.13.2...v0.13.3) (2026-11-12)
 
 
